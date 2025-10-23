@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SendGrid Email</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 20px 0; }
+        .form-group { margin: 20px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .button { background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .button:hover { background: #218838; }
+        .alert { padding: 15px; border-radius: 6px; margin: 15px 0; }
+        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .alert-warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Test SendGrid Email</h1>
+        <p>Otestujte posielanie emailov cez SendGrid:</p>
+        
+        <div class="form-group">
+            <label>Test Email Adresa:</label>
+            <input type="email" id="testEmail" placeholder="tomas.ficek01@iacgroup.com" value="tomas.ficek01@iacgroup.com">
+        </div>
+        
+        <button class="button" onclick="testSendGridEmail()">📧 Send Test Email</button>
+        <button class="button" onclick="testNewRequestEmail()">📋 Test New Request Email</button>
+        <button class="button" onclick="testApprovalEmail()">✅ Test Approval Email</button>
+        <button class="button" onclick="testCandidateEmail()">👤 Test Candidate Email</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <div class="container">
+        <h3>📋 Test Scenarios:</h3>
+        <ul>
+            <li><strong>Test Email:</strong> Základný test SendGrid funkcionality</li>
+            <li><strong>New Request:</strong> Email pri vytvorení novej žiadosti</li>
+            <li><strong>Approval:</strong> Email pri schválení žiadosti</li>
+            <li><strong>Candidate:</strong> Email pri pridaní kandidáta</li>
+        </ul>
+    </div>
+
+    <script>
+        // Supabase konfigurácia
+        const config = {
+            supabase: {
+                url: 'https://jlpkwktqylbykvpafmmc.supabase.co',
+                anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpscGt3a3RxeWxieWt2cGFmbW1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY1OTIxMjYsImV4cCI6MjA0MjE2ODEyNn0.c-UPO_SNxUGtqLEY4YNpciDLJqtO6j4OSKxS-8y9cFI'
+            }
+        };
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            const alertClass = type === 'success' ? 'alert-success' : 
+                              type === 'error' ? 'alert-warning' : 'alert-info';
+            resultDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+        }
+
+        async function testSendGridEmail() {
+            const testEmail = document.getElementById('testEmail').value.trim();
+            if (!testEmail) {
+                showResult('⚠️ Prosím zadajte test email adresu', 'error');
+                return;
+            }
+
+            showResult('🔄 Testujem SendGrid email...', 'info');
+
+            try {
+                const response = await fetch(`${config.supabase.url}/functions/v1/send-email-sendgrid`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.supabase.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: testEmail,
+                        subject: 'Test SendGrid Email',
+                        html: '<h2>Test SendGrid Email</h2><p>Toto je test email cez SendGrid API.</p>',
+                        text: 'Test SendGrid Email\n\nToto je test email cez SendGrid API.',
+                        from: 'noreply@iacgroup.com'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        ✅ SendGrid test úspešný!<br>
+                        📧 To: ${testEmail}<br>
+                        📧 Subject: Test SendGrid Email<br>
+                        📧 Response: ${JSON.stringify(data, null, 2)}
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ❌ SendGrid test zlyhal!<br>
+                        📧 Error: ${JSON.stringify(data, null, 2)}
+                    `, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Chyba: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNewRequestEmail() {
+            const testEmail = document.getElementById('testEmail').value.trim();
+            if (!testEmail) {
+                showResult('⚠️ Prosím zadajte test email adresu', 'error');
+                return;
+            }
+
+            showResult('🔄 Testujem New Request email...', 'info');
+
+            try {
+                const response = await fetch(`${config.supabase.url}/functions/v1/send-email-sendgrid`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.supabase.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: testEmail,
+                        subject: 'Nová žiadosť o nábor - Test Position',
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                                <h2 style="color: #2e0de6;">Nová žiadosť o nábor</h2>
+                                <p>Dobrý deň,</p>
+                                <p>Bola vytvorená nová žiadosť o nábor, ktorá vyžaduje vaše schválenie:</p>
+                                
+                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                    <h3 style="margin-top: 0; color: #333;">Detaily pozície:</h3>
+                                    <p><strong>Pozícia:</strong> Test Position</p>
+                                    <p><strong>Oddelenie:</strong> Test Department</p>
+                                    <p><strong>Typ:</strong> Test Type</p>
+                                    <p><strong>Kategória:</strong> Test Category</p>
+                                    <p><strong>Počet miest:</strong> 1</p>
+                                    <p><strong>Popis:</strong> Test Description</p>
+                                </div>
+                                
+                                <p>Prosím, prihláste sa do systému a schváľte alebo zamietnite túto žiadosť.</p>
+                            </div>
+                        `,
+                        text: `
+    Nová žiadosť o nábor
+
+    Dobrý deň,
+
+    Bola vytvorená nová žiadosť o nábor, ktorá vyžaduje vaše schválenie:
+
+    Detaily pozície:
+    - Pozícia: Test Position
+    - Oddelenie: Test Department
+    - Typ: Test Type
+    - Kategória: Test Category
+    - Počet miest: 1
+    - Popis: Test Description
+
+    Prosím, prihláste sa do systému a schváľte alebo zamietnite túto žiadosť.
+                        `,
+                        from: 'noreply@iacgroup.com'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        ✅ New Request email test úspešný!<br>
+                        📧 To: ${testEmail}<br>
+                        📧 Subject: Nová žiadosť o nábor - Test Position<br>
+                        📧 Response: ${JSON.stringify(data, null, 2)}
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ❌ New Request email test zlyhal!<br>
+                        📧 Error: ${JSON.stringify(data, null, 2)}
+                    `, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Chyba: ${error.message}`, 'error');
+            }
+        }
+
+        async function testApprovalEmail() {
+            const testEmail = document.getElementById('testEmail').value.trim();
+            if (!testEmail) {
+                showResult('⚠️ Prosím zadajte test email adresu', 'error');
+                return;
+            }
+
+            showResult('🔄 Testujem Approval email...', 'info');
+
+            try {
+                const response = await fetch(`${config.supabase.url}/functions/v1/send-email-sendgrid`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.supabase.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: testEmail,
+                        subject: 'Žiadosť o nábor schválená - Test Position',
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                                <h2 style="color: #10b981;">Žiadosť o nábor schválená</h2>
+                                <p>Dobrý deň,</p>
+                                <p>Žiadosť o nábor bola schválená GM:</p>
+                                
+                                <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                                    <h3 style="margin-top: 0; color: #333;">Detaily pozície:</h3>
+                                    <p><strong>Pozícia:</strong> Test Position</p>
+                                    <p><strong>Oddelenie:</strong> Test Department</p>
+                                    <p><strong>Typ:</strong> Test Type</p>
+                                    <p><strong>Kategória:</strong> Test Category</p>
+                                    <p><strong>Počet miest:</strong> 1</p>
+                                </div>
+                                
+                                <p>Teraz môžete začať s náborom kandidátov pre túto pozíciu.</p>
+                            </div>
+                        `,
+                        text: `
+    Žiadosť o nábor schválená
+
+    Dobrý deň,
+
+    Vaša žiadosť o nábor bola schválená GM:
+
+    Detaily pozície:
+    - Pozícia: Test Position
+    - Oddelenie: Test Department
+    - Typ: Test Type
+    - Kategória: Test Category
+    - Počet miest: 1
+
+    Teraz môžete začať s náborom kandidátov pre túto pozíciu.
+                        `,
+                        from: 'noreply@iacgroup.com'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        ✅ Approval email test úspešný!<br>
+                        📧 To: ${testEmail}<br>
+                        📧 Subject: Žiadosť o nábor schválená - Test Position<br>
+                        📧 Response: ${JSON.stringify(data, null, 2)}
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ❌ Approval email test zlyhal!<br>
+                        📧 Error: ${JSON.stringify(data, null, 2)}
+                    `, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Chyba: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCandidateEmail() {
+            const testEmail = document.getElementById('testEmail').value.trim();
+            if (!testEmail) {
+                showResult('⚠️ Prosím zadajte test email adresu', 'error');
+                return;
+            }
+
+            showResult('🔄 Testujem Candidate email...', 'info');
+
+            try {
+                const response = await fetch(`${config.supabase.url}/functions/v1/send-email-sendgrid`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.supabase.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: testEmail,
+                        subject: 'Nový kandidát pridaný - Test Candidate',
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                                <h2 style="color: #3b82f6;">Nový kandidát pridaný</h2>
+                                <p>Dobrý deň,</p>
+                                <p>Bol pridaný nový kandidát pre pozíciu <strong>Test Position</strong> v oddelení <strong>Test Department</strong>:</p>
+                                
+                                <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+                                    <h3 style="margin-top: 0; color: #333;">Detaily kandidáta:</h3>
+                                    <p><strong>Meno:</strong> Test Candidate</p>
+                                    <p><strong>Pozícia:</strong> Test Position</p>
+                                    <p><strong>Oddelenie:</strong> Test Department</p>
+                                    <p><strong>Zdroj:</strong> Test Source</p>
+                                    <p><strong>Status:</strong> New</p>
+                                    <p><strong>Poznámky:</strong> Test Notes</p>
+                                </div>
+                                
+                                <p>Prosím, prihláste sa do systému a pokračujte s procesom náboru.</p>
+                            </div>
+                        `,
+                        text: `
+    Nový kandidát pridaný
+
+    Dobrý deň,
+
+    Bol pridaný nový kandidát do vášho oddelenia:
+
+    Detaily kandidáta:
+    - Meno: Test Candidate
+    - Pozícia: Test Position
+    - Oddelenie: Test Department
+    - Zdroj: Test Source
+    - Status: New
+    - Poznámky: Test Notes
+
+    Prosím, prihláste sa do systému a pokračujte s procesom náboru.
+                        `,
+                        from: 'noreply@iacgroup.com'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        ✅ Candidate email test úspešný!<br>
+                        📧 To: ${testEmail}<br>
+                        📧 Subject: Nový kandidát pridaný - Test Candidate<br>
+                        📧 Response: ${JSON.stringify(data, null, 2)}
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ❌ Candidate email test zlyhal!<br>
+                        📧 Error: ${JSON.stringify(data, null, 2)}
+                    `, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Chyba: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

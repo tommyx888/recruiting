@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Real Email</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        input { padding: 8px; margin: 5px; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>📧 Test Real Email</h1>
+    
+    <div class="test-section">
+        <h2>Test Email to Your Address</h2>
+        <input type="email" id="email-input" placeholder="Enter your email address" value="tomas.ficek01@iacgroup.com">
+        <br>
+        <button onclick="testRealEmail()">Send Test Email</button>
+        <div id="email-result" class="result"></div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    
+    <script>
+        async function testRealEmail() {
+            const resultDiv = document.getElementById('email-result');
+            const email = document.getElementById('email-input').value;
+            
+            if (!email) {
+                resultDiv.innerHTML = '<strong>Error:</strong> Please enter an email address';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            resultDiv.innerHTML = 'Sending email...';
+            
+            try {
+                const response = await fetch(`${window.config.supabaseUrl}/functions/v1/send-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.config.supabaseAnonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Test Email from Recruiting System',
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                                <h2 style="color: #3b82f6;">Test Email</h2>
+                                <p>This is a test email from your Recruiting Management System.</p>
+                                <p>If you receive this email, the email notifications are working correctly!</p>
+                                <hr>
+                                <p><small>Sent at: ${new Date().toLocaleString()}</small></p>
+                            </div>
+                        `,
+                        text: `
+Test Email from Recruiting System
+
+This is a test email from your Recruiting Management System.
+
+If you receive this email, the email notifications are working correctly!
+
+Sent at: ${new Date().toLocaleString()}
+                        `
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    resultDiv.innerHTML = `
+                        <strong>Error (${response.status}):</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    resultDiv.className = 'result error';
+                } else {
+                    resultDiv.innerHTML = `
+                        <strong>✅ Email sent successfully!</strong><br>
+                        <p>Check your inbox at <strong>${email}</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    resultDiv.className = 'result success';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Network Error:</strong> ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html>
+

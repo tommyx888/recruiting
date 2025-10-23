@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SendGrid Quick Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 20px 0; }
+        .form-group { margin: 20px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .button { background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .button:hover { background: #218838; }
+        .alert { padding: 15px; border-radius: 6px; margin: 15px 0; }
+        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .alert-warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .code { background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 6px; font-family: monospace; margin: 10px 0; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 SendGrid Quick Fix</h1>
+        <p><strong>Problém:</strong> Edge Function používa placeholder API Key</p>
+        <p><strong>Riešenie:</strong> Zadajte vaše SendGrid údaje a ja ich aktualizujem</p>
+        
+        <div class="form-group">
+            <label>SendGrid API Key:</label>
+            <input type="password" id="apiKey" placeholder="SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            <small>Nájdete ho v SendGrid Dashboard > Settings > API Keys</small>
+        </div>
+        
+        <div class="form-group">
+            <label>From Email (overená adresa):</label>
+            <input type="email" id="fromEmail" placeholder="noreply@iacgroup.com">
+            <small>Musí byť overená v SendGrid (Single Sender Verification)</small>
+        </div>
+        
+        <button class="button" onclick="generateCode()">🔧 Generate Update Code</button>
+        <button class="button" onclick="testWithNewKey()">🧪 Test with New Key</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <div class="container">
+        <h3>📋 Čo sa stane:</h3>
+        <ol>
+            <li>Vygenerujem kód na aktualizáciu Edge Function</li>
+            <li>Skopírujete kód a nahradíte ho v Edge Function</li>
+            <li>Redeploy Edge Function</li>
+            <li>Test s novými údajmi</li>
+        </ol>
+    </div>
+
+    <div class="container">
+        <h3>🔍 Ako nájsť SendGrid údaje:</h3>
+        <p><strong>API Key:</strong></p>
+        <ol>
+            <li>Prihláste sa do <a href="https://app.sendgrid.com" target="_blank">SendGrid Dashboard</a></li>
+            <li>Choďte do Settings > API Keys</li>
+            <li>Kliknite na váš API Key alebo vytvorte nový</li>
+            <li>Skopírujte kľúč (začína sa s "SG.")</li>
+        </ol>
+        
+        <p><strong>From Email:</strong></p>
+        <ol>
+            <li>Choďte do Settings > Sender Authentication</li>
+            <li>Nájdite "Single Sender Verification"</li>
+            <li>Použite overenú email adresu</li>
+        </ol>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            const alertClass = type === 'success' ? 'alert-success' : 
+                              type === 'error' ? 'alert-warning' : 'alert-info';
+            resultDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+        }
+
+        function generateCode() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const fromEmail = document.getElementById('fromEmail').value.trim();
+
+            if (!apiKey || !fromEmail) {
+                showResult('⚠️ Prosím vyplňte všetky polia', 'error');
+                return;
+            }
+
+            if (!apiKey.startsWith('SG.')) {
+                showResult('⚠️ SendGrid API Key musí začínať s "SG."', 'error');
+                return;
+            }
+
+            const updateCode = `
+// Aktualizujte tieto riadky v supabase/functions/send-email-sendgrid/index.ts:
+
+const SENDGRID_API_KEY = '${apiKey}' // Vaš SendGrid API Key
+const SENDGRID_FROM_EMAIL = '${fromEmail}' // Vaša overená email adresa
+
+// Potom spustite:
+// supabase functions deploy send-email-sendgrid
+            `;
+
+            showResult(`
+                <h4>🔧 Kód na aktualizáciu Edge Function:</h4>
+                <div class="code">${updateCode}</div>
+                <p><strong>Postup:</strong></p>
+                <ol>
+                    <li>Skopírujte kód vyššie</li>
+                    <li>Otvorte súbor: <code>supabase/functions/send-email-sendgrid/index.ts</code></li>
+                    <li>Nahraďte riadky 10-11 s novými údajmi</li>
+                    <li>Spustite: <code>supabase functions deploy send-email-sendgrid</code></li>
+                </ol>
+            `, 'success');
+        }
+
+        async function testWithNewKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const fromEmail = document.getElementById('fromEmail').value.trim();
+
+            if (!apiKey || !fromEmail) {
+                showResult('⚠️ Prosím najprv vyplňte SendGrid údaje', 'error');
+                return;
+            }
+
+            showResult('🔄 Testujem s novými SendGrid údajmi...', 'info');
+
+            try {
+                const config = {
+                    supabase: {
+                        url: 'https://jlpkwktqylbykvpafmmc.supabase.co',
+                        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpscGt3a3RxeWxieWt2cGFmbW1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY1OTIxMjYsImV4cCI6MjA0MjE2ODEyNn0.c-UPO_SNxUGtqLEY4YNpciDLJqtO6j4OSKxS-8y9cFI'
+                    }
+                };
+
+                const response = await fetch(`${config.supabase.url}/functions/v1/send-email-sendgrid`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config.supabase.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        to: 'tomas.ficek01@iacgroup.com',
+                        subject: 'Test SendGrid Email - New Key',
+                        html: '<h2>Test SendGrid Email</h2><p>Toto je test email cez SendGrid s novými údajmi.</p>',
+                        text: 'Test SendGrid Email\n\nToto je test email cez SendGrid s novými údajmi.',
+                        from: fromEmail
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`
+                        ✅ SendGrid test úspešný!<br>
+                        📧 To: tomas.ficek01@iacgroup.com<br>
+                        📧 From: ${fromEmail}<br>
+                        📧 Subject: Test SendGrid Email - New Key<br>
+                        📧 Response: ${JSON.stringify(data, null, 2)}
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ❌ SendGrid test zlyhal!<br>
+                        📧 Error: ${JSON.stringify(data, null, 2)}<br>
+                        <br>
+                        <strong>Pravdepodobne potrebujete aktualizovať Edge Function s vašimi údajmi.</strong>
+                    `, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Chyba: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+

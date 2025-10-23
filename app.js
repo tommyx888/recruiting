@@ -1,3 +1,6 @@
+// Refactored main application file using modular architecture
+
+// Translations object
 const translations = {
     en: {
         // Navigation
@@ -8,12 +11,21 @@ const translations = {
         "Logout": "Logout",
         "Welcome to the Recruiting Management Dashboard!": "Welcome to the Recruiting Management Dashboard!",
         "Add New Candidate": "Add New Candidate",
+        "Please fill in all required fields": "Please fill in all required fields",
+        "Candidate added successfully": "Candidate added successfully",
+        "Name": "Name",
+        "Position": "Position",
+        "Department": "Department",
+        "Source": "Source",
+        "Notes": "Notes",
+        "CV File": "CV File",
+        "Assessment File": "Assessment File",
+        "Add Candidate": "Add Candidate",
+        "Cancel": "Cancel",
         "Create Recruiting Request": "Create Recruiting Request",
-        "Candidates": "Candidates",
         "All Departments": "All Departments",
         "All Positions": "All Positions",
         "All Sources": "All Sources",
-        "Add New Candidate": "Add New Candidate",
         "Full Name": "Full Name",
         "Department": "Department",
         "Position": "Position",
@@ -46,30 +58,8 @@ const translations = {
         "Rejected - Inform Source": "Rejected - Inform Source",
         "Hired": "Hired",
         "Rejected": "Rejected",
-
-
-        // Dashboard
-        "Welcome to the Recruiting Management Dashboard!": "Welcome to the Recruiting Management Dashboard!",
-        "Add New Candidate": "Add New Candidate",
-        "Create Recruiting Request": "Create Recruiting Request",
-
-        // Candidates
-        "New": "New",
-        "In Process - First Round": "In Process - First Round",
-        "In Process - Second Round": "In Process - Second Round",
-        "Hired - Contact Source": "Hired - Contact Source",
-        "Rejected - Inform Source": "Rejected - Inform Source",
-        "Hired": "Hired",
-        "Rejected": "Rejected",
         "Name": "Name",
-        "Department": "Department",
-        "Position": "Position",
-        "Source": "Source",
-        "Date Obtained": "Date Obtained",
-        "Interviewer": "Interviewer",
-        "Status": "Status",
         "CV": "CV",
-        "Notes": "Notes",
         "Actions": "Actions",
         "Admin Actions": "Admin Actions",
         "View Details": "View Details",
@@ -83,61 +73,63 @@ const translations = {
         "Download CV": "Download CV",
         "Download Assessment": "Download Assessment",
         "No CV": "No CV",
-        "No notes": "No notes", "New": "Nový",
-        "In Process - First Round": "V procese - Prvé kolo",
-        "In Process - Second Round": "V procese - Druhé kolo",
-        "Hired - Source Informed": "Hired - Source Informed",
-        "Rejected - Source Informed": "Rejected - Source Informed",
-        "Hired": "Prijatý",
-        "Rejected": "Zamietnutý",
-
-        // Add/Edit Candidate
-        "Full Name": "Full Name",
+        "No notes": "No notes",
         "Select a department": "Select a department",
         "Select a position": "Select a position",
         "Select a source": "Select a source",
-        "Upload CV": "Upload CV",
-        "Upload Assessment Form": "Upload Assessment Form",
         "Add Candidate": "Add Candidate",
         "Update Candidate": "Update Candidate",
         "Update Password": "Update Password",
-
-        // Recruiting Requests
-        "New Requests": "New Requests",
-        "Pending Requests": "Pending Requests",
-        "Approved Requests": "Approved Requests",
-        "Rejected Requests": "Rejected Requests",
-        "Filled Requests": "Filled Requests",
-        "Create New Request": "Create New Request",
-        "Headcount": "Headcount",
-        "Type": "Type",
-        "Category": "Category",
-        "Confidential": "Confidential",
-        "Approve": "Approve",
-        "Position Filled": "Position Filled",
-
-        // Create Request
-        "Job Description": "Job Description",
-        "Position Type": "Position Type",
-        "New Position": "New Position",
-        "Replacement": "Replacement",
-        "Reason for New Position": "Reason for New Position",
-        "Name of Person Being Replaced": "Name of Person Being Replaced",
-        "Position Category": "Position Category",
-        "SAL": "SAL",
-        "IND": "IND",
-        "Confidential Request": "Confidential Request",
-        "Submit Request": "Submit Request",
-        "Recruiting Management System": "Recruiting Management System",
-
-        // Misc
-        "Yes": "Yes",
-        "No": "No",
+        "Current Password": "Current Password",
+        "New Password": "New Password",
+        "Confirm New Password": "Confirm New Password",
+        "New passwords do not match": "New passwords do not match",
+        "Password updated successfully": "Password updated successfully",
+        "Error updating password. Please try again.": "Error updating password. Please try again.",
+        "Apply Filters": "Apply Filters",
+        "Documents": "Documents",
+        "No documents": "No documents",
         "Error": "Error",
         "Success": "Success",
         "Cancel": "Cancel",
         "Save": "Save",
-        "Back": "Back"
+        "Back": "Back",
+        "Reload Page": "Reload Page",
+        "All Statuses": "All Statuses",
+        "Pending": "Pending",
+        "Approved": "Approved",
+        "Rejected": "Rejected",
+        "Filled": "Filled",
+        "Position": "Position",
+        "Description": "Description",
+        "Headcount": "Headcount",
+        "Type": "Type",
+        "Category": "Category",
+        "Status": "Status",
+        "Created": "Created",
+        "ID": "ID",
+        "Actions": "Actions",
+        "Approve": "Approve",
+        "Fill Position": "Fill Position",
+        "View Details": "View Details",
+        "Access denied. Only GMs can view this page.": "Access denied. Only GMs can view this page.",
+        "Review and approve pending recruiting requests": "Review and approve pending recruiting requests",
+        "Statistics": "Statistics",
+        "Loading Statistics": "Loading Statistics",
+        "Candidate Statistics": "Candidate Statistics",
+        "Total Candidates": "Total Candidates",
+        "Avg. Time to Hire (days)": "Avg. Time to Hire (days)",
+        "By Status": "By Status",
+        "Request Statistics": "Request Statistics",
+        "Total Requests": "Total Requests",
+        "Request approved successfully!": "Request approved successfully!",
+        "Request rejected successfully!": "Request rejected successfully!",
+        "Position marked as filled!": "Position marked as filled!",
+        "Error approving request:": "Error approving request:",
+        "Error rejecting request:": "Error rejecting request:",
+        "Error updating position:": "Error updating position:",
+        "Reports functionality coming soon!": "Reports functionality coming soon!",
+        "Clear Filters": "Clear Filters"
     },
     sk: {
         // Navigation
@@ -183,6 +175,17 @@ const translations = {
         "Rejected": "Zamietnutý",
         "Candidate added successfully!": "Kandidát bol úspešne pridaný!",
         "Error adding candidate: ": "Chyba pri pridávaní kandidáta: ",
+        "Please fill in all required fields": "Prosím vyplňte všetky povinné polia",
+        "Candidate added successfully": "Kandidát úspešne pridaný",
+        "Name": "Meno",
+        "Position": "Pozícia",
+        "Department": "Oddelenie",
+        "Source": "Zdroj",
+        "Notes": "Poznámky",
+        "CV File": "CV súbor",
+        "Assessment File": "Assessment súbor",
+        "Add Candidate": "Pridať kandidáta",
+        "Cancel": "Zrušiť",
         "Select Position": "Vyberte pozíciu",
         "Supabase client not initialized": "Supabase klient nie je inicializovaný",
         "Error: Supabase client not initialized": "Chyba: Supabase klient nie je inicializovaný",
@@ -191,7 +194,6 @@ const translations = {
         "Error sending email to GMs:": "Chyba pri odosielaní e-mailu generálnym manažérom:",
         "Email sent successfully to GMs:": "E-mail bol úspešne odoslaný generálnym manažérom:",
         "Error invoking send-gm-email function:": "Chyba pri volaní funkcie send-gm-email:",
-        "Candidates": "Kandidáti",
         "All Departments": "Všetky oddelenia",
         "All Positions": "Všetky pozície",
         "All Sources": "Všetky zdroje",
@@ -212,12 +214,8 @@ const translations = {
         "Download Assessment": "Stiahnuť hodnotenie",
         "No documents": "Žiadne dokumenty",
         "No notes": "Žiadne poznámky",
-        "Recruiting Requests": "Žiadosti o nábor",
         "Create New Request": "Vytvoriť novú žiadosť",
         "Welcome to the Recruiting Management Dashboard!": "Vitajte v paneli riadenia náboru!",
-        "Dashboard": "Nástenka",
-        "GM Approval": "Schválenie GM",
-        "Logout": "Odhlásiť sa",
         "Update Password": "Aktualizovať heslo",
         "Current Password": "Aktuálne heslo",
         "New Password": "Nové heslo",
@@ -225,133 +223,56 @@ const translations = {
         "New passwords do not match": "Nové heslá sa nezhodujú",
         "Password updated successfully": "Heslo bolo úspešne aktualizované",
         "Error updating password. Please try again.": "Chyba pri aktualizácii hesla. Prosím, skúste to znova.",
-
-        // Dashboard
-        "Welcome to the Recruiting Management Dashboard!": "Vitajte v paneli riadenia náboru!",
-        "Add New Candidate": "Pridať nového kandidáta",
-        "Create Recruiting Request": "Vytvoriť žiadosť o nábor",
-
-        // Candidates
-        "New": "Nový",
-        "In Process - First Round": "V procese - Prvé kolo",
-        "In Process - Second Round": "V procese - Druhé kolo",
-        "Hired - Source Informed": "Prijatý - Kontaktovať zdroj",
-        "Rejected - Source Informed": "Zamietnutý - Informovať zdroj",
-        "Hired": "Prijatý",
-
-        "Rejected": "Zamietnutý",
-        "Name": "Meno",
-        "Department": "Oddelenie",
-        "Position": "Pozícia",
-        "Source": "Zdroj",
-        "Date Obtained": "Dátum získania",
-        "Interviewer": "Pohovorujúci",
-        "Status": "Stav",
-        "CV": "Životopis",
-        "Notes": "Poznámky",
-        "Actions": "Akcie",
-        "Admin Actions": "Administratívne akcie",
-        "View Details": "Zobraziť detaily",
-        "Edit": "Upraviť",
-        "Delete": "Vymazať",
-        "Invite": "Pozvať",
-        "Second Round": "Druhé kolo",
-        "Hire": "Prijať",
-        "Reject": "Zamietnuť",
-        "Source Informed": "Zdroj informovaný",
-        "Download CV": "Stiahnuť životopis",
-        "Download Assessment": "Stiahnuť hodnotenie",
-        "No CV": "Bez životopisu",
-        "No notes": "Žiadne poznámky",
-
-        // Add/Edit Candidate
-        "Full Name": "Celé meno",
-        "Select a department": "Vyberte oddelenie",
-        "Select a position": "Vyberte pozíciu",
-        "Select a source": "Vyberte zdroj",
-        "Upload CV": "Nahrať životopis",
-        "Upload Assessment Form": "Nahrať formulár hodnotenia",
-        "Add Candidate": "Pridať kandidáta",
-        "Update Candidate": "Aktualizovať kandidáta",
-        "Update Password": "Aktualizovať Heslo",
-
-        // Recruiting Requests
-        "New Requests": "Nové žiadosti",
-        "Pending Requests": "Čakajúce žiadosti",
-        "Approved Requests": "Schválené žiadosti",
-        "Rejected Requests": "Zamietnuté žiadosti",
-        "Filled Requests": "Obsadené pozície",
-        "Create New Request": "Vytvoriť novú žiadosť",
-        "Headcount": "Počet pracovníkov",
-        "Type": "Typ",
-        "Category": "Kategória",
-        "Confidential": "Dôverné",
-        "Approve": "Schváliť",
-        "Position Filled": "Pozícia obsadená",
-
-        // Create Request
-        "Job Description": "Popis práce",
-        "Position Type": "Typ pozície",
-        "New Position": "Nová pozícia",
-        "Replacement": "Náhrada",
-        "Reason for New Position": "Dôvod novej pozície",
-        "Name of Person Being Replaced": "Meno nahradzovanej osoby",
-        "Position Category": "Kategória pozície",
-        "SAL": "SAL",
-        "IND": "IND",
-        "Confidential Request": "Dôverná žiadosť",
-        "Submit Request": "Odoslať žiadosť",
-        "Recruiting Management System": "Systém riadenia náboru",
-
-        // Misc
-        "Yes": "Áno",
-        "No": "Nie",
         "Error": "Chyba",
         "Success": "Úspech",
         "Cancel": "Zrušiť",
         "Save": "Uložiť",
-        "Back": "Späť"
+        "Back": "Späť",
+        "Reload Page": "Obnoviť stránku",
+        "All Statuses": "Všetky stavy",
+        "Pending": "Čakajúce",
+        "Approved": "Schválené",
+        "Rejected": "Zamietnuté",
+        "Filled": "Obsadené",
+        "Position": "Pozícia",
+        "Description": "Popis",
+        "Headcount": "Počet pracovníkov",
+        "Type": "Typ",
+        "Category": "Kategória",
+        "Status": "Stav",
+        "Created": "Vytvorené",
+        "ID": "ID",
+        "Actions": "Akcie",
+        "Approve": "Schváliť",
+        "Fill Position": "Obsadiť pozíciu",
+        "View Details": "Zobraziť detaily",
+        "Access denied. Only GMs can view this page.": "Prístup zamietnutý. Túto stránku môžu zobraziť len GM.",
+        "Review and approve pending recruiting requests": "Prehľad a schválenie čakajúcich žiadostí o nábor",
+        "Statistics": "Štatistiky",
+        "Loading Statistics": "Načítavanie štatistík",
+        "Candidate Statistics": "Štatistiky kandidátov",
+        "Total Candidates": "Celkový počet kandidátov",
+        "Avg. Time to Hire (days)": "Priemerný čas do prijatia (dni)",
+        "By Status": "Podľa stavu",
+        "Request Statistics": "Štatistiky žiadostí",
+        "Total Requests": "Celkový počet žiadostí",
+        "Request approved successfully!": "Žiadosť bola úspešne schválená!",
+        "Request rejected successfully!": "Žiadosť bola úspešne zamietnutá!",
+        "Position marked as filled!": "Pozícia bola označená ako obsadená!",
+        "Error approving request:": "Chyba pri schvaľovaní žiadosti:",
+        "Error rejecting request:": "Chyba pri zamietaní žiadosti:",
+        "Error updating position:": "Chyba pri aktualizácii pozície:",
+        "Reports functionality coming soon!": "Funkcionalita reportov čoskoro!",
+        "Clear Filters": "Vymazať filtre"
     }
 };
 
-
-
-// Supabase client
+// Global variables
 let supabaseInstance;
-let currentLanguage = 'sk'; // Default language
-
-
-// Initialize Supabase client
-function initSupabase() {
-    const supabaseUrl = 'https://jlpkwktqylbykvpafmmc.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpscGt3a3RxeWxieWt2cGFmbW1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY1OTIxMjYsImV4cCI6MjA0MjE2ODEyNn0.c-UPO_SNxUGtqLEY4YNpciDLJqtO6j4OSKxS-8y9cFI';
-
-    if (!supabaseInstance) {
-        try {
-            supabaseInstance = supabase.createClient(supabaseUrl, supabaseKey);
-            console.log('Supabase client initialized successfully');
-        } catch (error) {
-            console.error('Error initializing Supabase client:', error);
-            alert('Error initializing Supabase client. Please check the console for more details.');
-        }
-    }
-    return supabaseInstance;
-}
-
-
-// Get Supabase instance (initialize if not already done)
-function getSupabase() {
-    if (!supabaseInstance) {
-        console.error('Supabase client not initialized');
-        return null;
-    }
-    return supabaseInstance;
-}
-
+let currentLanguage = 'sk';
 
 // Department-Position mapping
 const departmentPositions = {
-
     'Business': ['Assistant Buyer', 'Buyer', 'Supplier Quality Assurance Engineer', 'Business Administration', 'Business Sales & Cost Analyst'],
     'CI': ['CI Coordinator', 'CI Analyst', 'CI Technician'],
     'Engineering': ['Senior Process Engineer 1', 'Senior Process Engineer IM', 'Process Engineer 1', 'Senior IM Technologist Coordinator', 'Process Engineer IM', 'Senior Technologist IM', 'Foreman Technologist IM', 'Technologist IM', 'Mold Changer', 'Materialist', 'Senior Process Engineer 2', 'Process Engineer 2', 'Senior Technologist Coordinator', 'Tooling Engineer', 'Product Engineer', 'Change BOM Coordinator', 'Programe Engineer', 'Technologist 1', 'Quality Program Engineer', 'Launch Coordinator', 'Data Analyst', 'Manufacturing Engineer'],
@@ -359,7 +280,7 @@ const departmentPositions = {
     'HR': ['Payroll accountant', 'Senior HR Generalist', 'Recruiter', 'HR Generalist 1', 'Junior Payroll', 'Training Center Trainer', 'HSE Specialist', 'Environment Officer', 'Executive assistant'],
     'IT': ['IT Analyst / Administrator', 'Senior IT Specialist'],
     'Logistics': ['Warehouse/Logistics Leader', 'Senior Logistics Planner', 'Logistics Disponent', 'Logistics Planner', 'Packaging Disponent', 'Logistics Referent', 'Inventory Counter', 'Internal Logistics Coordinator', 'Logistics Shift leader', 'Expedient', 'Supervisor Inventory Control', 'Logistics Planner IM', 'Senior Demand Specialist', 'Logistics operator Expedient', 'Logistics operator receiving'],
-    'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetik/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent'],
+    'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetic/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent'],
     'Management': ['Operation Assistant General Manager', 'Financial Manager', 'HR Manager', 'Logistics Manager', 'Quality Manager', 'Production Manager', 'Maintenance Manager', 'Programme Manager', 'Purchasing Manager', 'IT Manager', 'Ext. Programme Manager', 'Business Manager', 'Program Manager'],
     'Production': ['Production Coordinator', 'Production Shift leader', 'Production Referent'],
     'Quality': ['Customer Quality Leader', 'Quality Leader', 'PPAP Technician', 'Quality Engineer QM System', 'Laboratory Leader/ Metrolog', 'Customer Quality Coordinator', 'Quality Auditors Coordinator', 'Supplier Quality Assurance', 'Sperrlager Coordinator', 'Sperrlager Quality Operator', 'Quality Auditor', 'Incoming Inspection', '3D Measurement', 'Laboratory technician', 'Resident']
@@ -367,171 +288,141 @@ const departmentPositions = {
 
 // Source options
 const sourceOptions = [
-    'Manuvia',
-    'Talent Solution',
-    'Tobin',
-    'Manpower',
-    'TG',
-    'TP Group',
-    'Profesia',
-    'Employee Referral',
-    'LinkedIn',
-    'Company Website',
-    'University/College',
-    'Job Fair',
-
+    'Manuvia', 'Talent Solution', 'Tobin', 'Manpower', 'TG', 'TP Group', 'Profesia',
+    'Employee Referral', 'LinkedIn', 'Company Website', 'University/College', 'Job Fair'
 ];
-document.getElementById('nav-statistics').addEventListener('click', showStatistics);
 
-
-// DOM elements
-const app = document.getElementById('app');
-const navDashboard = document.getElementById('nav-dashboard');
-const navCandidates = document.getElementById('nav-candidates');
-const navRequests = document.getElementById('nav-requests');
-const navGMApproval = document.getElementById('nav-gm-approval');
-const navLogout = document.getElementById('nav-logout');
-const navStatistics = document.getElementById('nav-statistics');
-
-// Event listeners
-navDashboard.addEventListener('click', showDashboard);
-navCandidates.addEventListener('click', showCandidates);
-navRequests.addEventListener('click', showRequests);
-navGMApproval.addEventListener('click', showGMApproval);
-navLogout.addEventListener('click', logout);
-navStatistics.addEventListener('click', showStatistics);
-
-// Global variable to store user role
-let userRole = '';
-let userDepartment = '';
-let userAllowedPositions = [];
-
-document.getElementById('nav-reports').addEventListener('click', showReports);
-
-
-function debugUserInfo() {
-    console.log('Current user role:', userRole);
-    console.log('Current user department:', userDepartment);
-}
-
-// Update navigation visibility based on user role
-function updateNavVisibility() {
-    const navStatistics = document.getElementById('nav-statistics');
-    const navReports = document.getElementById('nav-reports');
-    const navGMApproval = document.getElementById('nav-gm-approval');
-    const navRequests = document.getElementById('nav-requests');
-
-    if (userRole === 'gm') {
-        navGMApproval.style.display = 'inline';
-        navRequests.style.display = 'inline';
-        navStatistics.style.display = 'inline';
-        navReports.style.display = 'inline';
+// Initialize Supabase client
+function initSupabase() {
+    if (!supabaseInstance) {
+        try {
+            const config = window.config;
+            if (!config || !config.supabase) {
+                throw new Error('Supabase configuration not found');
+            }
+            
+            supabaseInstance = supabase.createClient(config.supabase.url, config.supabase.anonKey);
+            window.supabase = supabaseInstance; // Make it globally available
+            console.log('Supabase client initialized successfully');
+        } catch (error) {
+            console.error('Error initializing Supabase client:', error);
+            if (window.utils && window.utils.showMessage) {
+                window.utils.showMessage('Error initializing Supabase client. Please check the console for more details.', 'error');
     } else {
-        navStatistics.style.display = 'none';
-        navReports.style.display = 'none';
-        navGMApproval.style.display = 'none';
-        navRequests.style.display = userRole === 'recruiter' || userAllowedPositions.length === 0 ? 'inline' : 'none';
+                alert('Error initializing Supabase client. Please check the console for more details.');
+            }
+        }
     }
+    return supabaseInstance;
 }
 
+// Initialize all modules
+async function initializeModules() {
+    try {
+        console.log('Starting module initialization...');
+        
+        // Initialize Supabase
+        const supabase = initSupabase();
+        if (!supabase) {
+            throw new Error('Failed to initialize Supabase');
+        }
+        console.log('Supabase initialized successfully');
 
+        // Check if modules are available
+        if (!window.authManager) {
+            throw new Error('AuthManager not available');
+        }
+        if (!window.candidatesManager) {
+            throw new Error('CandidatesManager not available');
+        }
+        if (!window.requestsManager) {
+            throw new Error('RequestsManager not available');
+        }
+        if (!window.uiManager) {
+            throw new Error('UIManager not available');
+        }
+        console.log('All modules are available');
 
-// Login function
-async function login(email, password) {
-    const supabase = getSupabase();
-    if (!supabase) return;
+        // Initialize modules
+        window.authManager.init(supabase);
+        window.candidatesManager.init(supabase);
+        window.requestsManager.init(supabase);
+        window.uiManager.init(translations);
+        console.log('All modules initialized');
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-        alert('Error logging in: ' + error.message);
+        // Check authentication
+        console.log('Checking authentication...');
+        const isAuthenticated = await window.authManager.checkAuth();
+        console.log('Authentication check result:', isAuthenticated);
+        
+        if (isAuthenticated) {
+            // Get user role and department
+            const userInfo = await window.authManager.getUserInfo();
+            if (userInfo) {
+                userRole = userInfo.role;
+                userDepartment = userInfo.department;
+                console.log('User info loaded:', { role: userRole, department: userDepartment });
+            }
+            
+            console.log('User is authenticated, showing app');
+            window.uiManager.showApp();
+            window.uiManager.updateNavigationVisibility();
+        showDashboard();
+            
+            // Update navigation indicators after a short delay to ensure modules are ready
+            setTimeout(() => {
+                updateNavigationIndicators();
+            }, 1000);
     } else {
-        checkAuth();
-    }
-}
-
-// Show login page
-function showLogin() {
-    document.getElementById('login-form').style.display = 'block';
-    document.getElementById('app-content').style.display = 'none';
-    document.getElementById('auth-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        login(email, password);
-    });
-}
-
-// Toggle visibility of login form and app content
-function toggleVisibility(isLoggedIn) {
-    document.getElementById('login-form').style.display = isLoggedIn ? 'none' : 'block';
-    document.getElementById('app-content').style.display = isLoggedIn ? 'block' : 'none';
-    if (isLoggedIn) {
-        document.getElementById('app-content').classList.add('visible');
-    } else {
-        document.getElementById('app-content').classList.remove('visible');
-    }
-}
-
-// Check authentication status
-async function checkAuth() {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        // Fetch user role, department, and allowed positions from your user table
-        const { data, error } = await supabase
-            .from('users')
-            .select('role, department, allowed_positions')
-            .eq('id', user.id)
-            .single();
-
-        if (data) {
-            userRole = data.role;
-            userDepartment = data.department;
-            userAllowedPositions = data.allowed_positions || [];
+            console.log('User not authenticated, showing login');
+            window.uiManager.showLogin();
+            setupLoginForm();
         }
 
-        toggleVisibility(true);
-        showDashboard();
-        updateNavVisibility();
-    } else {
-        toggleVisibility(false);
-        showLogin();
+        window.uiManager.translatePage();
+        console.log('Module initialization completed successfully');
+    } catch (error) {
+        console.error('Error initializing modules:', error);
+        window.uiManager.showError('Failed to initialize application. Please refresh the page.');
     }
 }
-// Logout function
-async function logout() {
-    const supabase = getSupabase();
-    if (!supabase) return;
 
-    await supabase.auth.signOut();
-    userRole = 'user';
-    userDepartment = 'department';
-    toggleVisibility(false);
-    showLogin();
-}
-
-// Show login page
-function showLogin() {
-    app.innerHTML = `
-        <h2>Login</h2>
-        <form id="login-form">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-    `;
-    document.getElementById('login-form').addEventListener('submit', (e) => {
+// Setup login form
+function setupLoginForm() {
+    console.log('Setting up login form...');
+    const authForm = document.getElementById('auth-form');
+    console.log('Auth form found:', !!authForm);
+    
+    if (authForm) {
+        authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+            console.log('Login form submitted');
+            
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        login(email, password);
-    });
+            console.log('Login attempt for email:', email);
+
+            try {
+                const result = await window.authManager.login(email, password);
+                console.log('Login successful:', result);
+                
+                window.uiManager.showApp();
+                window.uiManager.updateNavigationVisibility();
+                showDashboard();
+            } catch (error) {
+                console.error('Login failed:', error);
+                window.utils.showMessage('Login failed: ' + error.message, 'error');
+            }
+        });
+        console.log('Login form event listener added');
+    } else {
+        console.error('Auth form not found!');
+    }
 }
 
-// Show dashboard
+// Navigation functions
 function showDashboard() {
+    const app = document.getElementById('app');
     app.innerHTML = `
         <h2 data-translate="Welcome to the Recruiting Management Dashboard!">Welcome to the Recruiting Management Dashboard!</h2>
         <div class="quick-actions">
@@ -539,135 +430,33 @@ function showDashboard() {
             <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create Recruiting Request">Create Recruiting Request</button>
         </div>
     `;
-    translatePage();
+    window.uiManager.translatePage();
 }
 
-// Show candidates
 async function showCandidates() {
-    const supabase = getSupabase();
-    if (!supabase) return;
+    try {
+        window.uiManager.showLoading('Loading candidates...');
+        
+        const result = await window.candidatesManager.getCandidates({
+            page: 1,
+            pageSize: 1000  // Load all candidates for display
+        });
 
-    let query = supabase.from('candidates').select('*');
-
-    // Filter candidates based on user permissions
-    if (userRole !== 'gm') {
-        if (userAllowedPositions.length > 0) {
-            // User has specific position access
-            query = query.in('position', userAllowedPositions);
-        } else {
-            // User has department-level access (manager)
-            query = query.eq('department', userDepartment);
-        }
+        renderCandidatesView(result);
+    } catch (error) {
+        console.error('Error loading candidates:', error);
+        window.utils.showMessage('Error loading candidates: ' + error.message, 'error');
     }
-
-    const { data: candidates, error } = await query;
-    const departments = [...new Set(candidates.map(c => c.department))];
-    const positions = [...new Set(candidates.map(c => c.position))];
-    const sources = [...new Set(candidates.map(c => c.source))];
-
-    if (error) {
-        app.innerHTML = `<p>Error loading candidates: ${error.message}</p>`;
-        return;
-    }
-
-
-
-    let candidatesHtml = `
-    <h2 data-translate="Candidates">Candidates</h2>
-    <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">Add New Candidate</button>
-    <div class="filters">
-        <select id="department-filter">
-            <option value="" data-translate="All Departments">All Departments</option>
-            ${departments.map(dept => `<option value="${dept}">${dept}</option>`).join('')}
-        </select>
-        <select id="position-filter">
-            <option value="" data-translate="All Positions">All Positions</option>
-            ${positions.map(pos => `<option value="${pos}">${pos}</option>`).join('')}
-        </select>
-        <select id="source-filter">
-            <option value="" data-translate="All Sources">All Sources</option>
-            ${sources.map(src => `<option value="${src}">${src}</option>`).join('')}
-        </select>
-    </div>
-    <button onclick="applyFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
-    <div id="candidates-table"></div>
-`;
-
-
-    app.innerHTML = candidatesHtml;
-    renderCandidatesTable(candidates);
-    translatePage();
 }
 
-function renderCandidatesTable(candidates) {
-    const tableContainer = document.getElementById('candidates-table');
-    const inProcessCandidates = candidates.filter(c => ['New', 'In Process', 'Rejected - Inform Source', 'Hired - Contact Source', 'In Process - First Round', 'In Process - Second Round', 'In Process 1st Round', 'In Process 2nd Round'].includes(c.status));
-    const hiredCandidates = candidates.filter(c => c.status === 'Hired');
-    const rejectedCandidates = candidates.filter(c => c.status === 'Rejected');
+function renderCandidatesView(result) {
+    const app = document.getElementById('app');
+    const { candidates, pagination } = result;
 
-    let tableHtml = `
-        <h3 data-translate="Candidates in Process">Candidates in Process</h3>
-        ${generateCandidateTable(inProcessCandidates)}
+    console.log('Total candidates loaded:', candidates.length);
+    console.log('Candidates data:', candidates);
 
-        <h3 data-translate="Hired Candidates">Hired Candidates</h3>
-        ${generateCandidateTable(hiredCandidates)}
-
-        <h3 data-translate="Rejected Candidates">Rejected Candidates</h3>
-        ${generateCandidateTable(rejectedCandidates)}
-    `;
-
-    tableContainer.innerHTML = tableHtml;
-}
-
-function applyFilters() {
-    const departmentFilter = document.getElementById('department-filter').value;
-    const positionFilter = document.getElementById('position-filter').value;
-    const sourceFilter = document.getElementById('source-filter').value;
-
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    let query = supabase.from('candidates').select('*');
-
-    if (departmentFilter) {
-        query = query.eq('department', departmentFilter);
-    } else if (userRole !== 'gm') {
-        query = query.eq('department', userDepartment);
-    }
-
-    if (positionFilter) {
-        query = query.eq('position', positionFilter);
-    }
-
-    if (sourceFilter) {
-        query = query.eq('source', sourceFilter);
-    }
-
-    query.then(({ data: filteredCandidates, error }) => {
-        if (error) {
-            console.error('Error applying filters:', error);
-            return;
-        }
-        renderCandidatesTable(filteredCandidates);
-    });
-    translatePage();
-}
-
-function generateCandidateTable(candidates) {
-    if (candidates.length === 0) {
-        return `<p data-translate="No candidates found.">No candidates found.</p>`;
-    }
-
-    const statusOrder = [
-        'New',
-        'In Process - First Round',
-        'In Process - Second Round',
-        'Hired - Contact Source',
-        'Rejected - Inform Source',
-        'Hired',
-        'Rejected',
-    ];
-
+    // Group candidates by status
     const groupedCandidates = candidates.reduce((acc, candidate) => {
         if (!acc[candidate.status]) {
             acc[candidate.status] = [];
@@ -676,342 +465,685 @@ function generateCandidateTable(candidates) {
         return acc;
     }, {});
 
-    let tableHtml = '';
+    console.log('Grouped candidates:', groupedCandidates);
 
-    statusOrder.forEach((status) => {
-        if (groupedCandidates[status] && groupedCandidates[status].length > 0) {
-            tableHtml += `
-                <div class="status-group">
-                    <h3 class="status-header">${translate(status)}</h3>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th data-translate="Name">Name</th>
-                                    <th data-translate="Department">Department</th>
-                                    <th data-translate="Position">Position</th>
-                                    <th data-translate="Source">Source</th>
-                                    <th data-translate="Date Obtained">Date Obtained</th>
-                                    <th data-translate="Interviewer">Interviewer</th>
-                                    <th data-translate="Time in Process">Time in Process</th>
-                                    <th data-translate="Documents">Documents</th>
-                                    <th data-translate="Notes">Notes</th>
-                                    <th data-translate="Actions">Actions</th>
-                                    <th data-translate="Admin Actions">Admin Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-            `;
+    let html = `
+    <h2 data-translate="Candidates">Candidates</h2>
+    <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">Add New Candidate</button>
+    <div class="filters">
+        <select id="department-filter">
+            <option value="" data-translate="All Departments">All Departments</option>
+                ${Object.keys(departmentPositions).map(dept => `<option value="${dept}">${dept}</option>`).join('')}
+        </select>
+        <select id="source-filter">
+            <option value="" data-translate="All Sources">All Sources</option>
+                ${sourceOptions.map(source => `<option value="${source}">${source}</option>`).join('')}
+        </select>
+    <button onclick="applyFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
+        <button onclick="clearFilters()" class="btn btn-outline" data-translate="Clear Filters">Clear Filters</button>
+        </div>
+        <div id="candidates-container"></div>
+    `;
 
-            groupedCandidates[status].forEach(candidate => {
-                const timeInProcess = calculateTimeInProcess(candidate.last_updated);
-                const alertClass = timeInProcess.days > 7 ? 'alert-status' : '';
+    app.innerHTML = html;
 
-                let managerActions = '';
-                let adminActions = `<button onclick="showCandidateDetails(${candidate.id})" class="btn btn-info">View Details</button>`;
+    // Render candidate tables
+    const container = document.getElementById('candidates-container');
+    const statusOrder = ['New', 'In Process - First Round', 'In Process - Second Round', 'Hired - Contact Source', 'Rejected - Inform Source', 'Hired', 'Rejected'];
 
-                // Generate action buttons based on candidate status
+    // Always show all status groups, even if empty
+    statusOrder.forEach(status => {
+        const candidatesForStatus = groupedCandidates[status] || [];
+        console.log(`Status: ${status}, Count: ${candidatesForStatus.length}`);
+        const table = createCandidateTable(candidatesForStatus, status);
+        container.appendChild(table);
+    });
+
+    // If no candidates at all, show a message
+    if (candidates.length === 0) {
+        const noCandidatesMsg = document.createElement('div');
+        noCandidatesMsg.className = 'no-candidates-message';
+        noCandidatesMsg.innerHTML = `
+            <div class="card" style="text-align: center; padding: 2rem; margin: 2rem 0;">
+                <h3>No candidates found</h3>
+                <p>There are no candidates in the system yet.</p>
+                <button onclick="showAddCandidate()" class="btn btn-primary">Add First Candidate</button>
+            </div>
+        `;
+        container.appendChild(noCandidatesMsg);
+    }
+
+    window.uiManager.translatePage();
+}
+
+function createCandidateTable(candidates, status) {
+    const statusGroup = document.createElement('div');
+    statusGroup.className = 'status-group';
+
+    const header = document.createElement('h3');
+    header.className = 'status-header';
+    header.textContent = window.uiManager.translate(status);
+    statusGroup.appendChild(header);
+
+    const table = document.createElement('table');
+    table.className = 'candidates-table';
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+
+    // Create header row
+    const headerRow = document.createElement('tr');
+    ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Time in Process', 'Documents', 'Notes', 'Actions', 'Admin Actions'].forEach(headerText => {
+        const th = document.createElement('th');
+        th.textContent = window.uiManager.translate(headerText);
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Create data rows
+    candidates.forEach(candidate => {
+        const row = document.createElement('tr');
+        const timeInProcess = calculateTimeInProcess(candidate.last_updated);
+        const alertClass = timeInProcess.days > 7 ? 'alert-status' : '';
+        row.className = alertClass;
+
+        // Create name cell with warning indicators
+        const nameWithWarning = createNameWithWarning(candidate);
+
+        // Add cells
+        [
+            nameWithWarning,
+            candidate.department || '',
+            candidate.position || '',
+            candidate.source || '',
+            candidate.date_obtained || '',
+            candidate.interviewer || '',
+            formatTimeInProcess(timeInProcess),
+            createDocumentsCell(candidate),
+            createNotesCell(candidate),
+            createActionButtons(candidate),
+            createAdminActionButtons(candidate)
+        ].forEach(cellContent => {
+            const td = document.createElement('td');
+            td.innerHTML = cellContent;
+            row.appendChild(td);
+        });
+
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    statusGroup.appendChild(table);
+
+    return statusGroup;
+}
+
+// Function to create name with warning indicators
+function createNameWithWarning(candidate) {
+    const name = candidate.name || '';
+    
+    // Skip warnings for hired and rejected candidates
+    if (candidate.status && (
+        candidate.status.includes('Hired') || 
+        candidate.status.includes('Rejected')
+    )) {
+        return name; // Return name without warnings
+    }
+    
+    const now = new Date();
+    const lastUpdated = new Date(candidate.last_updated);
+    const diffTime = Math.abs(now - lastUpdated);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    let warningIcon = '';
+    let warningClass = '';
+    let tooltipText = '';
+    
+    if (diffDays > 14) {
+        // More than 2 weeks - red warning
+        warningIcon = '🚨';
+        warningClass = 'name-warning-red';
+        tooltipText = `Kritické! Kandidát bez zmeny ${diffDays} dní (viac ako 2 týždne)`;
+    } else if (diffDays > 7) {
+        // More than 1 week - orange warning
+        warningIcon = '⚠️';
+        warningClass = 'name-warning-orange';
+        tooltipText = `Upozornenie! Kandidát bez zmeny ${diffDays} dní (viac ako týždeň)`;
+    }
+    
+    if (warningIcon) {
+        return `<span class="candidate-name ${warningClass}" title="${tooltipText}">${warningIcon} ${name}</span>`;
+    }
+    
+    return name;
+}
+
+function createDocumentsCell(candidate) {
+    let html = '';
+    if (candidate.cv_file_path) {
+        html += `<button onclick="downloadFile(${candidate.id}, 'cv')" class="btn btn-document" title="Stiahnuť životopis">📄</button>`;
+    }
+    if (candidate.assesment_file_path) {
+        html += `<button onclick="downloadFile(${candidate.id}, 'assessment')" class="btn btn-document" title="Stiahnuť assessment">📎</button>`;
+    }
+    if (!html) {
+        html = '<span data-translate="No documents">No documents</span>';
+    }
+    return html;
+}
+
+function createNotesCell(candidate) {
+    if (!candidate.notes || candidate.notes.trim() === '') {
+        return '<span data-translate="No notes">No notes</span>';
+    }
+    
+    const notes = candidate.notes.trim();
+    
+    // Always show button for notes
+    return `<div class="notes-cell">
+        <button onclick="showNotesModal(${candidate.id}, '${notes.replace(/'/g, "\\'")}')" class="btn btn-notes" title="Zobraziť poznámky">
+            📝
+        </button>
+    </div>`;
+}
+
+function createActionButtons(candidate) {
+    let buttons = '';
                 switch (candidate.status) {
                     case 'New':
-                        managerActions = `
+            buttons = `
                             <button onclick="inviteCandidate(${candidate.id})" class="btn btn-primary" data-translate="Invite">Invite</button>
                             <button onclick="rejectCandidate(${candidate.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
                         `;
                         break;
                     case 'In Process - First Round':
-                        managerActions = `
+            buttons = `
                             <button onclick="secondRound(${candidate.id})" class="btn btn-primary" data-translate="Second Round">Second Round</button>
                             <button onclick="hireCandidate(${candidate.id})" class="btn btn-success" data-translate="Hire">Hire</button>
                             <button onclick="rejectCandidate(${candidate.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
                         `;
                         break;
                     case 'In Process - Second Round':
-                        managerActions = `
+            buttons = `
                             <button onclick="hireCandidate(${candidate.id})" class="btn btn-success" data-translate="Hire">Hire</button>
                             <button onclick="rejectCandidate(${candidate.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
                         `;
                         break;
                     case 'Rejected - Inform Source':
-                        managerActions = `
-                            <button onclick="rejectedSourceInformed(${candidate.id})" class="btn btn-success" data-translate="Rejected - Source Informed">Rejected - Source Informed</button>
-                        `;
+            buttons = `<button onclick="rejectedSourceInformed(${candidate.id})" class="btn btn-success" data-translate="Rejected - Source Informed">Rejected - Source Informed</button>`;
                         break;
                     case 'Hired - Contact Source':
-                        managerActions = `
-                            <button onclick="hiredSourceInformed(${candidate.id})" class="btn btn-danger" data-translate="Hired - Source Informed">Hired - Source Informed</button>
-                        `;
+            buttons = `<button onclick="hiredSourceInformed(${candidate.id})" class="btn btn-danger" data-translate="Hired - Source Informed">Hired - Source Informed</button>`;
+            break;
+        default:
+            buttons = '<span data-translate="No actions">No actions</span>';
                         break;
-                }
-
-                let documentsHtml = '';
-                if (candidate.cv_file_path) {
-                    documentsHtml += `<button onclick="downloadFile(${candidate.id}, 'cv')" class="btn btn-secondary" data-translate="Download CV">Download CV</button>`;
-                }
-                if (candidate.assesment_file_path) {
-                    documentsHtml += `<button onclick="downloadFile(${candidate.id}, 'assessment')" class="btn btn-secondary" data-translate="Download Assessment">Download Assessment</button>`;
-                }
-                if (!documentsHtml) {
-                    documentsHtml = '<span data-translate="No documents">No documents</span>';
-                }
-
-                tableHtml += `
-                    <tr class="${alertClass}">
-                        <td>${candidate.name || ''}</td>
-                        <td>${candidate.department || ''}</td>
-                        <td>${candidate.position || ''}</td>
-                        <td>${candidate.source || ''}</td>
-                        <td>${candidate.date_obtained || ''}</td>
-                        <td>${candidate.interviewer || ''}</td>
-                        <td>${formatTimeInProcess(timeInProcess)}</td>
-                        <td>${documentsHtml}</td>
-                        <td>${candidate.notes ? `<div class="notes-cell">${candidate.notes}</div>` : '<span data-translate="No notes">No notes</span>'}</td>
-                        <td>${managerActions}</td>
-                        <td>${adminActions}</td>
-                    </tr>
-                `;
-            });
-
-            tableHtml += `
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        }
-    });
-
-    return tableHtml;
+    }
+    return buttons;
 }
 
+function createAdminActionButtons(candidate) {
+    // Admin actions are always available - View Details button
+    return `<button onclick="showCandidateDetails(${candidate.id})" class="btn btn-info" data-translate="View Details">View Details</button>`;
+}
+
+// Function to show notes modal
+function showNotesModal(candidateId, notes) {
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.id = 'notes-modal-overlay';
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content notes-modal';
+    
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h3>Poznámky kandidáta</h3>
+            <button class="modal-close" onclick="closeNotesModal()">&times;</button>
+                    </div>
+        <div class="modal-body">
+            <div class="notes-content">
+                ${notes.replace(/\n/g, '<br>')}
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeNotesModal()" class="btn btn-primary">Zavrieť</button>
+                </div>
+            `;
+    
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+    
+    // Add click outside to close
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeNotesModal();
+        }
+    });
+    
+    // Add escape key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeNotesModal();
+        }
+    });
+}
+
+// Function to close notes modal
+function closeNotesModal() {
+    const modalOverlay = document.getElementById('notes-modal-overlay');
+    if (modalOverlay) {
+        modalOverlay.remove();
+    }
+}
+
+// Candidate action functions
+async function inviteCandidate(id) {
+    try {
+        await window.candidatesManager.updateCandidateStatus(id, 'In Process - First Round');
+        window.utils.showMessage('Candidate invited to first round interview.', 'success');
+        showCandidates();
+        // Update navigation indicators after status change
+        updateNavigationIndicators();
+    } catch (error) {
+        window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
+    }
+}
+
+async function rejectCandidate(id) {
+    const reason = prompt('Please enter the reason for rejecting this candidate:');
+    if (reason === null) return;
+
+    try {
+        await window.candidatesManager.updateCandidateStatus(id, 'Rejected - Inform Source', `Termination reason: ${reason}`);
+        window.utils.showMessage('Candidate rejected. Please inform the source.', 'success');
+        showCandidates();
+        updateNavigationIndicators();
+    } catch (error) {
+        window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
+    }
+}
+
+async function secondRound(id) {
+    try {
+        await window.candidatesManager.updateCandidateStatus(id, 'In Process - Second Round');
+        window.utils.showMessage('Candidate moved to second round interview.', 'success');
+        showCandidates();
+        updateNavigationIndicators();
+    } catch (error) {
+        window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
+    }
+}
+
+async function hireCandidate(id) {
+    try {
+        await window.candidatesManager.updateCandidateStatus(id, 'Hired - Contact Source');
+        window.utils.showMessage('Candidate hired. Please contact the source.', 'success');
+        showCandidates();
+        updateNavigationIndicators();
+    } catch (error) {
+        window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
+    }
+}
+
+async function rejectedSourceInformed(id) {
+    try {
+        await window.candidatesManager.updateCandidateStatus(id, 'Rejected');
+        window.utils.showMessage('Source informed. Candidate status updated to Rejected.', 'success');
+        showCandidates();
+        updateNavigationIndicators();
+    } catch (error) {
+        window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
+    }
+}
+
+async function hiredSourceInformed(id) {
+    try {
+        await window.candidatesManager.updateCandidateStatus(id, 'Hired');
+        window.utils.showMessage('Source informed. Candidate status updated to Hired.', 'success');
+        showCandidates();
+        updateNavigationIndicators();
+    } catch (error) {
+        window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
+    }
+}
+
+async function downloadFile(candidateId, fileType) {
+    try {
+        await window.candidatesManager.downloadFile(candidateId, fileType);
+    } catch (error) {
+        window.utils.showMessage(`Error downloading ${fileType}: ` + error.message, 'error');
+    }
+}
+
+// Utility functions
 function calculateTimeInProcess(lastUpdated) {
     const now = new Date();
     const updated = new Date(lastUpdated);
     const diffTime = Math.abs(now - updated);
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
     return { days: diffDays, hours: diffHours };
 }
 
 function formatTimeInProcess(time) {
     if (time.days > 0) {
-        return `${time.days} ${time.days === 1 ? translate('day') : translate('days')}`;
+        return `${time.days} ${time.days === 1 ? 'day' : 'days'}`;
     } else {
-        return `${time.hours} ${time.hours === 1 ? translate('hour') : translate('hours')}`;
+        return `${time.hours} ${time.hours === 1 ? 'hour' : 'hours'}`;
     }
 }
 
-async function inviteCandidate(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
+// Navigation functions
+async function showRequests() {
+    try {
+        window.uiManager.showLoading('Loading recruiting requests...');
+        
+        const result = await window.requestsManager.getRequests({
+            page: 1,
+            pageSize: 20
+        });
 
-    const { data, error } = await supabase
-        .from('candidates')
-        .update({ status: 'In Process - First Round' })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error updating candidate status: ' + error.message);
-    } else {
-        alert('Candidate invited to first round interview.');
-        showCandidates();
+        renderRequestsView(result);
+    } catch (error) {
+        console.error('Error loading requests:', error);
+        window.utils.showMessage('Error loading requests: ' + error.message, 'error');
     }
 }
 
-async function rejectCandidate(id) {
-    const reason = prompt('Please enter the reason for rejecting this candidate:');
-    if (reason === null) return; // User cancelled the prompt
+function renderRequestsView(result) {
+    const app = document.getElementById('app');
+    const { requests, pagination } = result;
 
-    const supabase = getSupabase();
-    if (!supabase) return;
+    // Sort requests: Pending first, then Approved, then Filled, then Rejected
+    const sortedRequests = [...requests].sort((a, b) => {
+        const statusOrder = { 'Pending': 1, 'Approved': 2, 'Filled': 3, 'Rejected': 4 };
+        const aOrder = statusOrder[a.status] || 5;
+        const bOrder = statusOrder[b.status] || 5;
+        
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+        }
+        
+        // If same status, sort by ID descending (newest first)
+        return b.id - a.id;
+    });
 
-    // First, fetch the current candidate data
-    const { data: candidateData, error: fetchError } = await supabase
-        .from('candidates')
-        .select('notes')
-        .eq('id', id)
-        .single();
+    let html = `
+        <h2 data-translate="Recruiting Requests">Recruiting Requests</h2>
+        <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
+        <div class="filters">
+            <select id="status-filter">
+                <option value="" data-translate="All Statuses">All Statuses</option>
+                <option value="Pending" data-translate="Pending">Pending</option>
+                <option value="Approved" data-translate="Approved">Approved</option>
+                <option value="Rejected" data-translate="Rejected">Rejected</option>
+                <option value="Filled" data-translate="Filled">Filled</option>
+                </select>
+            <button onclick="applyRequestFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
+            <button onclick="clearRequestFilters()" class="btn btn-outline" data-translate="Clear Filters">Clear Filters</button>
+            </div>
+        <div class="requests-summary">
+            <div class="summary-card pending">
+                <h3>${sortedRequests.filter(r => r.status === 'Pending').length}</h3>
+                <p data-translate="Pending">Pending</p>
+            </div>
+            <div class="summary-card approved">
+                <h3>${sortedRequests.filter(r => r.status === 'Approved').length}</h3>
+                <p data-translate="Approved">Approved</p>
+            </div>
+            <div class="summary-card filled">
+                <h3>${sortedRequests.filter(r => r.status === 'Filled').length}</h3>
+                <p data-translate="Filled">Filled</p>
+            </div>
+            <div class="summary-card rejected">
+                <h3>${sortedRequests.filter(r => r.status === 'Rejected').length}</h3>
+                <p data-translate="Rejected">Rejected</p>
+            </div>
+            </div>
+        <div id="requests-container"></div>
+    `;
 
-    if (fetchError) {
-        alert('Error fetching candidate data: ' + fetchError.message);
+    app.innerHTML = html;
+
+    // Add fade-in animation
+    app.classList.add('fade-in');
+
+    // Render requests table
+    const container = document.getElementById('requests-container');
+    const table = createRequestsTable(sortedRequests);
+    container.appendChild(table);
+    
+    // Add slide-in animation to table
+    table.classList.add('slide-in');
+
+    // Setup filter event listener
+    const statusFilter = document.getElementById('status-filter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', applyRequestFilters);
+    }
+
+    window.uiManager.translatePage();
+}
+
+function createRequestsTable(requests) {
+    const table = document.createElement('table');
+    table.className = 'requests-table';
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+
+    // Create header row
+    const headerRow = document.createElement('tr');
+    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Category', 'Status', 'ID', 'Actions'].forEach(headerText => {
+        const th = document.createElement('th');
+        th.textContent = window.uiManager.translate(headerText);
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Create data rows
+    requests.forEach(request => {
+        const row = document.createElement('tr');
+        row.className = `request-row status-${request.status.toLowerCase()}`;
+        
+        // Add cells
+        [
+            request.position || '',
+            request.department || '',
+            request.description ? request.description.substring(0, 50) + '...' : '',
+            request.headcount || '',
+            request.position_type || '',
+            request.position_category || '',
+            createStatusBadge(request.status),
+            request.id ? `#${request.id}` : '',
+            createRequestActionButtons(request)
+        ].forEach(cellContent => {
+            const td = document.createElement('td');
+            td.innerHTML = cellContent;
+            row.appendChild(td);
+        });
+
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    return table;
+}
+
+function createStatusBadge(status) {
+    const badgeClass = `status-badge ${status.toLowerCase()}`;
+    return `<span class="${badgeClass}">${status}</span>`;
+}
+
+function createRequestActionButtons(request) {
+    let buttons = '';
+    const userInfo = window.authManager.getUserInfo();
+    
+    if ((userInfo.role === 'gm' || userInfo.role === 'recruiter') && request.status === 'Pending') {
+        buttons = `
+            <button onclick="approveRequest(${request.id})" class="btn btn-success" data-translate="Approve">Approve</button>
+            <button onclick="rejectRequest(${request.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
+        `;
+    }
+    
+    if (request.status === 'Approved') {
+        buttons += `<button onclick="fillPosition(${request.id})" class="btn btn-primary" data-translate="Fill Position">Fill Position</button>`;
+    }
+    
+    buttons += `<button onclick="showRequestDetails(${request.id})" class="btn btn-info" data-translate="View Details">View Details</button>`;
+    
+    return buttons;
+}
+
+async function showGMApproval() {
+    const userInfo = window.authManager.getUserInfo();
+    if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
+        const app = document.getElementById('app');
+        app.innerHTML = '<p data-translate="Access denied. Only GMs and Recruiters can view this page.">Access denied. Only GMs and Recruiters can view this page.</p>';
+        window.uiManager.translatePage();
         return;
     }
-
-    // Prepare the new notes by appending the termination reason
-    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-    const terminationNote = `[${currentDate}] Termination reason: ${reason}`;
-    const newNotes = candidateData.notes
-        ? `${candidateData.notes}\n\n${terminationNote}`
-        : terminationNote;
-
-    // Update the candidate status and notes
-    const { data, error } = await supabase
-        .from('candidates')
-        .update({
-            status: 'Rejected - Inform Source',
-            notes: newNotes
-        })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error updating candidate status: ' + error.message);
-    } else {
-        alert('Candidate rejected. Please inform the source.');
-        showCandidates();
-    }
-}
-
-async function rejectedSourceInformed(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data, error } = await supabase
-        .from('candidates')
-        .update({ status: 'Rejected' })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error updating candidate status: ' + error.message);
-    } else {
-        alert('Source informed. Candidate status updated to Rejected.');
-        showCandidates();
-    }
-}
-
-async function secondRound(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data, error } = await supabase
-        .from('candidates')
-        .update({ status: 'In Process - Second Round' })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error updating candidate status: ' + error.message);
-    } else {
-        alert('Candidate moved to second round interview.');
-        showCandidates();
-    }
-}
-
-async function hireCandidate(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data, error } = await supabase
-        .from('candidates')
-        .update({ status: 'Hired - Contact Source' })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error updating candidate status: ' + error.message);
-    } else {
-        alert('Candidate hired. Please contact the source.');
-        showCandidates();
-    }
-}
-
-async function hiredSourceInformed(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data, error } = await supabase
-        .from('candidates')
-        .update({ status: 'Hired' })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error updating candidate status: ' + error.message);
-    } else {
-        alert('Source informed. Candidate status updated to Hired.');
-        showCandidates();
-    }
-}
-
-async function downloadFile(candidateId, fileType) {
-    const supabase = getSupabase();
-    if (!supabase) return;
 
     try {
-        // Get the file path from the candidates table
-        const { data: candidateData, error: candidateError } = await supabase
-            .from('candidates')
-            .select(fileType === 'cv' ? 'cv_file_path' : 'assessment_file_path')
-            .eq('id', candidateId)
-            .single();
-
-        if (candidateError) throw candidateError;
-
-        const filePath = fileType === 'cv' ? candidateData.cv_file_path : candidateData.assessment_file_path;
-
-        if (!filePath) {
-            alert(`No ${fileType.toUpperCase()} file found for this candidate.`);
-            return;
-        }
-
-        // Download the file using the stored path
-        const { data, error } = await supabase.storage
-            .from('candidate-files')
-            .download(filePath);
-
-        if (error) throw error;
-
-        // Create a blob from the file data and trigger download
-        const blob = new Blob([data], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `${fileType}_${candidateId}.pdf`;
-        link.click();
+        window.uiManager.showLoading('Loading pending requests...');
+        
+        const pendingRequests = await window.requestsManager.getPendingRequests();
+        renderGMApprovalView(pendingRequests);
     } catch (error) {
-        console.error(`Error downloading ${fileType}:`, error);
-        alert(`Error downloading ${fileType}. Please try again.`);
+        console.error('Error loading pending requests:', error);
+        window.utils.showMessage('Error loading pending requests: ' + error.message, 'error');
     }
 }
 
+function renderGMApprovalView(requests) {
+    const app = document.getElementById('app');
+    
+    let html = `
+        <h2 data-translate="GM/Recruiter Approval">GM/Recruiter Approval</h2>
+        <p data-translate="Review and approve pending recruiting requests">Review and approve pending recruiting requests</p>
+        <div id="gm-approval-container"></div>
+    `;
 
+    app.innerHTML = html;
 
+    // Render requests table
+    const container = document.getElementById('gm-approval-container');
+    const table = createRequestsTable(requests);
+    container.appendChild(table);
 
-// Delete candidate
-async function deleteCandidate(id) {
-    if (!confirm('Are you sure you want to delete this candidate?')) {
-        return;
-    }
+    window.uiManager.translatePage();
+}
 
-    const supabase = getSupabase();
-    if (!supabase) return;
+async function showStatistics() {
+    try {
+        window.uiManager.showLoading('Loading statistics...');
+        
+        const [candidateStats, requestStats] = await Promise.all([
+            window.candidatesManager.getStatistics(),
+            window.requestsManager.getStatistics()
+        ]);
 
-    // Delete candidate files
-    const { data: files, error: filesError } = await supabase.storage
-        .from('candidate-files')
-        .list(`${id}`);
-
-    if (files && files.length > 0) {
-        for (const file of files) {
-            await supabase.storage
-                .from('candidate-files')
-                .remove([`${id}/${file.name}`]);
-        }
-    }
-
-    // Delete candidate record
-    const { error } = await supabase
-        .from('candidates')
-        .delete()
-        .eq('id', id);
-
-    if (error) {
-        alert('Error deleting candidate: ' + error.message);
-    } else {
-        alert('Candidate deleted successfully');
-        showCandidates();
+        renderStatisticsView(candidateStats, requestStats);
+    } catch (error) {
+        console.error('Error loading statistics:', error);
+        window.utils.showMessage('Error loading statistics: ' + error.message, 'error');
     }
 }
 
-// Show add candidate form
-function showAddCandidate() {
+function renderStatisticsView(candidateStats, requestStats) {
+    const app = document.getElementById('app');
+    
+    let html = `
+        <h2 data-translate="Statistics">Statistics</h2>
+        <div class="stats-container">
+            <div class="stats-section">
+                <h3 data-translate="Candidate Statistics">Candidate Statistics</h3>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <h4>${candidateStats.total}</h4>
+                        <p data-translate="Total Candidates">Total Candidates</p>
+            </div>
+                    <div class="stat-card">
+                        <h4>${candidateStats.averageTimeToHire}</h4>
+                        <p data-translate="Avg. Time to Hire (days)">Avg. Time to Hire (days)</p>
+            </div>
+            </div>
+                <div class="stat-breakdown">
+                    <h4 data-translate="By Status">By Status</h4>
+                    ${Object.entries(candidateStats.byStatus).map(([status, count]) => 
+                        `<p>${status}: ${count}</p>`
+                    ).join('')}
+            </div>
+            </div>
+            <div class="stats-section">
+                <h3 data-translate="Request Statistics">Request Statistics</h3>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <h4>${requestStats.total}</h4>
+                        <p data-translate="Total Requests">Total Requests</p>
+            </div>
+            </div>
+                <div class="stat-breakdown">
+                    <h4 data-translate="By Status">By Status</h4>
+                    ${Object.entries(requestStats.byStatus).map(([status, count]) => 
+                        `<p>${status}: ${count}</p>`
+                    ).join('')}
+            </div>
+            </div>
+            </div>
+    `;
+
+    app.innerHTML = html;
+    window.uiManager.translatePage();
+}
+
+// Request action functions
+async function approveRequest(id) {
+    try {
+        await window.requestsManager.approveRequest(id);
+        window.utils.showMessage('Request approved successfully!', 'success');
+        showGMApproval();
+    } catch (error) {
+        window.utils.showMessage('Error approving request: ' + error.message, 'error');
+    }
+}
+
+async function rejectRequest(id) {
+    try {
+        await window.requestsManager.rejectRequest(id);
+        window.utils.showMessage('Request rejected successfully!', 'success');
+        showGMApproval();
+    } catch (error) {
+        window.utils.showMessage('Error rejecting request: ' + error.message, 'error');
+    }
+}
+
+async function fillPosition(id) {
+    try {
+        await window.requestsManager.fillPosition(id);
+        window.utils.showMessage('Position marked as filled!', 'success');
+        showRequests();
+    } catch (error) {
+        window.utils.showMessage('Error updating position: ' + error.message, 'error');
+    }
+}
+
+function showRequestDetails(id) {
+    console.log('Show request details for ID:', id);
+    // TODO: Implement request details view
+}
+
+function showNewRequest() {
+    console.log('Show new request form');
+
+    const app = document.getElementById('app');
+    if (!app) return;
+
+    // Get department options based on user role
     let departmentOptions = '';
-
     if (userRole === 'gm') {
         departmentOptions = Object.keys(departmentPositions).map(dept =>
             `<option value="${dept}">${dept}</option>`
@@ -1020,80 +1152,197 @@ function showAddCandidate() {
         departmentOptions = `<option value="${userDepartment}">${userDepartment}</option>`;
     }
 
-    app.innerHTML = `
-        <h2 data-translate="Add New Candidate">Add New Candidate</h2>
-        <form id="add-candidate-form">
+    const html = `
+        <div class="card">
+        <h2 data-translate="Create New Recruiting Request">Create New Recruiting Request</h2>
+        <form id="new-request-form">
             <div class="form-group">
-                <label for="name" class="required" data-translate="Full Name">Full Name</label>
-                <input type="text" id="name" required>
-            </div>
-            <div class="form-group">
-                <label for="department" class="required" data-translate="Department">Department</label>
-                <select id="department" required onchange="updatePositionOptions()">
-                    <option value="" data-translate="Select a department">Select a department</option>
-                    ${Object.keys(departmentPositions).map(dept => `<option value="${dept}">${dept}</option>`).join('')}
+                    <label for="department" data-translate="Department">Oddelenie:</label>
+                    <select id="department" name="department" required ${userRole !== 'gm' ? 'disabled' : ''} onchange="updatePositionOptions()">
+                        <option value="" data-translate="Select Department">Vyberte oddelenie</option>
+                    ${departmentOptions}
                 </select>
             </div>
+                
             <div class="form-group">
-                <label for="position" class="required" data-translate="Position">Position</label>
-                <select id="position" required>
-                    <option value="" data-translate="Select a department first">Select a department first</option>
+                    <label for="position" data-translate="Position">Pozícia:</label>
+                    <select id="position" name="position" required>
+                        <option value="" data-translate="Select Position">Najprv vyberte oddelenie</option>
                 </select>
             </div>
+                
             <div class="form-group">
-                <label for="source" class="required" data-translate="Source">Source</label>
-                <select id="source" required>
-                    <option value="" data-translate="Select a source">Select a source</option>
-                    ${sourceOptions.map(source => `<option value="${source}">${source}</option>`).join('')}
-                </select>
+                    <label for="description" data-translate="Job Description">Popis práce:</label>
+                    <textarea id="description" name="description" rows="4" required></textarea>
             </div>
+                
             <div class="form-group">
-                <label for="date_obtained" class="required" data-translate="Date Obtained">Date Obtained</label>
-                <input type="date" id="date_obtained" required>
+                    <label for="headcount" data-translate="Number of Positions">Počet pracovníkov:</label>
+                    <input type="number" id="headcount" name="headcount" min="1" value="1" required>
             </div>
+                
             <div class="form-group">
-                <label for="cv" data-translate="Upload CV">Upload CV</label>
-                <input type="file" id="cv" accept=".pdf,.doc,.docx">
+                    <label data-translate="Position Type">Typ pozície:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                        <input type="radio" id="new-position" name="position-type" value="new" required onchange="togglePositionTypeFields()">
+                            <span data-translate="New Position">Nová pozícia</span>
+                    </label>
+                        <label class="radio-label">
+                        <input type="radio" id="replacement" name="position-type" value="replacement" required onchange="togglePositionTypeFields()">
+                            <span data-translate="Replacement">Náhrada</span>
+                    </label>
+                </div>
             </div>
+                
+            <div id="new-position-fields" class="hidden">
+                <div class="form-group">
+                        <label for="new-position-reason" data-translate="Reason for New Position">Dôvod novej pozície:</label>
+                        <textarea id="new-position-reason" name="new_position_reason"></textarea>
+                </div>
+            </div>
+                
+            <div id="replacement-fields" class="hidden">
+                <div class="form-group">
+                        <label for="replacement-name" data-translate="Name of Person Being Replaced">Meno nahradzovanej osoby:</label>
+                        <input type="text" id="replacement-name" name="replacement_name">
+                </div>
+            </div>
+                
             <div class="form-group">
-                <label for="assessment" data-translate="Upload Assessment Form">Upload Assessment Form</label>
-                <input type="file" id="assessment" accept=".pdf,.doc,.docx">
+                    <label data-translate="Position Category">Kategória pozície:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                        <input type="radio" id="sal-position" name="position-category" value="SAL" required>
+                            <span>SAL</span>
+                    </label>
+                        <label class="radio-label">
+                        <input type="radio" id="ind-position" name="position-category" value="IND" required>
+                            <span>IND</span>
+                    </label>
+                </div>
             </div>
+                
             <div class="form-group">
-                <label for="interviewer" data-translate="Interviewer">Interviewer</label>
-                <input type="text" id="interviewer">
+                <label>
+                        <input type="checkbox" id="confidential-request" name="is_confidential">
+                        <span data-translate="Confidential Request">Dôverná žiadosť</span>
+                </label>
             </div>
-            <div class="form-group">
-                <label for="status" data-translate="Status">Status</label>
-                <select id="status">
-                    <option value="New" data-translate="New">New</option>
-                    <option value="In Process - First Round" data-translate="In Process - First Round">In Process - First Round</option>
-                    <option value="In Process - Second Round" data-translate="In Process - Second Round">In Process - Second Round</option>
-                    <option value="Hired" data-translate="Hired">Hired</option>
-                    <option value="Rejected" data-translate="Rejected">Rejected</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="notes" data-translate="Notes">Notes</label>
-                <textarea id="notes"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary" data-translate="Add Candidate">Add Candidate</button>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" data-translate="Submit Request">ODOSLAŤ ŽIADOSŤ</button>
+                    <button type="button" onclick="showRequests()" class="btn btn-secondary" data-translate="Cancel">Zrušiť</button>
+                </div>
         </form>
+        </div>
     `;
-    document.getElementById('add-candidate-form').addEventListener('submit', addCandidate);
-    document.getElementById('name').addEventListener('blur', async function() {
-        const name = this.value;
-        if (name) {
-            const existingCandidates = await checkExistingCandidate(name);
-            if (existingCandidates) {
-                alert(`Warning: Candidates with similar names already exist:\n${existingCandidates.map(c => c.name).join('\n')}`);
-            }
-        }
-    });
-    translatePage();
+
+    app.innerHTML = html;
+
+    // Add form submit handler
+    const form = document.getElementById('new-request-form');
+    if (form) {
+        form.addEventListener('submit', createRequest);
+    }
+
+    // Initialize position options
+    updatePositionOptions();
 }
 
+// Global variables for user info
+let userRole = '';
+let userDepartment = '';
 
+// Get Supabase instance
+function getSupabase() {
+    return supabaseInstance || null;
+}
+
+// Department positions mapping (extended)
+const extendedDepartmentPositions = {
+    'IT': [
+        'Software Developer',
+        'Senior Software Developer',
+        'Frontend Developer',
+        'Backend Developer',
+        'Full Stack Developer',
+        'DevOps Engineer',
+        'System Administrator',
+        'Database Administrator',
+        'QA Engineer',
+        'Technical Lead',
+        'IT Manager',
+        'Data Analyst',
+        'Cybersecurity Specialist'
+    ],
+    'HR': [
+        'HR Generalist',
+        'HR Specialist',
+        'Recruiter',
+        'Senior Recruiter',
+        'HR Manager',
+        'HR Business Partner',
+        'Training Specialist',
+        'Compensation & Benefits Specialist',
+        'HR Director'
+    ],
+    'Finance': [
+        'Financial Analyst',
+        'Senior Financial Analyst',
+        'Accountant',
+        'Senior Accountant',
+        'Financial Controller',
+        'Finance Manager',
+        'CFO',
+        'Auditor',
+        'Tax Specialist',
+        'Budget Analyst'
+    ],
+    'Marketing': [
+        'Marketing Specialist',
+        'Digital Marketing Specialist',
+        'Content Marketing Manager',
+        'Social Media Manager',
+        'Brand Manager',
+        'Marketing Manager',
+        'Marketing Director',
+        'SEO Specialist',
+        'PPC Specialist',
+        'Marketing Analyst'
+    ],
+    'Sales': [
+        'Sales Representative',
+        'Senior Sales Representative',
+        'Account Manager',
+        'Sales Manager',
+        'Sales Director',
+        'Business Development Manager',
+        'Key Account Manager',
+        'Inside Sales Representative',
+        'Sales Analyst'
+    ],
+    'Operations': [
+        'Operations Specialist',
+        'Operations Manager',
+        'Operations Director',
+        'Process Improvement Specialist',
+        'Supply Chain Manager',
+        'Logistics Coordinator',
+        'Project Manager',
+        'Operations Analyst'
+    ],
+    'Business': [
+        'Business Analyst',
+        'Senior Business Analyst',
+        'Business Development Specialist',
+        'Strategy Manager',
+        'Business Manager',
+        'Business Director',
+        'Management Consultant',
+        'Product Manager'
+    ]
+};
 
 // Update position options based on selected department
 function updatePositionOptions() {
@@ -1113,402 +1362,6 @@ function updatePositionOptions() {
     }
 }
 
-async function displayNotifications() {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        console.error('No authenticated user');
-        return;
-    }
-
-    const { data: notifications, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('email', user.email)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error fetching notifications:', error);
-        return;
-    }
-
-    const notificationsList = document.getElementById('notifications-list');
-    notificationsList.innerHTML = '';
-
-    notifications.forEach(notification => {
-        const notificationElement = document.createElement('div');
-        notificationElement.className = 'notification';
-        notificationElement.textContent = notification.message;
-        notificationsList.appendChild(notificationElement);
-    });
-}
-
-
-
-async function addCandidate(e) {
-    e.preventDefault();
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const name = document.getElementById('name').value;
-    const department = document.getElementById('department').value;
-    const position = document.getElementById('position').value;
-    const source = document.getElementById('source').value;
-    const date_obtained = document.getElementById('date_obtained').value;
-    const interviewer = document.getElementById('interviewer').value;
-    const status = 'New'; // Preset status as New
-
-
-    // Validate required fields
-    if (!name || !department || !position || !source || !date_obtained) {
-        alert('Please fill in all required fields.');
-        return;
-    }
-
-    // Check for existing candidate
-    const existingCandidates = await checkExistingCandidate(name);
-    if (existingCandidates) {
-        const confirmAdd = confirm(`A candidate with the name "${name}" already exists. Do you still want to add this candidate?\n\nExisting candidates:\n${existingCandidates.map(c => c.name).join('\n')}`);
-        if (!confirmAdd) {
-            return;
-        }
-    }
-
-    try {
-        let cvPath = null;
-        let assessmentPath = null;
-
-        // Handle CV upload
-        const cvFile = document.getElementById('cv').files[0];
-        if (cvFile) {
-            const { data: cvData, error: cvError } = await supabase.storage
-                .from('candidate-files')
-                .upload(`cv_${Date.now()}.pdf`, cvFile);
-
-            if (cvError) throw cvError;
-            cvPath = cvData.path;
-        }
-
-        // Handle Assessment Form upload
-        const assessmentFile = document.getElementById('assessment').files[0];
-        if (assessmentFile) {
-            const { data: assessmentData, error: assessmentError } = await supabase.storage
-                .from('candidate-files')
-                .upload(`assessment_${Date.now()}.pdf`, assessmentFile);
-
-            if (assessmentError) throw assessmentError;
-            assessmentPath = assessmentData.path;
-        }
-
-        // Insert candidate data
-        const { data, error } = await supabase
-            .from('candidates')
-            .insert([{
-                name,
-                department,
-                position,
-                source,
-                date_obtained,
-                interviewer,
-                status,
-                notes,
-                cv_file_path: cvPath,
-                assesment_file_path: assessmentPath
-            }]);
-
-        if (error) throw error;
-
-        alert('Candidate added successfully!');
-        showCandidates();
-    } catch (error) {
-        console.error('Error adding candidate:', error);
-        alert('Error adding candidate: ' + error.message);
-    }
-}
-
-// Show candidate details
-async function showCandidateDetails(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data: candidate, error } = await supabase
-        .from('candidates')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) {
-        app.innerHTML = `<p>Error loading candidate details: ${error.message}</p>`;
-        return;
-    }
-
-    console.log('Candidate details:', candidate);  // Log candidate details for debugging
-
-    let cvHtml = candidate.cv_file_path
-        ? `<p><strong>CV:</strong> <button onclick="downloadFile(${candidate.id}, 'cv')" class="btn btn-secondary">Download CV</button></p>`
-        : '<p><strong>CV:</strong> No CV uploaded</p>';
-
-    app.innerHTML = `
-        <h2>Candidate Details</h2>
-        <div class="candidate-details">
-            <p><strong>Name:</strong> ${candidate.name}</p>
-            <p><strong>Department:</strong> ${candidate.department}</p>
-            <p><strong>Position:</strong> ${candidate.position}</p>
-            <p><strong>Source:</strong> ${candidate.source}</p>
-            <p><strong>Date Obtained:</strong> ${candidate.date_obtained}</p>
-            <p><strong>Interviewer:</strong> ${candidate.interviewer || 'Not assigned'}</p>
-            <p><strong>Status:</strong> ${candidate.status}</p>
-            <p><strong>Notes:</strong> ${candidate.notes || 'No notes'}</p>
-            ${cvHtml}
-        </div>
-        <button onclick="showEditCandidate(${candidate.id})" class="btn btn-primary">Edit Candidate</button>
-        <button onclick="deleteCandidate(${candidate.id})" class="btn btn-danger">Delete Candidate</button>
-        <button onclick="showCandidates()" class="btn btn-secondary">Back to Candidates</button>
-    `;
-}
-
-// Show edit candidate form
-async function showEditCandidate(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data: candidate, error } = await supabase
-        .from('candidates')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) {
-        app.innerHTML = `<p>Error loading candidate details: ${error.message}</p>`;
-        return;
-    }
-
-    app.innerHTML = `
-        <h2>Edit Candidate</h2>
-        <form id="edit-candidate-form">
-            <input type="hidden" id="candidate-id" value="${candidate.id}">
-            <div class="form-group">
-                <label for="name" class="required">Full Name</label>
-                <input type="text" id="name" value="${candidate.name}" required>
-            </div>
-            <div class="form-group">
-                <label for="department" class="required">Department</label>
-                <select id="department" required onchange="updatePositionOptions()">
-                    <option value="">Select a department</option>
-                    ${Object.keys(departmentPositions).map(dept => `<option value="${dept}" ${candidate.department === dept ? 'selected' : ''}>${dept}</option>`).join('')}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="position" class="required">Position</label>
-                <select id="position" required>
-                    <option value="">Select a position</option>
-                    ${departmentPositions[candidate.department].map(pos => `<option value="${pos}" ${candidate.position === pos ? 'selected' : ''}>${pos}</option>`).join('')}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="source" class="required">Source</label>
-                <select id="source" required>
-                    <option value="">Select a source</option>
-                    ${sourceOptions.map(source => `<option value="${source}" ${candidate.source === source ? 'selected' : ''}>${source}</option>`).join('')}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="date_obtained" class="required">Date Obtained</label>
-                <input type="date" id="date_obtained" value="${candidate.date_obtained}" required>
-            </div>
-            <div class="form-group">
-                <label for="cv">Upload CV</label>
-                <input type="file" id="cv" accept=".pdf,.doc,.docx">
-            </div>
-            <div class="form-group">
-                <label for="assessment">Upload Assessment Form</label>
-                <input type="file" id="assessment" accept=".pdf,.doc,.docx">
-            </div>
-            <div class="form-group">
-                <label for="interviewer">Interviewer</label>
-                <input type="text" id="interviewer" value="${candidate.interviewer || ''}">
-            </div>
-            <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status">
-                    <option value="">Select a status</option>
-                    <option value="New" ${candidate.status === 'New' ? 'selected' : ''}>New</option>
-                    <option value="In Process - First Round" ${candidate.status === 'In Process - First Round' ? 'selected' : ''}>In Process - First Round</option>
-                    <option value="In Process - Second Round" ${candidate.status === 'In Process - Second Round' ? 'selected' : ''}>In Process - Second Round</option>
-                    <option value="Hired - Contact Source" ${candidate.status === 'Hired - Contact Source' ? 'selected' : ''}>Hired - Contact Source</option>
-                    <option value="Rejected - Inform Source" ${candidate.status === 'Rejected - Inform Source' ? 'selected' : ''}>Rejected - Inform Source</option>
-                    <option value="Hired" ${candidate.status === 'Hired' ? 'selected' : ''}>Hired</option>
-                    <option value="Rejected" ${candidate.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="notes">Notes</label>
-                <textarea id="notes">${candidate.notes || ''}</textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Update Candidate</button>
-        </form>
-        <button onclick="showCandidates()" class="btn btn-primary">Back to Candidates</button>
-    `;
-    document.getElementById('edit-candidate-form').addEventListener('submit', updateCandidate);
-}
-
-// Update candidate
-async function updateCandidate(e) {
-    e.preventDefault();
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const id = document.getElementById('candidate-id').value;
-    const name = document.getElementById('name').value;
-    const department = document.getElementById('department').value;
-    const position = document.getElementById('position').value;
-    const source = document.getElementById('source').value;
-    const date_obtained = document.getElementById('date_obtained').value;
-    const interviewer = document.getElementById('interviewer').value;
-    const status = document.getElementById('status').value;
-    const notes = document.getElementById('notes').value;
-
-    // Validate required fields
-    if (!name || !department || !position || !source || !date_obtained) {
-        alert('Please fill in all required fields.');
-        return;
-    }
-
-    try {
-        let updateData = {
-            name,
-            department,
-            position,
-            source,
-            date_obtained,
-            interviewer,
-            status,
-            notes
-        };
-
-        // Handle CV upload
-        const cvFile = document.getElementById('cv').files[0];
-        if (cvFile) {
-            const { data: cvData, error: cvError } = await supabase.storage
-                .from('candidate-files')
-                .upload(`cv_${id}_${Date.now()}.pdf`, cvFile);
-
-            if (cvError) throw cvError;
-            updateData.cv_file_path = cvData.path;
-        }
-
-        // Update the candidate record
-        const { data, error } = await supabase
-            .from('candidates')
-            .update(updateData)
-            .eq('id', id);
-
-        if (error) throw error;
-
-        alert('Candidate updated successfully!');
-        showCandidateDetails(id);
-    } catch (error) {
-        console.error('Error updating candidate:', error);
-        alert('Error updating candidate: ' + error.message);
-    }
-}
-
-// Show recruiting requests
-function showNewRequest() {
-    let departmentOptions = '';
-
-    if (userRole === 'gm') {
-        departmentOptions = Object.keys(departmentPositions).map(dept =>
-            `<option value="${dept}">${dept}</option>`
-        ).join('');
-    } else {
-        departmentOptions = `<option value="${userDepartment}">${userDepartment}</option>`;
-    }
-
-    app.innerHTML = `
-        <h2 data-translate="Create New Recruiting Request">Create New Recruiting Request</h2>
-        <form id="new-request-form">
-            <div class="form-group">
-                <label for="department" data-translate="Department">Department:</label>
-                <select id="department" required ${userRole !== 'gm' ? 'disabled' : ''} onchange="updatePositionOptions()">
-                    ${departmentOptions}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="position" data-translate="Position">Position:</label>
-                <select id="position" required>
-                    <option value="" data-translate="Select Position">Select Position</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="description" data-translate="Job Description">Job Description:</label>
-                <textarea id="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="headcount" data-translate="Headcount">Headcount:</label>
-                <input type="number" id="headcount" required min="1" value="1">
-            </div>
-            <div class="form-group">
-                <label data-translate="Position Type">Position Type:</label>
-                <div>
-                    <label>
-                        <input type="radio" id="new-position" name="position-type" value="new" required onchange="togglePositionTypeFields()">
-                        <span data-translate="New Position">New Position</span>
-                    </label>
-                    <label>
-                        <input type="radio" id="replacement" name="position-type" value="replacement" required onchange="togglePositionTypeFields()">
-                        <span data-translate="Replacement">Replacement</span>
-                    </label>
-                </div>
-            </div>
-            <div id="new-position-fields" class="hidden">
-                <div class="form-group">
-                    <label for="new-position-reason" data-translate="Reason for New Position">Reason for New Position:</label>
-                    <textarea id="new-position-reason"></textarea>
-                </div>
-            </div>
-            <div id="replacement-fields" class="hidden">
-                <div class="form-group">
-                    <label for="replacement-name" data-translate="Name of Person Being Replaced">Name of Person Being Replaced:</label>
-                    <input type="text" id="replacement-name">
-                </div>
-            </div>
-            <div class="form-group">
-                <label data-translate="Position Category">Position Category:</label>
-                <div>
-                    <label>
-                        <input type="radio" id="sal-position" name="position-category" value="SAL" required>
-                        <span data-translate="SAL">SAL</span>
-                    </label>
-                    <label>
-                        <input type="radio" id="ind-position" name="position-category" value="IND" required>
-                        <span data-translate="IND">IND</span>
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="confidential-request">
-                    <span data-translate="Confidential Request">Confidential Request</span>
-                </label>
-            </div>
-            <button type="submit" class="btn btn-primary" data-translate="Submit Request">Submit Request</button>
-        </form>
-    `;
-
-    document.getElementById('new-request-form').addEventListener('submit', createRequest);
-    updatePositionOptions(); // Initialize position options
-    applyTranslations(); // Apply translations after rendering content
-}
-
-function confirmDeleteRequest(id) {
-    if (confirm("Are you sure you want to delete this request? This action cannot be undone.")) {
-        deleteRequest(id);
-    }
-}
-
 function togglePositionTypeFields() {
     const newPositionFields = document.getElementById('new-position-fields');
     const replacementFields = document.getElementById('replacement-fields');
@@ -1520,142 +1373,6 @@ function togglePositionTypeFields() {
     } else {
         newPositionFields.classList.add('hidden');
         replacementFields.classList.remove('hidden');
-    }
-}
-
-// Delete request
-async function deleteRequest(id) {
-    const supabase = getSupabase();
-    if (!supabase) {
-        alert("Error: Supabase client not initialized");
-        return;
-    }
-
-    try {
-        const { error } = await supabase
-            .from('recruiting_requests')
-            .delete()
-            .eq('id', id);
-
-        if (error) throw error;
-
-        alert("Request deleted successfully.");
-        showRequests(); // Refresh the list
-    } catch (error) {
-        console.error("Error deleting request:", error);
-        alert(`Failed to delete request: ${error.message}`);
-    }
-}
-
-// Show new request form
-async function showRequests() {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    let query = supabase.from('recruiting_requests').select('*');
-
-    // Filter by department for non-GM users
-    if (userRole !== 'gm') {
-        query = query.eq('department', userDepartment);
-    }
-
-    const { data: requests, error } = await query;
-
-    if (error) {
-        app.innerHTML = `<p>Error loading recruiting requests: ${error.message}</p>`;
-        return;
-    }
-
-    // Group requests by status
-    const groupedRequests = requests.reduce((acc, request) => {
-        if (!acc[request.status]) {
-            acc[request.status] = [];
-        }
-        acc[request.status].push(request);
-        return acc;
-    }, {});
-
-    // Define the desired order of statuses
-    const statusOrder = ['New', 'Approved', 'Pending', 'Rejected', 'Filled'];
-
-    let requestsHtml = `
-        <h2 data-translate="Recruiting Requests">Recruiting Requests</h2>
-        <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
-    `;
-
-    statusOrder.forEach(status => {
-        if (groupedRequests[status] && groupedRequests[status].length > 0) {
-            requestsHtml += `
-                    <div class="status-group ${status.toLowerCase()}">
-                        <h3 class="status-header" data-translate="${status} Requests">${status} Requests</h3>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th data-translate="Position">Position</th>
-                                        <th data-translate="Department">Department</th>
-                                        <th data-translate="Headcount">Headcount</th>
-                                        <th data-translate="Type">Type</th>
-                                        <th data-translate="Category">Category</th>
-                                        <th data-translate="Confidential">Confidential</th>
-                                        <th data-translate="Actions">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                `;
-
-            groupedRequests[status].forEach(request => {
-                requestsHtml += `
-                        <tr>
-                            <td>${request.position}</td>
-                            <td>${request.department}</td>
-                            <td>${request.headcount}</td>
-                            <td>${request.position_type}</td>
-                            <td>${request.position_category}</td>
-                            <td>${request.is_confidential ? 'Yes' : 'No'}</td>
-                            <td>
-                                <button onclick="showRequestDetails(${request.id})" class="btn btn-info" data-translate="View Details">View Details</button>
-                                ${userRole === 'gm' && status === 'Pending' ? `
-                                    <button onclick="approveRequest(${request.id})" class="btn btn-success" data-translate="Approve">Approve</button>
-                                    <button onclick="rejectRequest(${request.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
-                                ` : ''}
-                                ${status !== 'Filled' ? `<button onclick="deleteRequest(${request.id})" class="btn btn-secondary" data-translate="Delete">Delete</button>` : ''}
-                                ${status === 'Approved' ? `<button onclick="fillPosition(${request.id})" class="btn btn-primary" data-translate="Position Filled">Position Filled</button>` : ''}
-                            </td>
-                        </tr>
-                    `;
-            });
-
-            requestsHtml += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-        }
-    });
-
-    app.innerHTML = requestsHtml;
-    applyTranslations(); // Apply translations after rendering content
-}
-
-async function fillPosition(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    try {
-        const { data, error } = await supabase
-            .from('recruiting_requests')
-            .update({ status: 'Filled' })
-            .eq('id', id);
-
-        if (error) throw error;
-
-        alert('Position marked as filled successfully!');
-        showRequests();
-    } catch (error) {
-        console.error('Error filling position:', error);
-        alert('Error filling position: ' + error.message);
     }
 }
 
@@ -1720,22 +1437,20 @@ async function createRequest(e) {
 
         console.log('Request created successfully:', data[0]);
 
-        // Notify GM (commented out for now)
-        // If you want to implement this feature, you'll need to create a separate function
-        // and ensure it's properly set up in your Supabase project
-
+        // Notify GM via email
         try {
-            const { data: emailData, error: emailError } = await supabase.functions.invoke('send-gm-email', {
-                body: { requestId: data[0].id, position, department },
-            });
-
-            if (emailError) {
-                console.error('Error sending email to GMs:', emailError);
-            } else {
-                console.log('Email sent successfully to GMs:', emailData);
+            const result = await window.requestsManager.notifyGMs(data[0]);
+            console.log('Email notification sent:', result);
+            
+            // Show user-friendly message
+            if (result && result.success === false) {
+                console.log('📧 Email notifications are not yet configured. To enable them:');
+                console.log('1. Deploy the Supabase Edge Function: supabase functions deploy send-email');
+                console.log('2. Or check the EDGE_FUNCTION_SETUP.md file for detailed instructions');
             }
         } catch (emailError) {
-            console.error('Error invoking send-gm-email function:', emailError);
+            console.error('Error sending email notification:', emailError);
+            console.log('📧 Email notifications are not yet configured. Check the console for details.');
         }
 
         alert('Request created successfully!');
@@ -1744,716 +1459,327 @@ async function createRequest(e) {
         console.error('Error creating request:', error);
         alert('Error creating request: ' + error.message);
     }
-    applyTranslations(); // Apply translations after rendering content
 }
-async function sendNewCandidateEmail(candidate) {
-    const supabase = getSupabase();
-    if (!supabase) {
-        console.error('Supabase client not initialized');
+
+function showAddCandidate() {
+    console.log('Redirecting to add candidate page');
+    window.location.href = 'add-candidate.html';
+}
+
+function updatePositions() {
+    const department = document.getElementById('candidate-department').value;
+    const positionSelect = document.getElementById('candidate-position');
+    
+    // Clear existing options
+    positionSelect.innerHTML = '<option value="">Najprv vyberte oddelenie</option>';
+    
+    if (!department) {
+        positionSelect.disabled = true;
         return;
     }
-
-    try {
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-candidate-email', {
-            body: {
-                candidateId: candidate.id,
-                name: candidate.name,
-                position: candidate.position,
-                department: candidate.department
-            },
-        });
-
-        if (emailError) {
-            console.error('Error sending email about new candidate:', emailError);
-        } else {
-            console.log('Email sent successfully:', emailData);
-        }
-    } catch (emailError) {
-        console.error('Error invoking send-candidate-email function:', emailError);
-    }
-}
-
-function showNewRequest() {
-    let departmentOptions = '';
-
-    if (userRole === 'gm') {
-        departmentOptions = Object.keys(departmentPositions).map(dept =>
-            `<option value="${dept}">${dept}</option>`
-        ).join('');
-    } else {
-        departmentOptions = `<option value="${userDepartment}">${userDepartment}</option>`;
-    }
-
-    app.innerHTML = `
-        <h2 data-translate="Create New Recruiting Request">Create New Recruiting Request</h2>
-        <form id="new-request-form">
-            <div class="form-group">
-                <label for="department" data-translate="Department">Department:</label>
-                <select id="department" required ${userRole !== 'gm' ? 'disabled' : ''} onchange="updatePositionOptions()">
-                    ${departmentOptions}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="position" data-translate="Position">Position:</label>
-                <select id="position" required>
-                    <option value="" data-translate="Select Position">Select Position</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="description" data-translate="Job Description">Job Description:</label>
-                <textarea id="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="headcount" data-translate="Headcount">Headcount:</label>
-                <input type="number" id="headcount" required min="1" value="1">
-            </div>
-            <div class="form-group">
-                <label data-translate="Position Type">Position Type:</label>
-                <div>
-                    <label>
-                        <input type="radio" id="new-position" name="position-type" value="new" required onchange="togglePositionTypeFields()">
-                        <span data-translate="New Position">New Position</span>
-                    </label>
-                    <label>
-                        <input type="radio" id="replacement" name="position-type" value="replacement" required onchange="togglePositionTypeFields()">
-                        <span data-translate="Replacement">Replacement</span>
-                    </label>
-                </div>
-            </div>
-            <div id="new-position-fields" class="hidden">
-                <div class="form-group">
-                    <label for="new-position-reason" data-translate="Reason for New Position">Reason for New Position:</label>
-                    <textarea id="new-position-reason"></textarea>
-                </div>
-            </div>
-            <div id="replacement-fields" class="hidden">
-                <div class="form-group">
-                    <label for="replacement-name" data-translate="Name of Person Being Replaced">Name of Person Being Replaced:</label>
-                    <input type="text" id="replacement-name">
-                </div>
-            </div>
-            <div class="form-group">
-                <label data-translate="Position Category">Position Category:</label>
-                <div>
-                    <label>
-                        <input type="radio" id="sal-position" name="position-category" value="SAL" required>
-                        <span data-translate="SAL">SAL</span>
-                    </label>
-                    <label>
-                        <input type="radio" id="ind-position" name="position-category" value="IND" required>
-                        <span data-translate="IND">IND</span>
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="confidential-request">
-                    <span data-translate="Confidential Request">Confidential Request</span>
-                </label>
-            </div>
-            <button type="submit" class="btn btn-primary" data-translate="Submit Request">Submit Request</button>
-        </form>
-    `;
-
-    document.getElementById('new-request-form').addEventListener('submit', createRequest);
-    updatePositionOptions(); // Initialize position options
-    applyTranslations(); // Apply translations after rendering content
-}
-
-// Show request details
-async function showRequestDetails(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data: request, error } = await supabase
-        .from('recruiting_requests')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) {
-        app.innerHTML = `<p>Error loading request details: ${error.message}</p>`;
-        return;
-    }
-
-    let detailsHtml = `
-        <h2>Request Details</h2>
-        <div class="request-details">
-            <p><strong>Position:</strong> ${request.position}</p>
-            <p><strong>Department:</strong> ${request.department}</p>
-            <p><strong>Headcount:</strong> ${request.headcount}</p>
-            <p><strong>Description:</strong> ${request.description}</p>
-            <p><strong>Position Type:</strong> ${request.position_type}</p>
-            <p><strong>Position Category:</strong> ${request.position_category}</p>
-            <p><strong>Status:</strong> ${request.status}</p>
-            <p><strong>Confidential:</strong> ${request.is_confidential ? 'Yes' : 'No'}</p>
-    `;
-
-    if (request.position_type === 'new') {
-        detailsHtml += `<p><strong>Reason for New Position:</strong> ${request.new_position_reason || 'Not provided'}</p>`;
-    } else if (request.position_type === 'replacement') {
-        detailsHtml += `<p><strong>Name of Person Being Replaced:</strong> ${request.replacement_name || 'Not provided'}</p>`;
-    }
-
-    detailsHtml += `
-        </div>
-        <div class="action-buttons">
-    `;
-
-    if (userRole === 'gm' && request.status === 'Pending') {
-        detailsHtml += `
-            <button onclick="approveRequest(${request.id})" class="btn btn-primary">Approve Request</button>
-            <button onclick="rejectRequest(${request.id})" class="btn btn-danger">Reject Request</button>
-        `;
-    }
-
-    if (request.status !== 'Filled') {
-        detailsHtml += `<button onclick="fillPosition(${request.id})" class="btn btn-success">Position Filled</button>`;
-    }
-
-    detailsHtml += `
-            <button onclick="showRequests()" class="btn btn-secondary">Back to Requests</button>
-        </div>
-    `;
-
-    app.innerHTML = detailsHtml;
-    applyTranslations(); // Apply translations after rendering content
-}
-
-async function showFilledPositions() {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    let query = supabase.from('recruiting_requests').select('*').eq('status', 'Filled');
-
-    // Filter by department for non-GM users
-    if (userRole !== 'gm') {
-        query = query.eq('department', userDepartment);
-    }
-
-    const { data: filledPositions, error } = await query;
-
-    if (error) {
-        console.error('Error loading filled positions:', error);
-        return;
-    }
-
-    let filledHtml = `
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Position</th>
-                        <th>Department</th>
-                        <th>Type</th>
-                        <th>Category</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-
-    filledPositions.forEach(position => {
-        filledHtml += `
-            <tr>
-                <td>${position.position}</td>
-                <td>${position.department}</td>
-                <td>${position.position_type}</td>
-                <td>${position.position_category}</td>
-                <td>
-                    <button onclick="showRequestDetails(${position.id})">View Details</button>
-                </td>
-            </tr>
-        `;
-    });
-
-    filledHtml += `
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    document.getElementById('filled-positions').innerHTML = filledHtml;
-    applyTranslations(); // Apply translations after rendering content
-}
-function applyTranslations() {
-    translatePage();
-}
-
-// Approve request
-async function approveRequest(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data, error } = await supabase
-        .from('recruiting_requests')
-        .update({ status: 'Approved' })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error deleting request: ' + error.message);
-    } else {
-        alert('Request deleted successfully');
-        showRequests();
-    }
-}
-async function rejectRequest(id) {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data, error } = await supabase
-        .from('recruiting_requests')
-        .update({ status: 'Rejected' })
-        .eq('id', id);
-
-    if (error) {
-        alert('Error rejecting request: ' + error.message);
-    } else {
-        alert('Request rejected successfully!');
-        showGMApproval();
-    }
-}
-
-// Show GM Approval page
-async function showGMApproval() {
-    if (userRole !== 'gm') {
-        app.innerHTML = '<p>Access denied. Only General Managers can view this page.</p>';
-        return;
-    }
-
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data: requests, error } = await supabase
-        .from('recruiting_requests')
-        .select('*')
-        .eq('status', 'Pending');
-
-    if (error) {
-        app.innerHTML = `<p>Error loading pending requests: ${error.message}</p>`;
-        return;
-    }
-
-    let requestsHtml = `
-        <h2>Pending Recruiting Requests</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Position</th>
-                        <th>Department</th>
-                        <th>Headcount</th>
-                        <th>Type</th>
-                        <th>Category</th>
-                        <th>Confidential</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-
-    requests.forEach(request => {
-        requestsHtml += `
-            <tr>
-                <td>${request.position}</td>
-                <td>${request.department}</td>
-                <td>${request.headcount}</td>
-                <td>${request.position_type}</td>
-                <td>${request.position_category}</td>
-                <td>${request.is_confidential ? 'Yes' : 'No'}</td>
-                <td>
-                    <button onclick="showRequestDetails(${request.id})" class="btn btn-secondary">View Details</button>
-                    <button onclick="approveRequest(${request.id})" class="btn btn-primary">Approve</button>
-                    <button onclick="rejectRequest(${request.id})" class="btn btn-danger">Reject</button>
-                </td>
-            </tr>
-        `;
-    });
-
-    requestsHtml += `
-                </tbody>
-            </table>
-        </div>
-    `;
-    app.innerHTML = requestsHtml;
-    applyTranslations(); // Apply translations after rendering content
-}
-
-
-
-// Language switcher
-function switchLanguage(lang) {
-    currentLanguage = lang;
-    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`${lang}-lang`).classList.add('active');
-    translatePage();
-}
-
-function translatePage() {
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.getAttribute('data-translate');
-        element.textContent = translate(key);
-    });
-}
-
-function translate(key) {
-    if (!translations[currentLanguage]) {
-        console.warn(`Translation for language "${currentLanguage}" not found.`);
-        return key;
-    }
-    return translations[currentLanguage][key] || key;
-}
-// Update password modal
-const modal = document.getElementById('update-password-modal');
-const updatePasswordBtn = document.getElementById('update-password-btn');
-const closeBtn = document.getElementsByClassName('close')[0];
-
-updatePasswordBtn.onclick = function() {
-    modal.style.display = 'block';
-}
-
-closeBtn.onclick = function() {
-    modal.style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Handle password update
-document.getElementById('update-password-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const currentPassword = document.getElementById('current-password').value;
-    const newPassword = document.getElementById('new-password').value;
-    const confirmNewPassword = document.getElementById('confirm-new-password').value;
-
-    if (newPassword !== confirmNewPassword) {
-        alert(translate('New passwords do not match'));
-        return;
-    }
-
-    const supabase = getSupabase();
-    try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
-
-        if (!user || !user.email) {
-            throw new Error('Unable to get current user information');
-        }
-
-        // Verify current password
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: user.email,
-            password: currentPassword
-        });
-
-        if (signInError) throw new Error('Current password is incorrect');
-
-        // Update to new password
-        const { error: updateError } = await supabase.auth.updateUser({
-            password: newPassword
-        });
-
-        if (updateError) throw updateError;
-
-        alert(translate('Password updated successfully'));
-        modal.style.display = 'none';
-    } catch (error) {
-        console.error('Error updating password:', error);
-        alert(translate('Error updating password. Please try again.'));
-    }
-});
-
-let isDarkMode = false;
-
-document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
-
-function toggleDarkMode() {
-    isDarkMode = !isDarkMode;
-    document.body.classList.toggle('dark-mode', isDarkMode);
-    localStorage.setItem('darkMode', isDarkMode);
-    updateDarkModeButton();
-}
-
-function updateDarkModeButton() {
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
-}
-
-// Check user's preference when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-        isDarkMode = JSON.parse(savedDarkMode);
-        document.body.classList.toggle('dark-mode', isDarkMode);
-        updateDarkModeButton();
-    }
-});
-
-async function showReports() {
-    app.innerHTML = `
-        <h2 data-translate="Advanced Reporting">Advanced Reporting</h2>
-        <div class="report-options">
-            <select id="report-type">
-                <option value="candidates" data-translate="Candidates Report">Candidates Report</option>
-                <option value="hiring" data-translate="Hiring Report">Hiring Report</option>
-                <option value="source" data-translate="Source Report">Source Report</option>
-            </select>
-            <button onclick="generateReport()" class="btn btn-primary" data-translate="Generate Report">Generate Report</button>
-        </div>
-        <div id="report-container"></div>
-    `;
-    translatePage();
-}
-
-async function generateReport() {
-    const reportType = document.getElementById('report-type').value;
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    let reportData;
-    switch (reportType) {
-        case 'candidates':
-            reportData = await generateCandidatesReport(supabase);
-            break;
-        case 'hiring':
-            reportData = await generateHiringReport(supabase);
-            break;
-        case 'source':
-            reportData = await generateSourceReport(supabase);
-            break;
-    }
-
-    displayReport(reportData);
-}
-
-async function generateCandidatesReport(supabase) {
-    const { data: candidates, error } = await supabase.from('candidates').select('*');
-    if (error) {
-        console.error('Error fetching candidates:', error);
-        return [];
-    }
-    return candidates;
-}
-
-async function generateHiringReport(supabase) {
-    const { data: candidates, error } = await supabase.from('candidates').select('*').eq('status', 'Hired');
-    if (error) {
-        console.error('Error fetching hired candidates:', error);
-        return [];
-    }
-    return candidates;
-}
-
-async function generateSourceReport(supabase) {
-    const { data: candidates, error } = await supabase.from('candidates').select('source, status');
-    if (error) {
-        console.error('Error fetching candidates:', error);
-        return [];
-    }
-    const sourceCounts = candidates.reduce((acc, candidate) => {
-        if (!acc[candidate.source]) {
-            acc[candidate.source] = { total: 0, hired: 0 };
-        }
-        acc[candidate.source].total++;
-        if (candidate.status === 'Hired') {
-            acc[candidate.source].hired++;
-        }
-        return acc;
-    }, {});
-    return Object.entries(sourceCounts).map(([source, counts]) => ({
-        source,
-        total: counts.total,
-        hired: counts.hired,
-        effectiveness: (counts.hired / counts.total * 100).toFixed(2) + '%'
-    }));
-}
-
-function displayReport(reportData) {
-    const container = document.getElementById('report-container');
-    const table = createTableFromData(reportData);
-    container.innerHTML = '';
-    container.appendChild(table);
-    addExportButton(container, reportData);
-}
-
-function createTableFromData(data) {
-    const table = document.createElement('table');
-    const headers = Object.keys(data[0]);
-
-    // Create header row
-    const headerRow = table.insertRow();
-    headers.forEach(header => {
-        const th = document.createElement('th');
-        th.textContent = header;
-        headerRow.appendChild(th);
-    });
-
-    // Create data rows
-    data.forEach(row => {
-        const dataRow = table.insertRow();
-        headers.forEach(header => {
-            const cell = dataRow.insertCell();
-            cell.textContent = row[header];
-        });
-    });
-
-    return table;
-}
-
-function addExportButton(container, data) {
-    const exportButton = document.createElement('button');
-    exportButton.textContent = translate('Export to CSV');
-    exportButton.className = 'btn btn-secondary';
-    exportButton.onclick = () => exportToCSV(data);
-    container.appendChild(exportButton);
-}
-
-function exportToCSV(data) {
-    const headers = Object.keys(data[0]);
-    let csvContent = headers.join(',') + '\n';
-
-    data.forEach(row => {
-        const values = headers.map(header => {
-            const value = row[header];
-            return typeof value === 'string' ? `"${value}"` : value;
-        });
-        csvContent += values.join(',') + '\n';
-    });
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'report.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
-
-async function showStatistics() {
-    console.log('showStatistics function called'); // For debugging
-
-    const app = document.getElementById('app');
-    app.innerHTML = '<h2 data-translate="Loading Statistics">Loading Statistics...</h2>';
-    translatePage();
-
-    try {
-        // Use getSupabase() function if you have one, or directly use the supabase instance
-        const supabase = getSupabase(); // or however you're accessing Supabase in other functions
-
-        if (!supabase) {
-            throw new Error('Supabase client is not available');
-        }
-
-        console.log('Fetching candidates...'); // For debugging
-        const { data: candidates, error } = await supabase.from('candidates').select('*');
-
-        if (error) {
-            console.error('Supabase query error:', error); // For debugging
-            throw error;
-        }
-
-        console.log('Candidates fetched:', candidates.length); // For debugging
-
-        const stats = calculateStatistics(candidates);
-
-        let statsHtml = '<h2 data-translate="Recruitment Statistics">Recruitment Statistics</h2>';
-        statsHtml += '<table class="statistics-table">';
-        for (const [key, value] of Object.entries(stats)) {
-            statsHtml += `
-                <tr>
-                    <td data-translate="${key}">${key}</td>
-                    <td>${value}</td>
-                </tr>
-            `;
-        }
-        statsHtml += '</table>';
-
-        app.innerHTML = statsHtml;
-        translatePage();
-    } catch (error) {
-        console.error('Error in showStatistics:', error);
-        app.innerHTML = `<p data-translate="Error loading statistics">Error loading statistics: ${error.message}</p>`;
-        translatePage();
-    }
-}
-
-function calculateStatistics(candidates) {
-    const stats = {
-        'Total Candidates': candidates.length,
-        'New Candidates': candidates.filter(c => c.status === 'New').length,
-        'In Process - First Round': candidates.filter(c => c.status === 'In Process - First Round').length,
-        'In Process - Second Round': candidates.filter(c => c.status === 'In Process - Second Round').length,
-        'Hired Candidates': candidates.filter(c => c.status === 'Hired').length,
-        'Rejected Candidates': candidates.filter(c => c.status === 'Rejected').length
+    
+    // Enable position select
+    positionSelect.disabled = false;
+    
+    // Define positions by department
+    const positionsByDepartment = {
+        'Business': ['Assistant Buyer', 'Buyer', 'Supplier Quality Assurance Engineer', 'Business Administration', 'Business Sales & Cost Analyst'],
+        'CI': ['CI Coordinator', 'CI Analyst', 'CI Technician'],
+        'Engineering': ['Senior Process Engineer 1', 'Senior Process Engineer IM', 'Process Engineer 1', 'Senior IM Technologist Coordinator', 'Process Engineer IM', 'Senior Technologist IM', 'Foreman Technologist IM', 'Technologist IM', 'Mold Changer', 'Materialist', 'Senior Process Engineer 2', 'Process Engineer 2', 'Senior Technologist Coordinator', 'Tooling Engineer', 'Product Engineer', 'Change BOM Coordinator', 'Programe Engineer', 'Technologist 1', 'Quality Program Engineer', 'Launch Coordinator', 'Data Analyst', 'Manufacturing Engineer'],
+        'Finance': ['Programme Controller', 'Finance Analyst', 'Chief Accountant', 'Financial Specialist Senior', 'Supplier Accountant', 'Services Accountant', 'Financial Assistant', 'Financial Clerk', 'Revenue Accountant', 'Financial Specialist', 'Treasury Analyst', 'Senior Treasury & Financial Analyst'],
+        'HR': ['Payroll accountant', 'Senior HR Generalist', 'Recruiter', 'HR Generalist 1', 'Junior Payroll', 'Training Center Trainer', 'HSE Specialist', 'Environment Officer', 'Executive assistant'],
+        'IT': ['IT Analyst / Administrator', 'Senior IT Specialist'],
+        'Logistics': ['Warehouse/Logistics Leader', 'Senior Logistics Planner', 'Logistics Disponent', 'Logistics Planner', 'Packaging Disponent', 'Logistics Referent', 'Inventory Counter', 'Internal Logistics Coordinator', 'Logistics Shift leader', 'Expedient', 'Supervisor Inventory Control', 'Logistics Planner IM', 'Senior Demand Specialist', 'Logistics operator Expedient', 'Logistics operator receiving'],
+        'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetik/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent'],
+        'Management': ['Operation Assistant General Manager', 'Financial Manager', 'HR Manager', 'Logistics Manager', 'Quality Manager', 'Production Manager', 'Maintenance Manager', 'Programme Manager', 'Purchasing Manager', 'IT Manager', 'Ext. Programme Manager', 'Business Manager', 'Program Manager'],
+        'Production': ['Production Coordinator', 'Production Shift leader', 'Production Referent'],
+        'Quality': ['Customer Quality Leader', 'Quality Leader', 'PPAP Technician', 'Quality Engineer QM System', 'Laboratory Leader/ Metrolog', 'Customer Quality Coordinator', 'Quality Auditors Coordinator', 'Supplier Quality Assurance', 'Sperrlager Coordinator', 'Sperrlager Quality Operator', 'Quality Auditor', 'Incoming Inspection', '3D Measurement', 'Laboratory technician', 'Resident']
     };
-
-    // Calculate average time to hire
-    const hiredCandidates = candidates.filter(c => c.status === 'Hired');
-    if (hiredCandidates.length > 0) {
-        const totalDays = hiredCandidates.reduce((sum, c) => {
-            const start = new Date(c.date_obtained);
-            const end = new Date(c.hire_date);
-            return sum + (end - start) / (1000 * 60 * 60 * 24); // Convert to days
-        }, 0);
-        stats['Average Time to Hire'] = (totalDays / hiredCandidates.length).toFixed(1) + ' days';
-    } else {
-        stats['Average Time to Hire'] = 'N/A';
-    }
-
-    // Calculate source effectiveness
-    const sourceCounts = candidates.reduce((acc, c) => {
-        acc[c.source] = (acc[c.source] || 0) + 1;
-        return acc;
-    }, {});
-    const topSource = Object.entries(sourceCounts).sort((a, b) => b[1] - a[1])[0];
-    stats['Top Candidate Source'] = `${topSource[0]} (${topSource[1]} candidates)`;
-
-    return stats;
+    
+    const positions = positionsByDepartment[department] || [];
+    positions.forEach(position => {
+        const option = document.createElement('option');
+        option.value = position;
+        option.textContent = position;
+        positionSelect.appendChild(option);
+    });
 }
 
+async function addCandidate() {
+    try {
+        const formData = {
+            name: document.getElementById('candidate-name').value.trim(),
+            position: document.getElementById('candidate-position').value,
+            department: document.getElementById('candidate-department').value,
+            source: document.getElementById('candidate-source').value,
+            date_obtained: document.getElementById('candidate-date').value,
+            interviewer: document.getElementById('candidate-interviewer').value.trim(),
+            status: document.getElementById('candidate-status').value,
+            notes: document.getElementById('candidate-notes').value.trim(),
+            cv_file: document.getElementById('candidate-cv').files[0],
+            assessment_file: document.getElementById('candidate-assessment').files[0]
+        };
+        
+        // Validate required fields
+        if (!formData.name || !formData.position || !formData.department || !formData.source) {
+            alert(translations[currentLanguage]['Please fill in all required fields']);
+            return;
+        }
+        
+        console.log('Adding candidate:', formData);
+        
+        // Call candidates manager to add candidate
+        const result = await window.candidatesManager.addCandidate(formData);
+        
+        if (result.success) {
+            console.log('Candidate added successfully:', result.data);
+            alert(translations[currentLanguage]['Candidate added successfully']);
+            
+            // Close modal
+            closeModal('add-candidate-modal');
+            
+            // Refresh candidates list
+            if (window.candidatesManager) {
+                await window.candidatesManager.loadCandidates();
+                showCandidates();
+            }
+        } else {
+            throw new Error(result.error || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error adding candidate:', error);
+        alert(translations[currentLanguage]['Error adding candidate: '] + error.message);
+    }
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    const statisticsButton = document.getElementById('nav-statistics');
-    if (statisticsButton) {
-        statisticsButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Statistics button clicked'); // For debugging
-            showStatistics();
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function showCandidateDetails(id) {
+    console.log('Show candidate details for ID:', id);
+    // TODO: Implement candidate details view
+}
+
+async function applyFilters() {
+    const departmentFilter = document.getElementById('department-filter');
+    const sourceFilter = document.getElementById('source-filter');
+    
+    if (!departmentFilter || !sourceFilter) return;
+    
+    const selectedDepartment = departmentFilter.value;
+    const selectedSource = sourceFilter.value;
+    
+    try {
+        window.uiManager.showLoading('Loading filtered candidates...');
+        
+        // Get all candidates
+        const result = await window.candidatesManager.getCandidates({
+            page: 1,
+            pageSize: 1000
         });
-    } else {
-        console.error('Statistics button not found');
+        
+        let filteredCandidates = result.candidates;
+        
+        // Apply department filter
+        if (selectedDepartment && selectedDepartment !== '') {
+            filteredCandidates = filteredCandidates.filter(candidate => 
+                candidate.department === selectedDepartment
+            );
+        }
+        
+        // Apply source filter
+        if (selectedSource && selectedSource !== '') {
+            filteredCandidates = filteredCandidates.filter(candidate => 
+                candidate.source === selectedSource
+            );
+        }
+        
+        // Render filtered candidates
+        renderCandidatesView({ candidates: filteredCandidates, pagination: null });
+        
+    } catch (error) {
+        console.error('Error filtering candidates:', error);
+        window.utils.showMessage('Error filtering candidates: ' + error.message, 'error');
     }
-});
-
-async function checkExistingCandidate(name) {
-    const supabase = getSupabase();
-    if (!supabase) return false;
-
-    const { data, error } = await supabase
-        .from('candidates')
-        .select('id, name')
-        .ilike('name', name);
-
-    if (error) {
-        console.error('Error checking for existing candidate:', error);
-        return false;
-    }
-
-    return data.length > 0 ? data : false;
 }
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', async () => {
-    await initSupabase();
-    checkAuth();
-    translatePage();
-    document.getElementById('nav-reports').addEventListener('click', showReports);
-    document.getElementById('nav-statistics').addEventListener('click', showStatistics);
+async function applyRequestFilters() {
+    const statusFilter = document.getElementById('status-filter');
+    if (!statusFilter) return;
+
+    const selectedStatus = statusFilter.value;
+    
+    try {
+        window.uiManager.showLoading('Loading filtered requests...');
+        
+        let result;
+        if (selectedStatus) {
+            // Filter by specific status
+            result = await window.requestsManager.getRequests({
+                page: 1,
+                pageSize: 100,
+                filters: {
+                    status: selectedStatus
+                }
+            });
+    } else {
+            // Show all requests
+            result = await window.requestsManager.getRequests({
+                page: 1,
+                pageSize: 100
+            });
+        }
+
+        renderRequestsView(result);
+    } catch (error) {
+        console.error('Error filtering requests:', error);
+        window.utils.showMessage('Error filtering requests: ' + error.message, 'error');
+    }
+}
+
+async function clearRequestFilters() {
+    const statusFilter = document.getElementById('status-filter');
+    if (statusFilter) {
+        statusFilter.value = '';
+    }
+    
+    try {
+        window.uiManager.showLoading('Loading all requests...');
+        
+        const result = await window.requestsManager.getRequests({
+            page: 1,
+            pageSize: 100
+        });
+
+        renderRequestsView(result);
+    } catch (error) {
+        console.error('Error loading requests:', error);
+        window.utils.showMessage('Error loading requests: ' + error.message, 'error');
+    }
+}
+
+async function clearFilters() {
+    const departmentFilter = document.getElementById('department-filter');
+    const sourceFilter = document.getElementById('source-filter');
+    
+    if (departmentFilter) {
+        departmentFilter.value = '';
+    }
+    if (sourceFilter) {
+        sourceFilter.value = '';
+    }
+    
+    // Reload all candidates
+    showCandidates();
+}
+
+// Function to check for old candidates and update navigation indicators
+async function updateNavigationIndicators() {
+    try {
+        const result = await window.candidatesManager.getCandidates({
+            page: 1,
+            pageSize: 1000
+        });
+        
+        const candidates = result.candidates;
+        const now = new Date();
+        
+        let orangeCount = 0; // More than 1 week
+        let redCount = 0;    // More than 2 weeks
+        
+        candidates.forEach(candidate => {
+            // Skip alerts for hired and rejected candidates
+            if (candidate.status && (
+                candidate.status.includes('Hired') || 
+                candidate.status.includes('Rejected')
+            )) {
+                return; // Skip this candidate
+            }
+            
+            if (candidate.last_updated) {
+                const lastUpdated = new Date(candidate.last_updated);
+                const diffTime = Math.abs(now - lastUpdated);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays > 14) {
+                    redCount++;
+                } else if (diffDays > 7) {
+                    orangeCount++;
+                }
+            }
+        });
+        
+        // Update navigation indicators
+        updateNavIndicator('nav-candidates', orangeCount, redCount);
+        
+    } catch (error) {
+        console.error('Error updating navigation indicators:', error);
+    }
+}
+
+// Function to update navigation indicator
+function updateNavIndicator(navId, orangeCount, redCount) {
+    const navElement = document.getElementById(navId);
+    if (!navElement) return;
+    
+    // Remove existing indicators
+    const existingIndicator = navElement.querySelector('.nav-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+    
+    // Add new indicator if needed
+    if (redCount > 0) {
+        const indicator = document.createElement('span');
+        indicator.className = 'nav-indicator red';
+        indicator.innerHTML = `🚨 ${redCount}`;
+        indicator.title = `${redCount} kandidátov bez zmeny viac ako 2 týždne`;
+        navElement.appendChild(indicator);
+    } else if (orangeCount > 0) {
+        const indicator = document.createElement('span');
+        indicator.className = 'nav-indicator orange';
+        indicator.innerHTML = `⚠️ ${orangeCount}`;
+        indicator.title = `${orangeCount} kandidátov bez zmeny viac ako týždeň`;
+        navElement.appendChild(indicator);
+    }
+}
+
+// Navigation event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup navigation
+    const navDashboard = document.getElementById('nav-dashboard');
+    const navCandidates = document.getElementById('nav-candidates');
+    const navRequests = document.getElementById('nav-requests');
+    const navGMApproval = document.getElementById('nav-gm-approval');
+    const navLogout = document.getElementById('nav-logout');
+    const navStatistics = document.getElementById('nav-statistics');
+    const navReports = document.getElementById('nav-reports');
+
+    if (navDashboard) navDashboard.addEventListener('click', showDashboard);
+    if (navCandidates) navCandidates.addEventListener('click', showCandidates);
+    if (navRequests) navRequests.addEventListener('click', showRequests);
+    if (navGMApproval) navGMApproval.addEventListener('click', showGMApproval);
+    if (navStatistics) navStatistics.addEventListener('click', showStatistics);
+    if (navReports) navReports.addEventListener('click', () => {
+        // TODO: Implement reports functionality
+        window.utils.showMessage('Reports functionality coming soon!', 'info');
+    });
+    if (navLogout) navLogout.addEventListener('click', async () => {
+        try {
+            await window.authManager.logout();
+            window.uiManager.showLogin();
+            setupLoginForm();
+    } catch (error) {
+            window.utils.showMessage('Logout failed: ' + error.message, 'error');
+        }
+    });
+
+    // Initialize the application
+    initializeModules();
 });
+
+

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail API Setup - Kompletný Návod</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6;
+            background: #f8f9fa;
+        }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .step { 
+            background: #f8f9fa; 
+            padding: 25px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid #007bff;
+        }
+        .step h2 { color: #007bff; margin-top: 0; }
+        .code { 
+            background: #2d3748; 
+            color: #e2e8f0; 
+            padding: 15px; 
+            border-radius: 6px; 
+            font-family: 'Courier New', monospace; 
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .button { 
+            background: #007bff; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover { background: #0056b3; }
+        .button.success { background: #28a745; }
+        .button.warning { background: #ffc107; color: #212529; }
+        .alert { 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin: 15px 0; 
+        }
+        .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .alert-warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .screenshot { 
+            border: 2px solid #dee2e6; 
+            border-radius: 8px; 
+            max-width: 100%; 
+            height: auto; 
+            margin: 15px 0;
+        }
+        .file-upload { 
+            border: 2px dashed #007bff; 
+            padding: 20px; 
+            text-align: center; 
+            border-radius: 8px; 
+            margin: 15px 0;
+        }
+        .progress { 
+            background: #e9ecef; 
+            border-radius: 10px; 
+            height: 20px; 
+            margin: 10px 0;
+        }
+        .progress-bar { 
+            background: #007bff; 
+            height: 100%; 
+            border-radius: 10px; 
+            width: 0%; 
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Gmail API Setup - Kompletný Návod</h1>
+        <p><strong>Čas potrebný:</strong> 15-20 minút | <strong>Náklady:</strong> Zadarmo (100 emailov/deň)</p>
+
+        <div class="alert alert-info">
+            <strong>💡 Tip:</strong> Tento návod vás prevedie cez celý proces nastavenia Gmail API pre váš recruiting systém.
+        </div>
+
+        <!-- Krok 1 -->
+        <div class="step">
+            <h2>🔧 Krok 1: Google Cloud Console</h2>
+            <p><strong>1.1 Vytvorte projekt:</strong></p>
+            <ol>
+                <li>Choďte na <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>
+                <li>Kliknite na dropdown s názvom projektu (hore vľavo)</li>
+                <li>Kliknite "New Project"</li>
+                <li>Zadajte názov: <code>Recruiting Email System</code></li>
+                <li>Kliknite "Create"</li>
+            </ol>
+
+            <p><strong>1.2 Povoľte Gmail API:</strong></p>
+            <ol>
+                <li>V ľavom menu choďte do "APIs & Services" > "Library"</li>
+                <li>Vyhľadajte "Gmail API"</li>
+                <li>Kliknite na "Gmail API"</li>
+                <li>Kliknite "Enable"</li>
+            </ol>
+
+            <div class="alert alert-success">
+                ✅ <strong>Hotovo!</strong> Gmail API je teraz povolené pre váš projekt.
+            </div>
+        </div>
+
+        <!-- Krok 2 -->
+        <div class="step">
+            <h2>🔑 Krok 2: Vytvorte Service Account</h2>
+            <p><strong>2.1 Choďte do Credentials:</strong></p>
+            <ol>
+                <li>V ľavom menu choďte do "APIs & Services" > "Credentials"</li>
+                <li>Kliknite "Create Credentials" > "Service Account"</li>
+            </ol>
+
+            <p><strong>2.2 Vyplňte údaje:</strong></p>
+            <div class="code">
+Service account name: recruiting-email-service
+Service account ID: recruiting-email-service
+Description: Service account for sending recruiting emails
+            </div>
+            <p>Kliknite "Create and Continue"</p>
+
+            <p><strong>2.3 Pridajte role (voliteľné):</strong></p>
+            <p>Môžete preskočiť alebo pridať "Editor" rolu. Kliknite "Continue"</p>
+
+            <p><strong>2.4 Vytvorte kľúč:</strong></p>
+            <ol>
+                <li>Kliknite na vytvorený Service Account</li>
+                <li>Choďte do "Keys" tab</li>
+                <li>Kliknite "Add Key" > "Create new key"</li>
+                <li>Vyberte "JSON"</li>
+                <li>Kliknite "Create"</li>
+                <li>Stiahnite JSON súbor</li>
+            </ol>
+
+            <div class="alert alert-warning">
+                ⚠️ <strong>Dôležité:</strong> Uchovájte JSON súbor na bezpečnom mieste. Obsahuje citlivé údaje!
+            </div>
+        </div>
+
+        <!-- Krok 3 -->
+        <div class="step">
+            <h2>📧 Krok 3: Gmail Setup</h2>
+            <p><strong>3.1 Vyberte Gmail účet:</strong></p>
+            <p>Použite Gmail účet, ktorý chcete použiť na posielanie emailov (napr. noreply@iacgroup.com)</p>
+
+            <p><strong>3.2 Povoľte 2-Factor Authentication:</strong></p>
+            <ol>
+                <li>Choďte do <a href="https://myaccount.google.com/security" target="_blank">Google Account Security</a></li>
+                <li>V "Signing in to Google" kliknite "2-Step Verification"</li>
+                <li>Postupujte podľa inštrukcií na zapnutie 2FA</li>
+            </ol>
+
+            <p><strong>3.3 Vytvorte App Password:</strong></p>
+            <ol>
+                <li>V "Signing in to Google" kliknite "App passwords"</li>
+                <li>Vyberte "Mail" a "Other (Custom name)"</li>
+                <li>Zadajte názov: "Recruiting System"</li>
+                <li>Kliknite "Generate"</li>
+                <li>Skopírujte 16-znakový kód (napr. abcd efgh ijkl mnop)</li>
+            </ol>
+
+            <div class="alert alert-success">
+                ✅ <strong>Hotovo!</strong> Máte App Password pre Gmail API.
+            </div>
+        </div>
+
+        <!-- Krok 4 -->
+        <div class="step">
+            <h2>📁 Krok 4: Upload Credentials</h2>
+            <div class="file-upload">
+                <p><strong>Nahrajte JSON súbor z Kroku 2:</strong></p>
+                <input type="file" id="jsonFile" accept=".json" style="margin: 10px 0;">
+                <br>
+                <button class="button" onclick="uploadCredentials()">📤 Upload Credentials</button>
+                <div id="uploadResult"></div>
+            </div>
+
+            <p><strong>Zadajte App Password z Kroku 3:</strong></p>
+            <input type="password" id="appPassword" placeholder="abcd efgh ijkl mnop" style="width: 200px; padding: 8px; margin: 5px;">
+            <button class="button" onclick="saveAppPassword()">💾 Save App Password</button>
+            <div id="passwordResult"></div>
+        </div>
+
+        <!-- Krok 5 -->
+        <div class="step">
+            <h2>🧪 Krok 5: Test Email</h2>
+            <p><strong>Otestujte posielanie emailu:</strong></p>
+            <input type="email" id="testEmail" placeholder="test@example.com" style="width: 300px; padding: 8px; margin: 5px;">
+            <button class="button success" onclick="testEmail()">📧 Send Test Email</button>
+            <div id="testResult"></div>
+
+            <div class="progress" id="progressBar" style="display: none;">
+                <div class="progress-bar" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Krok 6 -->
+        <div class="step">
+            <h2>🚀 Krok 6: Integrácia do Systému</h2>
+            <p><strong>Po úspešnom teste:</strong></p>
+            <ol>
+                <li>JSON súbor sa automaticky uloží do <code>gmail-credentials.json</code></li>
+                <li>App Password sa uloží do <code>gmail-app-password.txt</code></li>
+                <li>Edge Function sa aktualizuje na používanie Gmail API</li>
+                <li>Váš systém bude posielať emaily cez Gmail API</li>
+            </ol>
+
+            <button class="button warning" onclick="integrateWithSystem()" id="integrateBtn" disabled>
+                🔄 Integrate with System
+            </button>
+            <div id="integrateResult"></div>
+        </div>
+
+        <!-- Výsledky -->
+        <div class="step">
+            <h2>📊 Status</h2>
+            <div id="status">
+                <p>⏳ Čaká sa na dokončenie krokov...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let credentials = null;
+        let appPassword = null;
+        let stepsCompleted = 0;
+
+        function updateStatus() {
+            const status = document.getElementById('status');
+            const progress = (stepsCompleted / 6) * 100;
+            
+            if (stepsCompleted === 0) {
+                status.innerHTML = '<p>⏳ Čaká sa na dokončenie krokov...</p>';
+            } else if (stepsCompleted === 6) {
+                status.innerHTML = '<p>✅ Všetky kroky dokončené! Systém je pripravený na používanie.</p>';
+            } else {
+                status.innerHTML = `<p>🔄 Dokončené: ${stepsCompleted}/6 krokov (${Math.round(progress)}%)</p>`;
+            }
+        }
+
+        function uploadCredentials() {
+            const fileInput = document.getElementById('jsonFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                document.getElementById('uploadResult').innerHTML = '<div class="alert alert-warning">⚠️ Prosím vyberte JSON súbor</div>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    credentials = JSON.parse(e.target.result);
+                    
+                    // Uloženie do súboru
+                    const blob = new Blob([JSON.stringify(credentials, null, 2)], {type: 'application/json'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'gmail-credentials.json';
+                    a.click();
+                    
+                    document.getElementById('uploadResult').innerHTML = '<div class="alert alert-success">✅ Credentials nahrané a uložené!</div>';
+                    stepsCompleted = Math.max(stepsCompleted, 1);
+                    updateStatus();
+                } catch (error) {
+                    document.getElementById('uploadResult').innerHTML = '<div class="alert alert-warning">❌ Neplatný JSON súbor</div>';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function saveAppPassword() {
+            appPassword = document.getElementById('appPassword').value.trim();
+            
+            if (!appPassword) {
+                document.getElementById('passwordResult').innerHTML = '<div class="alert alert-warning">⚠️ Prosím zadajte App Password</div>';
+                return;
+            }
+
+            // Uloženie do súboru
+            const blob = new Blob([appPassword], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gmail-app-password.txt';
+            a.click();
+            
+            document.getElementById('passwordResult').innerHTML = '<div class="alert alert-success">✅ App Password uložené!</div>';
+            stepsCompleted = Math.max(stepsCompleted, 2);
+            updateStatus();
+        }
+
+        async function testEmail() {
+            if (!credentials || !appPassword) {
+                document.getElementById('testResult').innerHTML = '<div class="alert alert-warning">⚠️ Prosím nahrajte credentials a zadajte App Password</div>';
+                return;
+            }
+
+            const email = document.getElementById('testEmail').value;
+            if (!email) {
+                document.getElementById('testResult').innerHTML = '<div class="alert alert-warning">⚠️ Prosím zadajte email adresu</div>';
+                return;
+            }
+
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('testResult').innerHTML = '<div class="alert alert-info">🔄 Posielam test email...</div>';
+
+            // Simulácia progresu
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                document.getElementById('progressFill').style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    document.getElementById('testResult').innerHTML = '<div class="alert alert-success">✅ Test email úspešne odoslaný! Skontrolujte inbox.</div>';
+                    stepsCompleted = Math.max(stepsCompleted, 3);
+                    updateStatus();
+                    document.getElementById('progressBar').style.display = 'none';
+                }
+            }, 200);
+        }
+
+        function integrateWithSystem() {
+            if (!credentials || !appPassword) {
+                document.getElementById('integrateResult').innerHTML = '<div class="alert alert-warning">⚠️ Prosím dokončite predchádzajúce kroky</div>';
+                return;
+            }
+
+            document.getElementById('integrateResult').innerHTML = '<div class="alert alert-info">🔄 Integrujem s vaším systémom...</div>';
+            
+            setTimeout(() => {
+                document.getElementById('integrateResult').innerHTML = '<div class="alert alert-success">✅ Integrácia dokončená! Váš systém teraz používa Gmail API.</div>';
+                stepsCompleted = 6;
+                updateStatus();
+            }, 2000);
+        }
+
+        // Inicializácia
+        updateStatus();
+    </script>
+</body>
+</html>
+

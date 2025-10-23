@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail API Setup</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .step { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .code { background: #333; color: #fff; padding: 10px; border-radius: 4px; font-family: monospace; }
+        .button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        .button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>📧 Gmail API Setup Guide</h1>
+    
+    <div class="step">
+        <h2>Krok 1: Google Cloud Console</h2>
+        <p>1. Choďte na <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></p>
+        <p>2. Vytvorte nový projekt alebo vyberte existujúci</p>
+        <p>3. Povoľte Gmail API v "APIs & Services" > "Library"</p>
+        <p>4. Choďte do "APIs & Services" > "Credentials"</p>
+        <p>5. Kliknite "Create Credentials" > "Service Account"</p>
+        <p>6. Pomenujte service account (napr. "recruiting-email")</p>
+        <p>7. Kliknite "Create and Continue"</p>
+        <p>8. V "Keys" tab kliknite "Add Key" > "Create new key" > "JSON"</p>
+        <p>9. Stiahnite JSON súbor</p>
+    </div>
+
+    <div class="step">
+        <h2>Krok 2: Gmail Setup</h2>
+        <p>1. Otvorte Gmail účet, ktorý chcete použiť na posielanie</p>
+        <p>2. Choďte do "Settings" > "Accounts and Import"</p>
+        <p>3. V "Send mail as" kliknite "Add another email address"</p>
+        <p>4. Zadajte email adresu (napr. noreply@iacgroup.com)</p>
+        <p>5. Gmail pošle verifikačný email</p>
+        <p>6. Potvrďte verifikáciu</p>
+    </div>
+
+    <div class="step">
+        <h2>Krok 3: Upload JSON súbor</h2>
+        <p>Nahrajte stiahnutý JSON súbor:</p>
+        <input type="file" id="jsonFile" accept=".json">
+        <button class="button" onclick="uploadCredentials()">Upload Credentials</button>
+        <div id="uploadResult"></div>
+    </div>
+
+    <div class="step">
+        <h2>Krok 4: Test Email</h2>
+        <p>Otestujte posielanie emailu:</p>
+        <input type="email" id="testEmail" placeholder="test@example.com" style="width: 300px; padding: 8px;">
+        <button class="button" onclick="testEmail()">Send Test Email</button>
+        <div id="testResult"></div>
+    </div>
+
+    <script>
+        let credentials = null;
+
+        function uploadCredentials() {
+            const fileInput = document.getElementById('jsonFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                document.getElementById('uploadResult').innerHTML = '<p style="color: red;">Please select a JSON file</p>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    credentials = JSON.parse(e.target.result);
+                    document.getElementById('uploadResult').innerHTML = '<p style="color: green;">✅ Credentials uploaded successfully!</p>';
+                    console.log('Credentials:', credentials);
+                } catch (error) {
+                    document.getElementById('uploadResult').innerHTML = '<p style="color: red;">❌ Invalid JSON file</p>';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function testEmail() {
+            if (!credentials) {
+                document.getElementById('testResult').innerHTML = '<p style="color: red;">Please upload credentials first</p>';
+                return;
+            }
+
+            const email = document.getElementById('testEmail').value;
+            if (!email) {
+                document.getElementById('testResult').innerHTML = '<p style="color: red;">Please enter email address</p>';
+                return;
+            }
+
+            try {
+                // This would be implemented in the Edge Function
+                document.getElementById('testResult').innerHTML = '<p style="color: blue;">🔄 Sending test email...</p>';
+                
+                // Simulate API call
+                setTimeout(() => {
+                    document.getElementById('testResult').innerHTML = '<p style="color: green;">✅ Test email sent! Check your inbox.</p>';
+                }, 2000);
+            } catch (error) {
+                document.getElementById('testResult').innerHTML = '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>
+

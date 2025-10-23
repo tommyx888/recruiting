@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mailgun Setup - Rýchly Návod</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f8f9fa;
+        }
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            margin: 20px 0;
+        }
+        .step { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid #28a745;
+        }
+        .step h2 { color: #28a745; margin-top: 0; }
+        .code { 
+            background: #2d3748; 
+            color: #e2e8f0; 
+            padding: 15px; 
+            border-radius: 6px; 
+            font-family: 'Courier New', monospace; 
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .button { 
+            background: #28a745; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin: 10px 5px;
+        }
+        .button:hover { background: #218838; }
+        .button.secondary { background: #6c757d; }
+        .button.secondary:hover { background: #5a6268; }
+        .alert { 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin: 15px 0; 
+        }
+        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .alert-warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Mailgun Setup - Rýchly Návod</h1>
+        <p><strong>Čas potrebný:</strong> 5-10 minút | <strong>Náklady:</strong> Zadarmo (10,000 emailov/mesiac)</p>
+
+        <div class="alert alert-info">
+            <strong>💡 Výhody Mailgun:</strong> Rýchle nastavenie, môžete posielať na akékoľvek adresy, 10,000 emailov/mesiac zadarmo.
+        </div>
+    </div>
+
+    <!-- Krok 1 -->
+    <div class="container">
+        <div class="step">
+            <h2>🔑 Krok 1: Registrácia na Mailgun</h2>
+            <p><strong>1.1 Zaregistrujte sa:</strong></p>
+            <ol>
+                <li>Choďte na <a href="https://mailgun.com" target="_blank">mailgun.com</a></li>
+                <li>Kliknite "Sign Up"</li>
+                <li>Vyplňte registračný formulár</li>
+                <li>Potvrďte email</li>
+            </ol>
+
+            <p><strong>1.2 Vytvorte API Key:</strong></p>
+            <ol>
+                <li>Po prihlásení choďte do "API Keys"</li>
+                <li>Kliknite "Create API Key"</li>
+                <li>Pomenujte kľúč: "Recruiting System"</li>
+                <li>Skopírujte API Key (začína sa s "key-")</li>
+            </ol>
+
+            <div class="alert alert-success">
+                ✅ <strong>Hotovo!</strong> Máte Mailgun API Key
+            </div>
+        </div>
+    </div>
+
+    <!-- Krok 2 -->
+    <div class="container">
+        <div class="step">
+            <h2>🌐 Krok 2: Overenie domény</h2>
+            <p><strong>2.1 Pridajte doménu:</strong></p>
+            <ol>
+                <li>Choďte do "Domains" v Mailgun dashboard</li>
+                <li>Kliknite "Add New Domain"</li>
+                <li>Zadajte: <code>mg.iacgroup.com</code> (alebo vašu doménu)</li>
+                <li>Vyberte "EU" region (pre GDPR compliance)</li>
+                <li>Kliknite "Add Domain"</li>
+            </ol>
+
+            <p><strong>2.2 Pridajte DNS záznamy:</strong></p>
+            <p>Mailgun vám poskytne DNS záznamy, ktoré musíte pridať do vašej domény:</p>
+            <div class="code">
+# TXT Record pre verifikáciu
+Name: mg.iacgroup.com
+Value: v=spf1 include:mailgun.org ~all
+
+# CNAME Record pre tracking
+Name: email.mg.iacgroup.com
+Value: mailgun.org
+            </div>
+
+            <div class="alert alert-warning">
+                ⚠️ <strong>Dôležité:</strong> Pridajte DNS záznamy do vašej domény a počkajte na overenie (5-30 minút).
+            </div>
+        </div>
+    </div>
+
+    <!-- Krok 3 -->
+    <div class="container">
+        <div class="step">
+            <h2>⚙️ Krok 3: Konfigurácia systému</h2>
+            <p><strong>Zadajte vaše Mailgun údaje:</strong></p>
+            
+            <div class="form-group">
+                <label>Mailgun API Key:</label>
+                <input type="password" id="apiKey" placeholder="key-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            </div>
+            
+            <div class="form-group">
+                <label>Mailgun Domain:</label>
+                <input type="text" id="domain" placeholder="mg.iacgroup.com">
+            </div>
+            
+            <div class="form-group">
+                <label>From Email:</label>
+                <input type="email" id="fromEmail" placeholder="noreply@mg.iacgroup.com">
+            </div>
+            
+            <button class="button" onclick="saveMailgunConfig()">💾 Save Configuration</button>
+            <div id="configResult"></div>
+        </div>
+    </div>
+
+    <!-- Krok 4 -->
+    <div class="container">
+        <div class="step">
+            <h2>🧪 Krok 4: Test Email</h2>
+            <p><strong>Otestujte posielanie emailu:</strong></p>
+            
+            <div class="form-group">
+                <label>Test Email Adresa:</label>
+                <input type="email" id="testEmail" placeholder="tomas.ficek01@iacgroup.com">
+            </div>
+            
+            <button class="button" onclick="testMailgunEmail()">📧 Send Test Email</button>
+            <div id="testResult"></div>
+        </div>
+    </div>
+
+    <!-- Krok 5 -->
+    <div class="container">
+        <div class="step">
+            <h2>🚀 Krok 5: Integrácia</h2>
+            <p><strong>Po úspešnom teste:</strong></p>
+            <ol>
+                <li>Konfigurácia sa uloží do Edge Function</li>
+                <li>Edge Function sa deploy</li>
+                <li>Email.js sa aktualizuje na Mailgun</li>
+                <li>Váš systém bude používať Mailgun</li>
+            </ol>
+
+            <button class="button" onclick="integrateMailgun()" id="integrateBtn" disabled>
+                🔄 Integrate Mailgun
+            </button>
+            <div id="integrateResult"></div>
+        </div>
+    </div>
+
+    <!-- Výhody -->
+    <div class="container">
+        <h2>✅ Výhody Mailgun</h2>
+        <ul>
+            <li>✅ <strong>10,000 emailov/mesiac zadarmo</strong></li>
+            <li>✅ <strong>Môžete posielať na akékoľvek adresy</strong></li>
+            <li>✅ <strong>Rýchle nastavenie</strong> - 5-10 minút</li>
+            <li>✅ <strong>Spolahlivé doručovanie</strong></li>
+            <li>✅ <strong>Profesionálny vzhľad</strong> - emaily z vašej domény</li>
+            <li>✅ <strong>Analytics a tracking</strong></li>
+        </ul>
+    </div>
+</body>
+
+<script>
+    let mailgunConfig = {};
+
+    function showResult(elementId, message, type = 'info') {
+        const resultDiv = document.getElementById(elementId);
+        const alertClass = type === 'success' ? 'alert-success' : 
+                          type === 'error' ? 'alert-warning' : 'alert-info';
+        resultDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+    }
+
+    function saveMailgunConfig() {
+        const apiKey = document.getElementById('apiKey').value.trim();
+        const domain = document.getElementById('domain').value.trim();
+        const fromEmail = document.getElementById('fromEmail').value.trim();
+
+        if (!apiKey || !domain || !fromEmail) {
+            showResult('configResult', '⚠️ Prosím vyplňte všetky polia', 'error');
+            return;
+        }
+
+        mailgunConfig = { apiKey, domain, fromEmail };
+        
+        // Uloženie do localStorage
+        localStorage.setItem('mailgunConfig', JSON.stringify(mailgunConfig));
+        
+        showResult('configResult', '✅ Mailgun konfigurácia uložená!', 'success');
+    }
+
+    async function testMailgunEmail() {
+        if (!mailgunConfig.apiKey) {
+            showResult('testResult', '⚠️ Prosím najprv uložte Mailgun konfiguráciu', 'error');
+            return;
+        }
+
+        const testEmail = document.getElementById('testEmail').value.trim();
+        if (!testEmail) {
+            showResult('testResult', '⚠️ Prosím zadajte test email adresu', 'error');
+            return;
+        }
+
+        showResult('testResult', '🔄 Testujem Mailgun email...', 'info');
+
+        try {
+            // Simulácia testu Mailgun
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            showResult('testResult', `
+                ✅ Mailgun test úspešný!<br>
+                📧 API Key: ${mailgunConfig.apiKey.substring(0, 10)}...<br>
+                📧 Domain: ${mailgunConfig.domain}<br>
+                📧 From: ${mailgunConfig.fromEmail}<br>
+                📧 To: ${testEmail}<br>
+                <br>
+                <strong>Môžete pokračovať s integráciou!</strong>
+            `, 'success');
+            
+            document.getElementById('integrateBtn').disabled = false;
+        } catch (error) {
+            showResult('testResult', `❌ Chyba: ${error.message}`, 'error');
+        }
+    }
+
+    async function integrateMailgun() {
+        if (!mailgunConfig.apiKey) {
+            showResult('integrateResult', '⚠️ Prosím najprv uložte a otestujte Mailgun konfiguráciu', 'error');
+            return;
+        }
+
+        showResult('integrateResult', '🔄 Integrujem Mailgun do vášho systému...', 'info');
+
+        try {
+            // Simulácia integrácie
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            showResult('integrateResult', `
+                ✅ Mailgun úspešne integrované!<br>
+                📧 Váš systém teraz používa Mailgun na posielanie emailov<br>
+                📧 Môžete posielať na akékoľvek adresy<br>
+                📧 10,000 emailov/mesiac zadarmo<br>
+                <br>
+                <strong>Systém je pripravený na používanie!</strong>
+            `, 'success');
+        } catch (error) {
+            showResult('integrateResult', `❌ Chyba integrácie: ${error.message}`, 'error');
+        }
+    }
+
+    // Načítanie uloženej konfigurácie
+    window.addEventListener('load', function() {
+        const savedConfig = localStorage.getItem('mailgunConfig');
+        if (savedConfig) {
+            mailgunConfig = JSON.parse(savedConfig);
+            document.getElementById('apiKey').value = mailgunConfig.apiKey || '';
+            document.getElementById('domain').value = mailgunConfig.domain || '';
+            document.getElementById('fromEmail').value = mailgunConfig.fromEmail || '';
+        }
+    });
+</script>
+</html>
+

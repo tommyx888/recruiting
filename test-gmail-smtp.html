@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gmail SMTP</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .container { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .button { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .button:hover { background: #218838; }
+        .result { margin: 15px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>📧 Test Gmail SMTP</h1>
+    
+    <div class="container">
+        <h3>Test Email Sending</h3>
+        <p>Otestujte posielanie emailov cez Gmail SMTP Edge Function:</p>
+        
+        <div>
+            <label><strong>To Email:</strong></label><br>
+            <input type="email" id="toEmail" placeholder="test@example.com" style="width: 300px; padding: 8px; margin: 5px 0;">
+        </div>
+        
+        <div>
+            <label><strong>Subject:</strong></label><br>
+            <input type="text" id="subject" placeholder="Test Email" style="width: 300px; padding: 8px; margin: 5px 0;">
+        </div>
+        
+        <div>
+            <label><strong>Message:</strong></label><br>
+            <textarea id="message" placeholder="Test message" style="width: 300px; height: 100px; padding: 8px; margin: 5px 0;"></textarea>
+        </div>
+        
+        <button class="button" onclick="testGmailSMTP()">📧 Send Test Email</button>
+        <button class="button" onclick="testRecruitingEmails()">🎯 Test Recruiting Emails</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <div class="container">
+        <h3>📊 Status</h3>
+        <div id="status">
+            <p>⏳ Čaká sa na test...</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="email.js"></script>
+    
+    <script>
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `<p>${message}</p>`;
+        }
+
+        async function testGmailSMTP() {
+            const toEmail = document.getElementById('toEmail').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+
+            if (!toEmail || !subject || !message) {
+                showResult('⚠️ Prosím vyplňte všetky polia', 'error');
+                return;
+            }
+
+            updateStatus('🔄 Posielam test email...');
+            showResult('🔄 Posielam test email cez Gmail SMTP...', 'info');
+
+            try {
+                const result = await window.emailManager.sendEmail({
+                    to: toEmail,
+                    subject: subject,
+                    html: `<p>${message}</p><p><em>Test email z Gmail SMTP</em></p>`,
+                    text: message + '\n\nTest email z Gmail SMTP'
+                });
+
+                showResult(`✅ Email úspešne odoslaný!<br>Message ID: ${result.messageId}`, 'success');
+                updateStatus('✅ Test email úspešne odoslaný');
+            } catch (error) {
+                showResult(`❌ Chyba: ${error.message}`, 'error');
+                updateStatus('❌ Test email zlyhal');
+            }
+        }
+
+        async function testRecruitingEmails() {
+            updateStatus('🔄 Testujem recruiting emaily...');
+            showResult('🔄 Testujem všetky typy recruiting emailov...', 'info');
+
+            try {
+                // Test 1: New Request
+                const newRequestData = {
+                    position: 'Software Developer',
+                    department: 'IT',
+                    position_type: 'new',
+                    category: 'Technical',
+                    headcount: 2,
+                    description: 'Test description for new position'
+                };
+
+                console.log('🧪 Testing new request email...');
+                const result1 = await window.emailManager.notifyNewRequest(newRequestData, 'test@example.com');
+                console.log('✅ New request email result:', result1);
+
+                // Test 2: Request Approved
+                const approvedRequestData = {
+                    position: 'Marketing Manager',
+                    department: 'Marketing',
+                    position_type: 'replacement',
+                    category: 'Management',
+                    headcount: 1
+                };
+
+                console.log('🧪 Testing approved request email...');
+                const result2 = await window.emailManager.notifyRequestApproved(approvedRequestData, 'manager@example.com');
+                console.log('✅ Approved request email result:', result2);
+
+                // Test 3: New Candidate
+                const newCandidateData = {
+                    name: 'John Doe',
+                    position: 'Sales Representative',
+                    department: 'Sales',
+                    source: 'LinkedIn',
+                    status: 'New',
+                    notes: 'Test candidate for email system'
+                };
+
+                console.log('🧪 Testing new candidate email...');
+                const result3 = await window.emailManager.notifyNewCandidate(newCandidateData, 'hr@example.com');
+                console.log('✅ New candidate email result:', result3);
+
+                showResult(`
+                    ✅ Všetky recruiting emaily úspešne otestované!<br>
+                    📧 New Request: ${result1.messageId || 'OK'}<br>
+                    📧 Request Approved: ${result2.messageId || 'OK'}<br>
+                    📧 New Candidate: ${result3.messageId || 'OK'}
+                `, 'success');
+                updateStatus('✅ Všetky recruiting emaily úspešne otestované');
+
+            } catch (error) {
+                showResult(`❌ Chyba pri testovaní recruiting emailov: ${error.message}`, 'error');
+                updateStatus('❌ Test recruiting emailov zlyhal');
+            }
+        }
+
+        // Initialize
+        updateStatus('✅ Gmail SMTP test pripravený');
+    </script>
+</body>
+</html>
+

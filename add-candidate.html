@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pridať nového kandidáta</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .form-divider {
+            height: 2px;
+            background: linear-gradient(90deg, #e3f2fd, #2196f3, #e3f2fd);
+            margin: 0;
+        }
+        
+        .form-content {
+            padding: 40px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        input, select, textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        select:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .file-upload {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+        
+        .btn-file {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .btn-file:hover {
+            background: #e9e9e9;
+            border-color: #bbb;
+        }
+        
+        .file-info {
+            color: #666;
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9e9e9;
+            border-color: #bbb;
+        }
+        
+        .required {
+            color: #e53935;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Pridať nového kandidáta</h1>
+        </div>
+        <div class="form-divider"></div>
+        
+        <div class="form-content">
+            <form id="add-candidate-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="candidate-name">Celé meno <span class="required">*</span></label>
+                        <input type="text" id="candidate-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="candidate-department">Oddelenie <span class="required">*</span></label>
+                        <select id="candidate-department" required onchange="updatePositions()">
+                            <option value="">Vyberte oddelenie</option>
+                            <option value="Business">Business</option>
+                            <option value="CI">CI</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Finance">Finance</option>
+                            <option value="HR">HR</option>
+                            <option value="IT">IT</option>
+                            <option value="Logistics">Logistics</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Management">Management</option>
+                            <option value="Production">Production</option>
+                            <option value="Quality">Quality</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="candidate-position">Pozícia <span class="required">*</span></label>
+                        <select id="candidate-position" required disabled>
+                            <option value="">Najprv vyberte oddelenie</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="candidate-source">Zdroj <span class="required">*</span></label>
+                        <select id="candidate-source" required>
+                            <option value="">Vyberte zdroj</option>
+                            <option value="Manuvia">Manuvia</option>
+                            <option value="Talent Solution">Talent Solution</option>
+                            <option value="Tobin">Tobin</option>
+                            <option value="Manpower">Manpower</option>
+                            <option value="TG">TG</option>
+                            <option value="TP Group">TP Group</option>
+                            <option value="Profesia">Profesia</option>
+                            <option value="Employee Referral">Employee Referral</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Company Website">Company Website</option>
+                            <option value="University/College">University/College</option>
+                            <option value="Job Fair">Job Fair</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="candidate-date">Dátum získania <span class="required">*</span></label>
+                        <input type="date" id="candidate-date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="candidate-interviewer">Pohovorujúci</label>
+                        <input type="text" id="candidate-interviewer">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="candidate-status">Stav</label>
+                        <select id="candidate-status">
+                            <option value="New" selected>Nový</option>
+                            <option value="In Process - First Round">V procese - Prvé kolo</option>
+                            <option value="In Process - Second Round">V procese - Druhé kolo</option>
+                            <option value="Hired">Prijatý</option>
+                            <option value="Rejected">Zamietnutý</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="candidate-cv">Nahrať životopis <span class="required">*</span></label>
+                    <div class="file-upload">
+                        <input type="file" id="candidate-cv" accept=".pdf,.doc,.docx" style="display: none;">
+                        <button type="button" class="btn-file" onclick="document.getElementById('candidate-cv').click()">Vybrať súbor</button>
+                        <span class="file-info" id="cv-file-name">Nie je vybratý žiadny súbor</span>
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="candidate-assessment">Nahrať formulár hodnotenia (voliteľné)</label>
+                    <div class="file-upload">
+                        <input type="file" id="candidate-assessment" accept=".pdf,.doc,.docx" style="display: none;">
+                        <button type="button" class="btn-file" onclick="document.getElementById('candidate-assessment').click()">Vybrať súbor</button>
+                        <span class="file-info" id="assessment-file-name">Nie je vybratý žiadny súbor</span>
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="candidate-notes">Poznámky</label>
+                    <textarea id="candidate-notes" rows="4" placeholder="Zadajte ďalšie poznámky o kandidátovi..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">PRIDAŤ KANDIDÁTA</button>
+                    <a href="index.html" class="btn btn-secondary">Zrušiť</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Function to load scripts dynamically
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Set today's date as default
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('candidate-date').value = today;
+        });
+
+        function updatePositions() {
+            const department = document.getElementById('candidate-department').value;
+            const positionSelect = document.getElementById('candidate-position');
+            
+            // Clear existing options
+            positionSelect.innerHTML = '<option value="">Najprv vyberte oddelenie</option>';
+            
+            if (!department) {
+                positionSelect.disabled = true;
+                return;
+            }
+            
+            // Enable position select
+            positionSelect.disabled = false;
+            
+            // Define positions by department
+            const positionsByDepartment = {
+                'Business': ['Assistant Buyer', 'Buyer', 'Supplier Quality Assurance Engineer', 'Business Administration', 'Business Sales & Cost Analyst'],
+                'CI': ['CI Coordinator', 'CI Analyst', 'CI Technician'],
+                'Engineering': ['Senior Process Engineer 1', 'Senior Process Engineer IM', 'Process Engineer 1', 'Senior IM Technologist Coordinator', 'Process Engineer IM', 'Senior Technologist IM', 'Foreman Technologist IM', 'Technologist IM', 'Mold Changer', 'Materialist', 'Senior Process Engineer 2', 'Process Engineer 2', 'Senior Technologist Coordinator', 'Tooling Engineer', 'Product Engineer', 'Change BOM Coordinator', 'Programe Engineer', 'Technologist 1', 'Quality Program Engineer', 'Launch Coordinator', 'Data Analyst', 'Manufacturing Engineer'],
+                'Finance': ['Programme Controller', 'Finance Analyst', 'Chief Accountant', 'Financial Specialist Senior', 'Supplier Accountant', 'Services Accountant', 'Financial Assistant', 'Financial Clerk', 'Revenue Accountant', 'Financial Specialist', 'Treasury Analyst', 'Senior Treasury & Financial Analyst'],
+                'HR': ['Payroll accountant', 'Senior HR Generalist', 'Recruiter', 'HR Generalist 1', 'Junior Payroll', 'Training Center Trainer', 'HSE Specialist', 'Environment Officer', 'Executive assistant'],
+                'IT': ['IT Analyst / Administrator', 'Senior IT Specialist'],
+                'Logistics': ['Warehouse/Logistics Leader', 'Senior Logistics Planner', 'Logistics Disponent', 'Logistics Planner', 'Packaging Disponent', 'Logistics Referent', 'Inventory Counter', 'Internal Logistics Coordinator', 'Logistics Shift leader', 'Expedient', 'Supervisor Inventory Control', 'Logistics Planner IM', 'Senior Demand Specialist', 'Logistics operator Expedient', 'Logistics operator receiving'],
+                'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetik/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent'],
+                'Management': ['Operation Assistant General Manager', 'Financial Manager', 'HR Manager', 'Logistics Manager', 'Quality Manager', 'Production Manager', 'Maintenance Manager', 'Programme Manager', 'Purchasing Manager', 'IT Manager', 'Ext. Programme Manager', 'Business Manager', 'Program Manager'],
+                'Production': ['Production Coordinator', 'Production Shift leader', 'Production Referent'],
+                'Quality': ['Customer Quality Leader', 'Quality Leader', 'PPAP Technician', 'Quality Engineer QM System', 'Laboratory Leader/ Metrolog', 'Customer Quality Coordinator', 'Quality Auditors Coordinator', 'Supplier Quality Assurance', 'Sperrlager Coordinator', 'Sperrlager Quality Operator', 'Quality Auditor', 'Incoming Inspection', '3D Measurement', 'Laboratory technician', 'Resident']
+            };
+            
+            const positions = positionsByDepartment[department] || [];
+            positions.forEach(position => {
+                const option = document.createElement('option');
+                option.value = position;
+                option.textContent = position;
+                positionSelect.appendChild(option);
+            });
+        }
+
+        // File change handlers
+        document.getElementById('candidate-cv').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Nie je vybratý žiadny súbor';
+            document.getElementById('cv-file-name').textContent = fileName;
+        });
+        
+        document.getElementById('candidate-assessment').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Nie je vybratý žiadny súbor';
+            document.getElementById('assessment-file-name').textContent = fileName;
+        });
+
+        // Form submission
+        document.getElementById('add-candidate-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                const formData = {
+                    name: document.getElementById('candidate-name').value.trim(),
+                    position: document.getElementById('candidate-position').value,
+                    department: document.getElementById('candidate-department').value,
+                    source: document.getElementById('candidate-source').value,
+                    date_obtained: document.getElementById('candidate-date').value,
+                    interviewer: document.getElementById('candidate-interviewer').value.trim(),
+                    status: document.getElementById('candidate-status').value,
+                    notes: document.getElementById('candidate-notes').value.trim(),
+                    cvFile: document.getElementById('candidate-cv').files[0],
+                    assessmentFile: document.getElementById('candidate-assessment').files[0]
+                };
+                
+                // Validate required fields
+                if (!formData.name || !formData.position || !formData.department || !formData.source || !formData.cvFile) {
+                    alert('Prosím vyplňte všetky povinné polia');
+                    return;
+                }
+                
+                console.log('Formulár odoslaný:', formData);
+                
+                // Show loading state
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Pridáva sa...';
+                submitBtn.disabled = true;
+                
+                // Load necessary scripts for API calls
+                console.log('Loading config.js...');
+                await loadScript('config.js');
+                console.log('Config loaded:', window.config);
+                
+                console.log('Loading utils.js...');
+                await loadScript('utils.js');
+                console.log('Utils loaded:', window.utils);
+                
+                console.log('Loading email.js...');
+                await loadScript('email.js');
+                console.log('Email manager loaded:', window.emailManager);
+                
+                console.log('Loading candidates.js...');
+                await loadScript('candidates.js');
+                console.log('CandidatesManager class loaded:', window.CandidatesManager);
+                
+                // Initialize Supabase client
+                console.log('Initializing Supabase client...');
+                if (window.config && window.config.supabase) {
+                    const { createClient } = await import('https://cdn.skypack.dev/@supabase/supabase-js@2');
+                    const supabase = createClient(window.config.supabase.url, window.config.supabase.anonKey);
+                    console.log('Supabase client created:', supabase);
+                    
+                    // Initialize existing candidates manager
+                    if (window.candidatesManager) {
+                        window.candidatesManager.init(supabase);
+                        console.log('CandidatesManager initialized with Supabase client');
+                        
+                        // Verify initialization
+                        if (window.candidatesManager.supabase) {
+                            console.log('Supabase client verified in CandidatesManager');
+                        } else {
+                            throw new Error('Supabase client not properly initialized in CandidatesManager');
+                        }
+                    } else {
+                        console.error('CandidatesManager instance not found');
+                        throw new Error('CandidatesManager instance not available');
+                    }
+                } else {
+                    console.error('Config not found:', window.config);
+                    throw new Error('Configuration not available');
+                }
+                
+                // Call the actual candidates manager to add candidate
+                console.log('Calling addCandidate with data:', formData);
+                if (window.candidatesManager) {
+                    console.log('CandidatesManager available, calling addCandidate...');
+                    const result = await window.candidatesManager.addCandidate(formData);
+                    console.log('AddCandidate result:', result);
+                    
+                    if (result.success) {
+                        alert('Kandidát bol úspešne pridaný!');
+                        // Redirect back to main page
+                        window.location.href = 'index.html';
+                    } else {
+                        throw new Error(result.error || 'Neznáma chyba');
+                    }
+                } else {
+                    console.error('CandidatesManager not available');
+                    throw new Error('Candidates manager nie je dostupný');
+                }
+                
+            } catch (error) {
+                console.error('Chyba pri pridávaní kandidáta:', error);
+                alert('Nastala chyba pri pridávaní kandidáta. Skúste to znova.');
+                
+                // Reset button
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.textContent = 'PRIDAŤ KANDIDÁTA';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

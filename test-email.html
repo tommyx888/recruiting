@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Email Function Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Direct API Call (Should Fail)</h2>
+        <button onclick="testDirectAPI()">Test Direct Resend API</button>
+        <div id="direct-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Supabase Edge Function (Should Work)</h2>
+        <button onclick="testSupabaseFunction()">Test Supabase Function</button>
+        <div id="supabase-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Email Manager (Should Work)</h2>
+        <button onclick="testEmailManager()">Test Email Manager</button>
+        <div id="email-manager-result" class="result"></div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="email.js"></script>
+    
+    <script>
+        // Initialize Supabase
+        const supabase = supabase.createClient(window.config.supabaseUrl, window.config.supabaseAnonKey);
+        window.supabase = supabase;
+
+        async function testDirectAPI() {
+            const resultDiv = document.getElementById('direct-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('https://api.resend.com/emails', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer re_9xAyynnd_A3Rpcfjyh1jK7NQZymk3ok8n'
+                    },
+                    body: JSON.stringify({
+                        from: 'onboarding@resend.dev',
+                        to: 'test@example.com',
+                        subject: 'Test Email',
+                        html: '<h1>Test</h1>',
+                        text: 'Test'
+                    })
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<strong>Success:</strong> ${JSON.stringify(data)}`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testSupabaseFunction() {
+            const resultDiv = document.getElementById('supabase-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const { data, error } = await supabase.functions.invoke('send-email', {
+                    body: {
+                        to: 'test@example.com',
+                        subject: 'Test Email via Supabase',
+                        html: '<h1>Test via Supabase Function</h1>',
+                        text: 'Test via Supabase Function'
+                    }
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultDiv.innerHTML = `<strong>Success:</strong> ${JSON.stringify(data)}`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testEmailManager() {
+            const resultDiv = document.getElementById('email-manager-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const result = await window.emailManager.sendEmail({
+                    to: 'test@example.com',
+                    subject: 'Test Email via Email Manager',
+                    html: '<h1>Test via Email Manager</h1>',
+                    text: 'Test via Email Manager'
+                });
+                
+                resultDiv.innerHTML = `<strong>Success:</strong> ${JSON.stringify(result)}`;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html>
+

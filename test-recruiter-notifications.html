@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Recruiter Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .candidate-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .candidate-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .candidate-item:hover {
+            background-color: #f0f0f0;
+        }
+        .candidate-item.selected {
+            background-color: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Test Recruiter Notifications</h1>
+        <p>This page will test Recruiter notifications for candidate status changes.</p>
+        
+        <div class="test-section info">
+            <h3>📋 Current User Info</h3>
+            <div id="user-info" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 Select Candidate to Test</h3>
+            <button onclick="loadCandidates()">Load Candidates</button>
+            <div id="candidates-list" class="candidate-list"></div>
+            <div id="selected-candidate" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📧 Test Status Change Notifications</h3>
+            <p><strong>Note:</strong> All recruiter notifications have been disabled. No emails will be sent for any status changes.</p>
+            <button onclick="testHireNotification()">Test Hire Status (Should NOT send notification)</button>
+            <button onclick="testRejectNotification()">Test Reject Status (Should NOT send notification)</button>
+            <button onclick="testOtherStatusNotification()">Test Other Status (Should NOT send notification)</button>
+            <div id="notification-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Check Recruiter Users</h3>
+            <button onclick="checkRecruiters()">Check Recruiter Users</button>
+            <div id="recruiters-result" class="result"></div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="auth.js"></script>
+    <script src="candidates.js"></script>
+    <script src="email.js"></script>
+    <script>
+        // Initialize Supabase
+        let supabase;
+        let selectedCandidateId = null;
+        
+        async function initSupabase() {
+            if (window.config && window.config.supabase) {
+                const { createClient } = await import('https://cdn.skypack.dev/@supabase/supabase-js@2');
+                supabase = createClient(window.config.supabase.url, window.config.supabase.anonKey);
+                
+                // Initialize managers
+                if (window.AuthManager) {
+                    window.authManager = new window.AuthManager();
+                    window.authManager.init(supabase);
+                }
+                if (window.CandidatesManager) {
+                    window.candidatesManager = new window.CandidatesManager();
+                    window.candidatesManager.init(supabase);
+                }
+                if (window.EmailManager) {
+                    window.emailManager = new window.EmailManager();
+                }
+            }
+        }
+
+        async function showUserInfo() {
+            const resultDiv = document.getElementById('user-info');
+            try {
+                const isAuthenticated = await window.authManager.checkAuth();
+                const userInfo = window.authManager.getUserInfo();
+                
+                resultDiv.innerHTML = `Authenticated: ${isAuthenticated}
+Role: ${userInfo.role || 'Not set'}
+Department: ${userInfo.department || 'Not set'}
+Allowed Positions: ${JSON.stringify(userInfo.allowedPositions || [])}`;
+                
+                if (userInfo.role === 'gm' || userInfo.role === 'recruiter') {
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function loadCandidates() {
+            const resultDiv = document.getElementById('candidates-list');
+            resultDiv.innerHTML = 'Loading candidates...';
+            
+            try {
+                const candidates = await window.candidatesManager.getCandidates({ page: 1, pageSize: 20 });
+                
+                if (candidates.data.length === 0) {
+                    resultDiv.innerHTML = 'No candidates found';
+                    return;
+                }
+
+                let html = '';
+                candidates.data.forEach(candidate => {
+                    html += `
+                        <div class="candidate-item" onclick="selectCandidate(${candidate.id}, '${candidate.name}', '${candidate.position}')">
+                            <strong>${candidate.name}</strong> - ${candidate.position} (${candidate.status})
+                        </div>
+                    `;
+                });
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function selectCandidate(id, name, position) {
+            selectedCandidateId = id;
+            
+            // Update visual selection
+            document.querySelectorAll('.candidate-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // Show selected candidate
+            const resultDiv = document.getElementById('selected-candidate');
+            resultDiv.innerHTML = `Selected: ${name} - ${position} (ID: ${id})`;
+            resultDiv.className = 'result success';
+        }
+
+        async function testHireNotification() {
+            if (!selectedCandidateId) {
+                alert('Please select a candidate first');
+                return;
+            }
+
+            const resultDiv = document.getElementById('notification-result');
+            resultDiv.innerHTML = 'Testing hire status (Hired - Contact Source) - should NOT send notification...';
+            
+            try {
+                await window.candidatesManager.updateCandidateStatus(selectedCandidateId, 'Hired - Contact Source', 'Test hire status - notifications disabled');
+                resultDiv.innerHTML = '✅ Hire status test completed. Check console - should show "notifications disabled" message.';
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testRejectNotification() {
+            if (!selectedCandidateId) {
+                alert('Please select a candidate first');
+                return;
+            }
+
+            const resultDiv = document.getElementById('notification-result');
+            resultDiv.innerHTML = 'Testing reject status (Rejected - Inform Source) - should NOT send notification...';
+            
+            try {
+                await window.candidatesManager.updateCandidateStatus(selectedCandidateId, 'Rejected - Inform Source', 'Test reject status - notifications disabled');
+                resultDiv.innerHTML = '✅ Reject status test completed. Check console - should show "notifications disabled" message.';
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testOtherStatusNotification() {
+            if (!selectedCandidateId) {
+                alert('Please select a candidate first');
+                return;
+            }
+
+            const resultDiv = document.getElementById('notification-result');
+            resultDiv.innerHTML = 'Testing other status (In Process - First Round) - should NOT send notification...';
+            
+            try {
+                await window.candidatesManager.updateCandidateStatus(selectedCandidateId, 'In Process - First Round', 'Test other status - notifications disabled');
+                resultDiv.innerHTML = '✅ Other status test completed. Check console - should show "notifications disabled" message.';
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function checkRecruiters() {
+            const resultDiv = document.getElementById('recruiters-result');
+            resultDiv.innerHTML = 'Checking recruiter users...';
+            
+            try {
+                const { data: recruiters, error } = await supabase
+                    .from('users')
+                    .select('id, role, email, department')
+                    .eq('role', 'recruiter')
+                    .not('email', 'is', null);
+                
+                if (error) {
+                    resultDiv.innerHTML = `❌ Error: ${JSON.stringify(error, null, 2)}`;
+                    resultDiv.className = 'result error';
+                } else {
+                    if (recruiters.length === 0) {
+                        resultDiv.innerHTML = '⚠️ No recruiters found with email addresses';
+                        resultDiv.className = 'result error';
+                    } else {
+                        resultDiv.innerHTML = `✅ Found ${recruiters.length} recruiters:
+${JSON.stringify(recruiters, null, 2)}`;
+                        resultDiv.className = 'result success';
+                    }
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Exception: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initSupabase();
+            await showUserInfo();
+            console.log('Recruiter notifications test page initialized');
+        });
+    </script>
+</body>
+</html>

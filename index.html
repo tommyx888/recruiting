@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="Recruiting Management System">Recruiting Management System</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -39,14 +41,14 @@
                     <li><a href="#" id="nav-dashboard" data-translate="Dashboard">Dashboard</a></li>
                     <li><a href="#" id="nav-candidates" data-translate="Candidates">Candidates</a></li>
                     <li><a href="#" id="nav-requests" data-translate="Recruiting Requests">Recruiting Requests</a></li>
-                    <li><a href="#" id="nav-gm-approval" data-translate="GM Approval">GM Approval</a></li>
+                    <li><a href="#" id="nav-gm-approval" data-translate="GM/Recruiter Approval">GM/Recruiter Approval</a></li>
                     <li><a href="#" id="nav-statistics" data-translate="Statistics">Statistics</a></li>
                     <li><a href="#" id="nav-reports" data-translate="Reports">Reports</a></li>
                 </ul>
             </nav>
             <div id="user-actions">
                 <div id="language-switcher">
-                    <button id="dark-mode-toggle" class="btn">🌙</button>`
+                    <button id="dark-mode-toggle" class="btn">🌙</button>
                     <button id="en-lang" class="lang-btn active" onclick="switchLanguage('en')">
                         <img src="english-flag.png" alt="English" width="24" height="24">
                     </button>
@@ -105,6 +107,15 @@
     </div>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="pagination.js"></script>
+    <script src="cache.js"></script>
+    <script src="auth.js"></script>
+    <script src="candidates.js"></script>
+    <script src="requests.js"></script>
+    <script src="ui.js"></script>
+    <script src="email.js"></script>
     <script src="app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.css" rel="stylesheet">

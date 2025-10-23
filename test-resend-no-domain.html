@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Resend bez overenia domény</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .container { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .button { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .button:hover { background: #218838; }
+        .result { margin: 15px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>📧 Test Resend bez overenia domény</h1>
+    
+    <div class="container">
+        <h3>✅ Výhody Resend bez overenia domény:</h3>
+        <ul>
+            <li>✅ Môžete posielať na <strong>akékoľvek adresy</strong></li>
+            <li>✅ <strong>100 emailov/deň zadarmo</strong></li>
+            <li>✅ <strong>Okamžite funkčné</strong> - žiadne nastavenia</li>
+            <li>✅ Spolahlivé doručovanie</li>
+        </ul>
+        
+        <div class="result warning">
+            <strong>⚠️ Poznámka:</strong> Emaily prichádzajú z <code>onboarding@resend.dev</code> - menej profesionálny vzhľad, ale funkčné.
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>🧪 Test Email Sending</h3>
+        <p>Otestujte posielanie emailov na skutočné adresy:</p>
+        
+        <div>
+            <label><strong>To Email:</strong></label><br>
+            <input type="email" id="toEmail" placeholder="tomas.ficek01@iacgroup.com" style="width: 300px; padding: 8px; margin: 5px 0;">
+        </div>
+        
+        <div>
+            <label><strong>Subject:</strong></label><br>
+            <input type="text" id="subject" placeholder="Test Email z Resend" style="width: 300px; padding: 8px; margin: 5px 0;">
+        </div>
+        
+        <div>
+            <label><strong>Message:</strong></label><br>
+            <textarea id="message" placeholder="Test message" style="width: 300px; height: 100px; padding: 8px; margin: 5px 0;"></textarea>
+        </div>
+        
+        <button class="button" onclick="testResendEmail()">📧 Send Test Email</button>
+        <button class="button" onclick="testRecruitingEmails()">🎯 Test Recruiting Emails</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <div class="container">
+        <h3>📊 Status</h3>
+        <div id="status">
+            <p>✅ Systém pripravený na testovanie</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="email.js"></script>
+    
+    <script>
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `<p>${message}</p>`;
+        }
+
+        async function testResendEmail() {
+            const toEmail = document.getElementById('toEmail').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+
+            if (!toEmail || !subject || !message) {
+                showResult('⚠️ Prosím vyplňte všetky polia', 'error');
+                return;
+            }
+
+            updateStatus('🔄 Posielam test email...');
+            showResult('🔄 Posielam test email cez Resend API (bez overenia domény)...', 'info');
+
+            try {
+                const result = await window.emailManager.sendEmail({
+                    to: toEmail,
+                    subject: subject,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                            <h2 style="color: #007bff;">Test Email z Resend</h2>
+                            <p>${message}</p>
+                            <p><em>Email odoslaný cez Resend API bez overenia domény</em></p>
+                            <p><strong>From:</strong> onboarding@resend.dev</p>
+                            <p><strong>To:</strong> ${toEmail}</p>
+                        </div>
+                    `,
+                    text: `${message}\n\nEmail odoslaný cez Resend API bez overenia domény\nFrom: onboarding@resend.dev\nTo: ${toEmail}`
+                });
+
+                showResult(`
+                    ✅ Email úspešne odoslaný!<br>
+                    📧 Message ID: ${result.messageId || result.id || 'N/A'}<br>
+                    📧 From: onboarding@resend.dev<br>
+                    📧 To: ${toEmail}<br>
+                    <br>
+                    <strong>Skontrolujte svoj inbox!</strong>
+                `, 'success');
+                updateStatus('✅ Test email úspešne odoslaný - skontrolujte inbox');
+            } catch (error) {
+                showResult(`❌ Chyba: ${error.message}`, 'error');
+                updateStatus('❌ Test email zlyhal');
+            }
+        }
+
+        async function testRecruitingEmails() {
+            updateStatus('🔄 Testujem recruiting emaily...');
+            showResult('🔄 Testujem všetky typy recruiting emailov...', 'info');
+
+            try {
+                // Test 1: New Request
+                const newRequestData = {
+                    position: 'Software Developer',
+                    department: 'IT',
+                    position_type: 'new',
+                    category: 'Technical',
+                    headcount: 2,
+                    description: 'Test description for new position'
+                };
+
+                console.log('🧪 Testing new request email...');
+                const result1 = await window.emailManager.notifyNewRequest(newRequestData, 'tomas.ficek01@iacgroup.com');
+                console.log('✅ New request email result:', result1);
+
+                // Test 2: Request Approved
+                const approvedRequestData = {
+                    position: 'Marketing Manager',
+                    department: 'Marketing',
+                    position_type: 'replacement',
+                    category: 'Management',
+                    headcount: 1
+                };
+
+                console.log('🧪 Testing approved request email...');
+                const result2 = await window.emailManager.notifyRequestApproved(approvedRequestData, 'tomas.ficek01@iacgroup.com');
+                console.log('✅ Approved request email result:', result2);
+
+                // Test 3: New Candidate
+                const newCandidateData = {
+                    name: 'John Doe',
+                    position: 'Sales Representative',
+                    department: 'Sales',
+                    source: 'LinkedIn',
+                    status: 'New',
+                    notes: 'Test candidate for email system'
+                };
+
+                console.log('🧪 Testing new candidate email...');
+                const result3 = await window.emailManager.notifyNewCandidate(newCandidateData, 'tomas.ficek01@iacgroup.com');
+                console.log('✅ New candidate email result:', result3);
+
+                showResult(`
+                    ✅ Všetky recruiting emaily úspešne otestované!<br>
+                    📧 New Request: ${result1.messageId || result1.id || 'OK'}<br>
+                    📧 Request Approved: ${result2.messageId || result2.id || 'OK'}<br>
+                    📧 New Candidate: ${result3.messageId || result3.id || 'OK'}<br>
+                    <br>
+                    <strong>Skontrolujte inbox na adrese: tomas.ficek01@iacgroup.com</strong>
+                `, 'success');
+                updateStatus('✅ Všetky recruiting emaily úspešne otestované');
+
+            } catch (error) {
+                showResult(`❌ Chyba pri testovaní recruiting emailov: ${error.message}`, 'error');
+                updateStatus('❌ Test recruiting emailov zlyhal');
+            }
+        }
+
+        // Initialize
+        updateStatus('✅ Resend API (bez overenia domény) pripravený na testovanie');
+    </script>
+</body>
+</html>
+

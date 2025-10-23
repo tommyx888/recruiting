@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Notifications Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 10px 0; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Manager Notifications Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Check Managers with Allowed Positions</h2>
+        <button onclick="checkManagers()">Check All Managers</button>
+        <div id="managers-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Test Position Filtering</h2>
+        <input type="text" id="position-input" placeholder="Enter position (e.g., 'Recruiter')" value="Recruiter" style="padding: 8px; margin-right: 10px; width: 200px;">
+        <button onclick="testPositionFiltering()">Test Position Filtering</button>
+        <div id="filtering-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Simulate Approval Notification</h2>
+        <button onclick="simulateApproval()">Simulate Request Approval</button>
+        <div id="approval-result" class="result"></div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="email.js"></script>
+    
+    <script>
+        // Initialize Supabase
+        const supabase = supabase.createClient(window.config.supabaseUrl, window.config.supabaseAnonKey);
+        window.supabase = supabase;
+
+        async function checkManagers() {
+            const resultDiv = document.getElementById('managers-result');
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const { data: managers, error } = await supabase
+                    .from('users')
+                    .select('email, department, allowed_positions, role')
+                    .eq('role', 'Manager')
+                    .not('email', 'is', null);
+
+                if (error) {
+                    throw error;
+                }
+
+                resultDiv.innerHTML = `
+                    <h3>Found ${managers.length} managers:</h3>
+                    <pre>${JSON.stringify(managers, null, 2)}</pre>
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testPositionFiltering() {
+            const resultDiv = document.getElementById('filtering-result');
+            const position = document.getElementById('position-input').value;
+            
+            if (!position) {
+                resultDiv.innerHTML = '<strong>Error:</strong> Please enter a position';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const { data: managers, error } = await supabase
+                    .from('users')
+                    .select('email, department, allowed_positions')
+                    .eq('role', 'Manager')
+                    .not('email', 'is', null);
+
+                if (error) {
+                    throw error;
+                }
+
+                // Filter managers who have this position in their allowed_positions
+                const relevantManagers = managers.filter(manager => {
+                    if (!manager.allowed_positions || !Array.isArray(manager.allowed_positions)) {
+                        return false;
+                    }
+                    return manager.allowed_positions.includes(position);
+                });
+
+                resultDiv.innerHTML = `
+                    <h3>Position: "${position}"</h3>
+                    <p><strong>Total managers:</strong> ${managers.length}</p>
+                    <p><strong>Relevant managers:</strong> ${relevantManagers.length}</p>
+                    <h4>Relevant managers:</h4>
+                    <pre>${JSON.stringify(relevantManagers, null, 2)}</pre>
+                `;
+                resultDiv.className = 'result success';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function simulateApproval() {
+            const resultDiv = document.getElementById('approval-result');
+            resultDiv.innerHTML = 'Simulating...';
+            
+            try {
+                // Simulate a request approval
+                const mockRequest = {
+                    position: 'Recruiter',
+                    department: 'HR',
+                    position_type: 'new',
+                    position_category: 'SAL',
+                    headcount: 1,
+                    description: 'Test request for approval notification'
+                };
+
+                // Get all managers
+                const { data: managers, error } = await supabase
+                    .from('users')
+                    .select('email, department, allowed_positions')
+                    .eq('role', 'Manager')
+                    .not('email', 'is', null);
+
+                if (error) {
+                    throw error;
+                }
+
+                // Filter managers who have this position in their allowed_positions
+                const relevantManagers = managers.filter(manager => {
+                    if (!manager.allowed_positions || !Array.isArray(manager.allowed_positions)) {
+                        return false;
+                    }
+                    return manager.allowed_positions.includes(mockRequest.position);
+                });
+
+                resultDiv.innerHTML = `
+                    <h3>Simulation Results:</h3>
+                    <p><strong>Request:</strong> ${mockRequest.position} (${mockRequest.department})</p>
+                    <p><strong>Managers who would receive email:</strong> ${relevantManagers.length}</p>
+                    <ul>
+                        ${relevantManagers.map(m => `<li>${m.email} (${m.department}) - Positions: ${m.allowed_positions.join(', ')}</li>`).join('')}
+                    </ul>
+                `;
+                resultDiv.className = 'result info';
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html>
+

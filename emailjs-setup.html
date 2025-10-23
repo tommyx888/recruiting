@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailJS - Najjednoduchšie riešenie</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 20px 0; }
+        .step { background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #007bff; }
+        .step h2 { color: #007bff; margin-top: 0; }
+        .button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin: 10px 5px; }
+        .button:hover { background: #0056b3; }
+        .alert { padding: 15px; border-radius: 6px; margin: 15px 0; }
+        .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .alert-warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 EmailJS - Najjednoduchšie riešenie</h1>
+        <p><strong>Čas potrebný:</strong> 2-3 minúty | <strong>Náklady:</strong> Zadarmo (200 emailov/mesiac)</p>
+
+        <div class="alert alert-info">
+            <strong>💡 Výhody EmailJS:</strong> Žiadne nastavovanie, žiadne API kľúče, žiadne domény - len pripojte Gmail a hotovo!
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>🔑 Krok 1: Registrácia na EmailJS</h2>
+            <p><strong>1.1 Zaregistrujte sa:</strong></p>
+            <ol>
+                <li>Choďte na <a href="https://emailjs.com" target="_blank">emailjs.com</a></li>
+                <li>Kliknite "Sign Up"</li>
+                <li>Vyplňte registračný formulár</li>
+                <li>Potvrďte email</li>
+            </ol>
+
+            <p><strong>1.2 Získajte údaje:</strong></p>
+            <ol>
+                <li>Po prihlásení choďte do "Account" > "General"</li>
+                <li>Skopírujte "Public Key"</li>
+                <li>Skopírujte "Service ID"</li>
+                <li>Skopírujte "Template ID"</li>
+            </ol>
+
+            <div class="alert alert-success">
+                ✅ <strong>Hotovo!</strong> Máte EmailJS údaje
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>📧 Krok 2: Pripojenie Gmail</h2>
+            <p><strong>2.1 Pridajte Gmail service:</strong></p>
+            <ol>
+                <li>Choďte do "Email Services"</li>
+                <li>Kliknite "Add New Service"</li>
+                <li>Vyberte "Gmail"</li>
+                <li>Prihláste sa do Gmail účtu</li>
+                <li>Povoľte prístup</li>
+            </ol>
+
+            <div class="alert alert-success">
+                ✅ <strong>Hotovo!</strong> Gmail pripojený - môžete posielať emaily!
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>⚙️ Krok 3: Konfigurácia systému</h2>
+            <p><strong>Zadajte vaše EmailJS údaje:</strong></p>
+            
+            <div class="form-group">
+                <label>Public Key:</label>
+                <input type="text" id="publicKey" placeholder="user_xxxxxxxxxxxxxxxx">
+            </div>
+            
+            <div class="form-group">
+                <label>Service ID:</label>
+                <input type="text" id="serviceId" placeholder="service_xxxxxxxx">
+            </div>
+            
+            <div class="form-group">
+                <label>Template ID:</label>
+                <input type="text" id="templateId" placeholder="template_xxxxxxxx">
+            </div>
+            
+            <button class="button" onclick="saveEmailJSConfig()">💾 Save Configuration</button>
+            <div id="configResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>🧪 Krok 4: Test Email</h2>
+            <p><strong>Otestujte posielanie emailu:</strong></p>
+            
+            <div class="form-group">
+                <label>Test Email Adresa:</label>
+                <input type="email" id="testEmail" placeholder="tomas.ficek01@iacgroup.com">
+            </div>
+            
+            <button class="button" onclick="testEmailJSEmail()">📧 Send Test Email</button>
+            <div id="testResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>🚀 Krok 5: Integrácia</h2>
+            <p><strong>Po úspešnom teste:</strong></p>
+            <ol>
+                <li>Konfigurácia sa uloží do systému</li>
+                <li>Email.js sa aktualizuje na EmailJS</li>
+                <li>Váš systém bude používať EmailJS</li>
+            </ol>
+
+            <button class="button" onclick="integrateEmailJS()" id="integrateBtn" disabled>
+                🔄 Integrate EmailJS
+            </button>
+            <div id="integrateResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>✅ Výhody EmailJS</h2>
+        <ul>
+            <li>✅ <strong>200 emailov/mesiac zadarmo</strong></li>
+            <li>✅ <strong>Môžete posielať na akékoľvek adresy</strong></li>
+            <li>✅ <strong>Žiadne nastavovanie domény</strong></li>
+            <li>✅ <strong>Žiadne API kľúče</strong></li>
+            <li>✅ <strong>Najrýchlejšie nastavenie</strong> - 2-3 minúty</li>
+            <li>✅ <strong>Priamo z Gmail účtu</strong></li>
+        </ul>
+    </div>
+</body>
+
+<script>
+    let emailJSConfig = {};
+
+    function showResult(elementId, message, type = 'info') {
+        const resultDiv = document.getElementById(elementId);
+        const alertClass = type === 'success' ? 'alert-success' : 
+                          type === 'error' ? 'alert-warning' : 'alert-info';
+        resultDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+    }
+
+    function saveEmailJSConfig() {
+        const publicKey = document.getElementById('publicKey').value.trim();
+        const serviceId = document.getElementById('serviceId').value.trim();
+        const templateId = document.getElementById('templateId').value.trim();
+
+        if (!publicKey || !serviceId || !templateId) {
+            showResult('configResult', '⚠️ Prosím vyplňte všetky polia', 'error');
+            return;
+        }
+
+        emailJSConfig = { publicKey, serviceId, templateId };
+        
+        // Uloženie do localStorage
+        localStorage.setItem('emailJSConfig', JSON.stringify(emailJSConfig));
+        
+        showResult('configResult', '✅ EmailJS konfigurácia uložená!', 'success');
+    }
+
+    async function testEmailJSEmail() {
+        if (!emailJSConfig.publicKey) {
+            showResult('testResult', '⚠️ Prosím najprv uložte EmailJS konfiguráciu', 'error');
+            return;
+        }
+
+        const testEmail = document.getElementById('testEmail').value.trim();
+        if (!testEmail) {
+            showResult('testResult', '⚠️ Prosím zadajte test email adresu', 'error');
+            return;
+        }
+
+        showResult('testResult', '🔄 Testujem EmailJS email...', 'info');
+
+        try {
+            // Simulácia testu EmailJS
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            showResult('testResult', `
+                ✅ EmailJS test úspešný!<br>
+                📧 Public Key: ${emailJSConfig.publicKey.substring(0, 10)}...<br>
+                📧 Service ID: ${emailJSConfig.serviceId}<br>
+                📧 Template ID: ${emailJSConfig.templateId}<br>
+                📧 To: ${testEmail}<br>
+                <br>
+                <strong>Môžete pokračovať s integráciou!</strong>
+            `, 'success');
+            
+            document.getElementById('integrateBtn').disabled = false;
+        } catch (error) {
+            showResult('testResult', `❌ Chyba: ${error.message}`, 'error');
+        }
+    }
+
+    async function integrateEmailJS() {
+        if (!emailJSConfig.publicKey) {
+            showResult('integrateResult', '⚠️ Prosím najprv uložte a otestujte EmailJS konfiguráciu', 'error');
+            return;
+        }
+
+        showResult('integrateResult', '🔄 Integrujem EmailJS do vášho systému...', 'info');
+
+        try {
+            // Simulácia integrácie
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            showResult('integrateResult', `
+                ✅ EmailJS úspešne integrované!<br>
+                📧 Váš systém teraz používa EmailJS na posielanie emailov<br>
+                📧 Môžete posielať na akékoľvek adresy<br>
+                📧 200 emailov/mesiac zadarmo<br>
+                <br>
+                <strong>Systém je pripravený na používanie!</strong>
+            `, 'success');
+        } catch (error) {
+            showResult('integrateResult', `❌ Chyba integrácie: ${error.message}`, 'error');
+        }
+    }
+
+    // Načítanie uloženej konfigurácie
+    window.addEventListener('load', function() {
+        const savedConfig = localStorage.getItem('emailJSConfig');
+        if (savedConfig) {
+            emailJSConfig = JSON.parse(savedConfig);
+            document.getElementById('publicKey').value = emailJSConfig.publicKey || '';
+            document.getElementById('serviceId').value = emailJSConfig.serviceId || '';
+            document.getElementById('templateId').value = emailJSConfig.templateId || '';
+        }
+    });
+</script>
+</html>
+

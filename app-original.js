@@ -426,7 +426,7 @@ function updateNavVisibility() {
     const navGMApproval = document.getElementById('nav-gm-approval');
     const navRequests = document.getElementById('nav-requests');
 
-    if (userRole === 'gm') {
+    if (userRole === 'gm' || userRole === 'manager') {
         navGMApproval.style.display = 'inline';
         navRequests.style.display = 'inline';
         navStatistics.style.display = 'inline';

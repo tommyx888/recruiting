@@ -443,12 +443,12 @@ class UIManager {
             navRequests: !!navRequests
         });
 
-        if (userInfo.role === 'gm' || userInfo.role === 'recruiter') {
+        if (userInfo.role === 'gm' || userInfo.role === 'recruiter' || userInfo.role === 'manager') {
             if (navGMApproval) navGMApproval.style.display = 'inline';
             if (navRequests) navRequests.style.display = 'inline';
             if (navStatistics) navStatistics.style.display = 'inline';
             if (navReports) navReports.style.display = 'inline';
-            console.log('GM navigation shown');
+            console.log('GM/Manager navigation shown');
         } else {
             if (navStatistics) navStatistics.style.display = 'none';
             if (navReports) navReports.style.display = 'none';

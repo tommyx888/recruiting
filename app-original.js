@@ -1576,8 +1576,8 @@ async function showRequests() {
 
     let query = supabase.from('recruiting_requests').select('*');
 
-    // Filter by department for non-GM users
-    if (userRole !== 'gm') {
+    // Filter by department for non-GM and non-manager users
+    if (userRole !== 'gm' && userRole !== 'manager') {
         query = query.eq('department', userDepartment);
     }
 
@@ -1861,8 +1861,8 @@ async function showFilledPositions() {
 
     let query = supabase.from('recruiting_requests').select('*').eq('status', 'Filled');
 
-    // Filter by department for non-GM users
-    if (userRole !== 'gm') {
+    // Filter by department for non-GM and non-manager users
+    if (userRole !== 'gm' && userRole !== 'manager') {
         query = query.eq('department', userDepartment);
     }
 

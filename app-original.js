@@ -426,11 +426,17 @@ function updateNavVisibility() {
     const navGMApproval = document.getElementById('nav-gm-approval');
     const navRequests = document.getElementById('nav-requests');
 
-    if (userRole === 'gm' || userRole === 'manager') {
+    if (userRole === 'gm') {
         navGMApproval.style.display = 'inline';
         navRequests.style.display = 'inline';
         navStatistics.style.display = 'inline';
         navReports.style.display = 'inline';
+    } else if (userRole === 'Manager') {
+        // Managers see only Dashboard, Candidates, and Requests (filtered by department/positions)
+        navGMApproval.style.display = 'none';
+        navRequests.style.display = 'inline';
+        navStatistics.style.display = 'none';
+        navReports.style.display = 'none';
     } else {
         navStatistics.style.display = 'none';
         navReports.style.display = 'none';
@@ -1108,14 +1114,37 @@ function updatePositionOptions() {
 
     positionSelect.innerHTML = '<option value="">Select a position</option>';
 
-    if (selectedDepartment && departmentPositions[selectedDepartment]) {
-        departmentPositions[selectedDepartment].forEach(position => {
-            const option = document.createElement('option');
-            option.value = position;
-            option.textContent = position;
-            positionSelect.appendChild(option);
-        });
+    let positionsToShow = [];
+    
+    // Check if user is manager
+    if (userRole === 'Manager') {
+        if (userDepartment) {
+            // Manager has department - show all department positions
+            if (selectedDepartment && departmentPositions[selectedDepartment]) {
+                positionsToShow = departmentPositions[selectedDepartment];
+            }
+        } else if (userAllowedPositions && userAllowedPositions.length > 0) {
+            // Manager has no department but has allowed_positions - show only those
+            positionsToShow = userAllowedPositions;
+        } else {
+            // Manager has neither department nor allowed_positions - show all department positions
+            if (selectedDepartment && departmentPositions[selectedDepartment]) {
+                positionsToShow = departmentPositions[selectedDepartment];
+            }
+        }
+    } else {
+        // GM or other roles - show all department positions
+        if (selectedDepartment && departmentPositions[selectedDepartment]) {
+            positionsToShow = departmentPositions[selectedDepartment];
+        }
     }
+    
+    positionsToShow.forEach(position => {
+        const option = document.createElement('option');
+        option.value = position;
+        option.textContent = position;
+        positionSelect.appendChild(option);
+    });
 }
 
 async function displayNotifications() {
@@ -1521,7 +1550,20 @@ function showNewRequest() {
     `;
 
     document.getElementById('new-request-form').addEventListener('submit', createRequest);
-    updatePositionOptions(); // Initialize position options
+    
+    // Auto-load positions for managers (non-GM users)
+    if (userRole !== 'gm') {
+        // Get current user info
+        const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
+        const currentUserDepartment = userInfo ? userInfo.department : userDepartment;
+        
+        // Set department value and load positions
+        const departmentSelect = document.getElementById('department');
+        if (departmentSelect) {
+            departmentSelect.value = currentUserDepartment;
+            updatePositionOptions();
+        }
+    }
     applyTranslations(); // Apply translations after rendering content
 }
 
@@ -1576,8 +1618,8 @@ async function showRequests() {
 
     let query = supabase.from('recruiting_requests').select('*');
 
-    // Filter by department for non-GM and non-manager users
-    if (userRole !== 'gm' && userRole !== 'manager') {
+    // Filter by department for non-GM users (including managers)
+    if (userRole !== 'gm') {
         query = query.eq('department', userDepartment);
     }
 
@@ -1861,8 +1903,8 @@ async function showFilledPositions() {
 
     let query = supabase.from('recruiting_requests').select('*').eq('status', 'Filled');
 
-    // Filter by department for non-GM and non-manager users
-    if (userRole !== 'gm' && userRole !== 'manager') {
+    // Filter by department for non-GM users (including managers)
+    if (userRole !== 'gm') {
         query = query.eq('department', userDepartment);
     }
 

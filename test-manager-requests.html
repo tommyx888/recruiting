@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Manager Requests Access</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Test Manager Requests Access</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Manager Login</h2>
+        <button onclick="testManagerLogin()">Test Manager Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Navigation Visibility</h2>
+        <button onclick="testNavigation()">Check Navigation</button>
+        <div id="nav-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test Requests Access</h2>
+        <button onclick="testRequestsAccess()">Test Requests Access</button>
+        <div id="requests-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Test User Info</h2>
+        <button onclick="testUserInfo()">Show User Info</button>
+        <div id="user-info-result"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="requests.js"></script>
+    <script src="ui.js"></script>
+    
+    <script>
+        let supabase;
+        let authManager;
+        let requestsManager;
+        let uiManager;
+        
+        async function initTest() {
+            try {
+                // Initialize Supabase
+                supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+                
+                // Initialize managers
+                authManager = new AuthManager();
+                authManager.init(supabase);
+                
+                requestsManager = new RequestsManager();
+                requestsManager.init(supabase);
+                
+                uiManager = new UIManager();
+                
+                console.log('Test environment initialized');
+            } catch (error) {
+                console.error('Error initializing test:', error);
+            }
+        }
+        
+        async function testManagerLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '<p class="info">Testing manager login...</p>';
+            
+            try {
+                // Test with a manager email
+                const email = 'hr.manager@company.com';
+                const password = 'test123'; // You might need to adjust this
+                
+                const result = await authManager.login(email, password);
+                
+                if (result.success) {
+                    resultDiv.innerHTML = '<p class="success">✅ Manager login successful!</p>';
+                    
+                    // Get user info
+                    const userInfo = authManager.getUserInfo();
+                    resultDiv.innerHTML += `<p class="info">User role: ${userInfo.role}</p>`;
+                    resultDiv.innerHTML += `<p class="info">Department: ${userInfo.department}</p>`;
+                } else {
+                    resultDiv.innerHTML = '<p class="error">❌ Manager login failed</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Login error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testNavigation() {
+            const resultDiv = document.getElementById('nav-result');
+            resultDiv.innerHTML = '<p class="info">Testing navigation visibility...</p>';
+            
+            try {
+                const userInfo = authManager.getUserInfo();
+                if (!userInfo) {
+                    resultDiv.innerHTML = '<p class="error">❌ No user info available. Please login first.</p>';
+                    return;
+                }
+                
+                resultDiv.innerHTML = `<p class="info">User role: ${userInfo.role}</p>`;
+                
+                // Check if navigation elements exist
+                const navRequests = document.getElementById('nav-requests');
+                const navGMApproval = document.getElementById('nav-gm-approval');
+                const navStatistics = document.getElementById('nav-statistics');
+                const navReports = document.getElementById('nav-reports');
+                
+                if (userInfo.role === 'Manager') {
+                    // Managers should see only Dashboard, Candidates, and Requests
+                    if (navRequests) {
+                        resultDiv.innerHTML += `<p class="success">✅ nav-requests should be visible for managers</p>`;
+                        resultDiv.innerHTML += `<p class="info">Display style: ${navRequests.style.display}</p>`;
+                    }
+                    
+                    if (navGMApproval) {
+                        resultDiv.innerHTML += `<p class="success">✅ nav-gm-approval should be HIDDEN for managers</p>`;
+                        resultDiv.innerHTML += `<p class="info">Display style: ${navGMApproval.style.display}</p>`;
+                    }
+                    
+                    if (navStatistics) {
+                        resultDiv.innerHTML += `<p class="success">✅ nav-statistics should be HIDDEN for managers</p>`;
+                        resultDiv.innerHTML += `<p class="info">Display style: ${navStatistics.style.display}</p>`;
+                    }
+                    
+                    if (navReports) {
+                        resultDiv.innerHTML += `<p class="success">✅ nav-reports should be HIDDEN for managers</p>`;
+                        resultDiv.innerHTML += `<p class="info">Display style: ${navReports.style.display}</p>`;
+                    }
+                } else {
+                    resultDiv.innerHTML += `<p class="info">Testing for role: ${userInfo.role}</p>`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Navigation test error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testRequestsAccess() {
+            const resultDiv = document.getElementById('requests-result');
+            resultDiv.innerHTML = '<p class="info">Testing requests access...</p>';
+            
+            try {
+                const userInfo = authManager.getUserInfo();
+                if (!userInfo) {
+                    resultDiv.innerHTML = '<p class="error">❌ No user info available. Please login first.</p>';
+                    return;
+                }
+                
+                resultDiv.innerHTML += `<p class="info">User role: ${userInfo.role}</p>`;
+                
+                // Test getting requests
+                const result = await requestsManager.getRequests({
+                    page: 1,
+                    pageSize: 10
+                });
+                
+                resultDiv.innerHTML += `<p class="success">✅ Requests loaded successfully!</p>`;
+                resultDiv.innerHTML += `<p class="info">Found ${result.requests.length} requests</p>`;
+                resultDiv.innerHTML += `<p class="info">Total items: ${result.pagination.totalItems}</p>`;
+                
+                if (result.requests.length > 0) {
+                    resultDiv.innerHTML += '<p class="success">✅ Manager can see requests!</p>';
+                } else {
+                    resultDiv.innerHTML += '<p class="info">ℹ️ No requests found (this might be normal if no requests exist)</p>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Requests access error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testUserInfo() {
+            const resultDiv = document.getElementById('user-info-result');
+            
+            try {
+                const userInfo = authManager.getUserInfo();
+                if (userInfo) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ User info loaded:</p>
+                        <pre>${JSON.stringify(userInfo, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p class="error">❌ No user info available</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ User info error: ${error.message}</p>`;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initTest);
+    </script>
+</body>
+</html>

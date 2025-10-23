@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Manager with Null Department</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select, input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        #debug-info { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Test Manager with Null Department</h1>
+    <p>This simulates a manager who has department: null but has allowed_positions</p>
+    
+    <div class="form-group">
+        <label for="department">Department:</label>
+        <select id="department" name="department" required>
+            <option value="">Select Department</option>
+            <option value="HR">HR</option>
+            <option value="IT">IT</option>
+            <option value="Finance">Finance</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="position">Position:</label>
+        <select id="position" name="position" required>
+            <option value="">Select a position</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" onclick="testManagerWithNullDept()">Test Manager with Null Department (should see Payroll accountant)</button>
+        <button type="button" class="btn btn-secondary" onclick="testManagerWithDept()">Test Manager with Department</button>
+    </div>
+    
+    <div id="debug-info">
+        <h3>Debug Info:</h3>
+        <div id="debug-content"></div>
+    </div>
+
+    <script>
+        // Department positions mapping
+        const departmentPositions = {
+            'HR': [
+                'Payroll accountant',
+                'Senior HR Generalist',
+                'Recruiter',
+                'HR Generalist 1',
+                'HR Generalist 2',
+                'HR Manager',
+                'HR Director'
+            ],
+            'IT': [
+                'Software Developer',
+                'Senior Software Developer',
+                'IT Support',
+                'System Administrator',
+                'IT Manager',
+                'DevOps Engineer',
+                'Database Administrator'
+            ],
+            'Finance': [
+                'Financial Analyst',
+                'Senior Financial Analyst',
+                'Accountant',
+                'Senior Accountant',
+                'Finance Manager',
+                'CFO'
+            ]
+        };
+        
+        // Simulate manager user
+        const userRole = 'Manager';
+        let userDepartment = null; // Manager has NO department
+        let userAllowedPositions = ['Recruiter', 'HR Generalist']; // Manager has specific allowed positions
+        
+        // Update position options based on selected department
+        function updatePositionOptions() {
+            const departmentSelect = document.getElementById('department');
+            const positionSelect = document.getElementById('position');
+            const selectedDepartment = departmentSelect.value;
+
+            positionSelect.innerHTML = '<option value="">Select a position</option>';
+
+            if (selectedDepartment && departmentPositions[selectedDepartment]) {
+                let positionsToShow = [];
+                
+                // Check if user is manager
+                if (userRole === 'Manager') {
+                    if (userDepartment) {
+                        // Manager has department - show all department positions
+                        positionsToShow = departmentPositions[selectedDepartment];
+                    } else if (userAllowedPositions && userAllowedPositions.length > 0) {
+                        // Manager has no department but has allowed_positions - show only those
+                        positionsToShow = userAllowedPositions;
+                    } else {
+                        // Manager has neither department nor allowed_positions - show all department positions
+                        positionsToShow = departmentPositions[selectedDepartment];
+                    }
+                } else {
+                    // GM or other roles - show all department positions
+                    positionsToShow = departmentPositions[selectedDepartment];
+                }
+                
+                positionsToShow.forEach(position => {
+                    const option = document.createElement('option');
+                    option.value = position;
+                    option.textContent = position;
+                    positionSelect.appendChild(option);
+                });
+            }
+            
+            updateDebugInfo();
+        }
+        
+        function updateDebugInfo() {
+            const departmentSelect = document.getElementById('department');
+            const positionSelect = document.getElementById('position');
+            const debugContent = document.getElementById('debug-content');
+            
+            debugContent.innerHTML = `
+                <p><strong>User Role:</strong> ${userRole}</p>
+                <p><strong>User Department:</strong> ${userDepartment || 'null'}</p>
+                <p><strong>User Allowed Positions:</strong> ${userAllowedPositions ? userAllowedPositions.join(', ') : 'none'}</p>
+                <p><strong>Selected Department:</strong> ${departmentSelect.value || 'none'}</p>
+                <p><strong>Available Positions:</strong></p>
+                <ul>
+                    ${Array.from(positionSelect.options).slice(1).map(option => `<li>${option.value}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        function testManagerWithNullDept() {
+            // Test manager with null department but with allowed positions
+            userDepartment = null;
+            userAllowedPositions = ['Payroll accountant', 'Recruiter', 'HR Generalist'];
+            
+            const departmentSelect = document.getElementById('department');
+            departmentSelect.value = ''; // No department selected (null)
+            updatePositionOptions();
+            
+            alert(`Manager with NULL department but WITH allowed positions: ${userAllowedPositions.join(', ')}\nShould show only allowed positions even without selecting department`);
+        }
+        
+        function testManagerWithDept() {
+            // Test manager with department
+            userDepartment = 'HR';
+            userAllowedPositions = ['Recruiter', 'HR Generalist'];
+            
+            const departmentSelect = document.getElementById('department');
+            departmentSelect.value = 'HR';
+            updatePositionOptions();
+            
+            alert(`Manager WITH department: ${userDepartment}\nShould show ALL HR department positions (department takes priority)`);
+        }
+        
+        // Department change handler
+        document.getElementById('department').addEventListener('change', updatePositionOptions);
+        
+        // Initial debug info
+        updateDebugInfo();
+    </script>
+</body>
+</html>

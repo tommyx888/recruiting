@@ -982,7 +982,7 @@ function createRequestActionButtons(request) {
     let buttons = '';
     const userInfo = window.authManager.getUserInfo();
     
-    if ((userInfo.role === 'gm' || userInfo.role === 'recruiter' || userInfo.role === 'manager') && request.status === 'Pending') {
+    if ((userInfo.role === 'gm' || userInfo.role === 'recruiter') && request.status === 'Pending') {
         buttons = `
             <button onclick="approveRequest(${request.id})" class="btn btn-success" data-translate="Approve">Approve</button>
             <button onclick="rejectRequest(${request.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
@@ -1000,7 +1000,7 @@ function createRequestActionButtons(request) {
 
 async function showGMApproval() {
     const userInfo = window.authManager.getUserInfo();
-    if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && userInfo.role !== 'manager') {
+    if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
         const app = document.getElementById('app');
         app.innerHTML = '<p data-translate="Access denied. Only GMs, Recruiters and Managers can view this page.">Access denied. Only GMs, Recruiters and Managers can view this page.</p>';
         window.uiManager.translatePage();
@@ -1246,8 +1246,19 @@ function showNewRequest() {
         form.addEventListener('submit', createRequest);
     }
 
-    // Initialize position options
-    updatePositionOptions();
+    // Auto-load positions for managers (non-GM users)
+    if (userRole !== 'gm') {
+        // Get current user info
+        const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
+        const currentUserDepartment = userInfo ? userInfo.department : userDepartment;
+        
+        // Set department value and load positions
+        const departmentSelect = document.getElementById('department');
+        if (departmentSelect) {
+            departmentSelect.value = currentUserDepartment;
+            updatePositionOptions();
+        }
+    }
 }
 
 // Global variables for user info
@@ -1352,14 +1363,38 @@ function updatePositionOptions() {
 
     positionSelect.innerHTML = '<option value="">Select a position</option>';
 
-    if (selectedDepartment && departmentPositions[selectedDepartment]) {
-        departmentPositions[selectedDepartment].forEach(position => {
-            const option = document.createElement('option');
-            option.value = position;
-            option.textContent = position;
-            positionSelect.appendChild(option);
-        });
+    let positionsToShow = [];
+    
+    // Check if user is manager
+    if (userRole === 'Manager' && window.authManager) {
+        const userInfo = window.authManager.getUserInfo();
+        if (userInfo && userInfo.department) {
+            // Manager has department - show all department positions
+            if (selectedDepartment && departmentPositions[selectedDepartment]) {
+                positionsToShow = departmentPositions[selectedDepartment];
+            }
+        } else if (userInfo && userInfo.allowedPositions && userInfo.allowedPositions.length > 0) {
+            // Manager has no department but has allowed_positions - show only those
+            positionsToShow = userInfo.allowedPositions;
+        } else {
+            // Manager has neither department nor allowed_positions - show all department positions
+            if (selectedDepartment && departmentPositions[selectedDepartment]) {
+                positionsToShow = departmentPositions[selectedDepartment];
+            }
+        }
+    } else {
+        // GM or other roles - show all department positions
+        if (selectedDepartment && departmentPositions[selectedDepartment]) {
+            positionsToShow = departmentPositions[selectedDepartment];
+        }
     }
+    
+    positionsToShow.forEach(position => {
+        const option = document.createElement('option');
+        option.value = position;
+        option.textContent = position;
+        positionSelect.appendChild(option);
+    });
 }
 
 function togglePositionTypeFields() {

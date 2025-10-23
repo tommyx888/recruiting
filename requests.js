@@ -58,8 +58,14 @@ class RequestsManager {
 
             // Apply filters based on user permissions
             const userInfo = window.authManager.getUserInfo();
-            if (userInfo.role !== 'gm' && userInfo.role !== 'manager') {
-                query = query.eq('department', userInfo.department);
+            if (userInfo.role !== 'gm') {
+                if (userInfo.role === 'Manager') {
+                    // Managers see only their department requests
+                    query = query.eq('department', userInfo.department);
+                } else {
+                    // Other roles (recruiter) see only their department
+                    query = query.eq('department', userInfo.department);
+                }
             }
 
             // Apply additional filters

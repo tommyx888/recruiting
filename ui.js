@@ -443,12 +443,19 @@ class UIManager {
             navRequests: !!navRequests
         });
 
-        if (userInfo.role === 'gm' || userInfo.role === 'recruiter' || userInfo.role === 'manager') {
+        if (userInfo.role === 'gm' || userInfo.role === 'recruiter') {
             if (navGMApproval) navGMApproval.style.display = 'inline';
             if (navRequests) navRequests.style.display = 'inline';
             if (navStatistics) navStatistics.style.display = 'inline';
             if (navReports) navReports.style.display = 'inline';
-            console.log('GM/Manager navigation shown');
+            console.log('GM/Recruiter navigation shown');
+        } else if (userInfo.role === 'Manager') {
+            // Managers see only Dashboard, Candidates, and Requests (filtered by department/positions)
+            if (navGMApproval) navGMApproval.style.display = 'none';
+            if (navRequests) navRequests.style.display = 'inline';
+            if (navStatistics) navStatistics.style.display = 'none';
+            if (navReports) navReports.style.display = 'none';
+            console.log('Manager navigation shown (limited)');
         } else {
             if (navStatistics) navStatistics.style.display = 'none';
             if (navReports) navReports.style.display = 'none';

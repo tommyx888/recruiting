@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Manager Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select, input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .test-info { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Test Manager Form - Simulating New Request Creation</h1>
+    
+    <div class="test-info">
+        <h3>Test Info:</h3>
+        <p><strong>User Role:</strong> <span id="user-role">Manager</span></p>
+        <p><strong>User Department:</strong> <span id="user-department">HR</span></p>
+        <p><strong>Expected Behavior:</strong> Department should be pre-selected and positions should auto-load</p>
+    </div>
+    
+    <div class="card">
+        <h2>Create New Recruiting Request</h2>
+        <form id="new-request-form">
+            <div class="form-group">
+                <label for="department">Department:</label>
+                <select id="department" name="department" required onchange="updatePositionOptions()">
+                    <option value="">Select Department</option>
+                    <option value="HR">HR</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="position">Position:</label>
+                <select id="position" name="position" required>
+                    <option value="">Select Position</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Job Description:</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="headcount">Number of Positions:</label>
+                <input type="number" id="headcount" name="headcount" min="1" value="1" required>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Request</button>
+                <button type="button" class="btn btn-secondary" onclick="testAutoLoad()">Test Auto Load</button>
+                <button type="button" class="btn btn-secondary" onclick="testWithAllowedPositions()">Test Manager WITH Department</button>
+                <button type="button" class="btn btn-secondary" onclick="testWithoutAllowedPositions()">Test Manager WITHOUT Department</button>
+            </div>
+        </form>
+    </div>
+    
+    <div id="debug-info" style="margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 4px;">
+        <h3>Debug Info:</h3>
+        <div id="debug-content"></div>
+    </div>
+
+    <script>
+        // Department positions mapping (same as in app.js)
+        const departmentPositions = {
+            'Business': ['Assistant Buyer', 'Buyer', 'Supplier Quality Assurance Engineer', 'Business Administration', 'Business Sales & Cost Analyst'],
+            'CI': ['CI Coordinator', 'CI Analyst', 'CI Technician'],
+            'Engineering': ['Senior Process Engineer 1', 'Senior Process Engineer IM', 'Process Engineer 1', 'Senior IM Technologist Coordinator', 'Process Engineer IM', 'Senior Technologist IM', 'Foreman Technologist IM', 'Technologist IM', 'Mold Changer', 'Materialist', 'Senior Process Engineer 2', 'Process Engineer 2', 'Senior Technologist Coordinator', 'Tooling Engineer', 'Product Engineer', 'Change BOM Coordinator', 'Programe Engineer', 'Technologist 1', 'Quality Program Engineer', 'Launch Coordinator', 'Data Analyst', 'Manufacturing Engineer'],
+            'Finance': ['Programme Controller', 'Finance Analyst', 'Chief Accountant', 'Financial Specialist Senior', 'Supplier Accountant', 'Services Accountant', 'Financial Assistant', 'Financial Clerk', 'Revenue Accountant', 'Financial Specialist', 'Treasury Analyst', 'Senior Treasury & Financial Analyst'],
+            'HR': ['Payroll accountant', 'Senior HR Generalist', 'Recruiter', 'HR Generalist 1', 'Junior Payroll', 'Training Center Trainer', 'HSE Specialist', 'Environment Officer', 'Executive assistant'],
+            'IT': ['IT Analyst / Administrator', 'Senior IT Specialist'],
+            'Logistics': ['Warehouse/Logistics Leader', 'Senior Logistics Planner', 'Logistics Disponent', 'Logistics Planner', 'Packaging Disponent', 'Logistics Referent', 'Inventory Counter', 'Internal Logistics Coordinator', 'Logistics Shift leader', 'Expedient', 'Supervisor Inventory Control', 'Logistics Planner IM', 'Senior Demand Specialist', 'Logistics operator Expedient', 'Logistics operator receiving'],
+            'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetic/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent'],
+            'Management': ['Operation Assistant General Manager', 'Financial Manager', 'HR Manager', 'Logistics Manager', 'Quality Manager', 'Production Manager', 'Maintenance Manager', 'Programme Manager', 'Purchasing Manager', 'IT Manager', 'Ext. Programme Manager', 'Business Manager', 'Program Manager'],
+            'Production': ['Production Coordinator', 'Production Shift leader', 'Production Referent'],
+            'Quality': ['Customer Quality Leader', 'Quality Leader', 'PPAP Technician', 'Quality Engineer QM System', 'Laboratory Leader/ Metrolog', 'Customer Quality Coordinator', 'Quality Auditors Coordinator', 'Supplier Quality Assurance', 'Sperrlager Coordinator', 'Sperrlager Quality Operator', 'Quality Auditor', 'Incoming Inspection', '3D Measurement', 'Laboratory technician', 'Resident']
+        };
+        
+        // Simulate manager user
+        const userRole = 'Manager';
+        let userDepartment = 'HR'; // Manager with department
+        let userAllowedPositions = ['Recruiter', 'HR Generalist']; // Manager with specific allowed positions
+        
+        // Update position options based on selected department
+        function updatePositionOptions() {
+            const departmentSelect = document.getElementById('department');
+            const positionSelect = document.getElementById('position');
+            const selectedDepartment = departmentSelect.value;
+
+            positionSelect.innerHTML = '<option value="">Select a position</option>';
+
+            if (selectedDepartment && departmentPositions[selectedDepartment]) {
+                let positionsToShow = [];
+                
+                // Check if user is manager
+                if (userRole === 'Manager') {
+                    if (userDepartment) {
+                        // Manager has department - show all department positions
+                        positionsToShow = departmentPositions[selectedDepartment];
+                    } else if (userAllowedPositions && userAllowedPositions.length > 0) {
+                        // Manager has no department but has allowed_positions - show only those
+                        positionsToShow = userAllowedPositions;
+                    } else {
+                        // Manager has neither department nor allowed_positions - show all department positions
+                        positionsToShow = departmentPositions[selectedDepartment];
+                    }
+                } else {
+                    // GM or other roles - show all department positions
+                    positionsToShow = departmentPositions[selectedDepartment];
+                }
+                
+                positionsToShow.forEach(position => {
+                    const option = document.createElement('option');
+                    option.value = position;
+                    option.textContent = position;
+                    positionSelect.appendChild(option);
+                });
+            }
+            
+            updateDebugInfo();
+        }
+        
+        function updateDebugInfo() {
+            const departmentSelect = document.getElementById('department');
+            const positionSelect = document.getElementById('position');
+            const debugContent = document.getElementById('debug-content');
+            
+            debugContent.innerHTML = `
+                <p><strong>Department Value:</strong> "${departmentSelect.value}"</p>
+                <p><strong>Position Options Count:</strong> ${positionSelect.options.length - 1}</p>
+                <p><strong>Available Positions:</strong></p>
+                <ul>
+                    ${Array.from(positionSelect.options).slice(1).map(option => `<li>${option.value}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        function testAutoLoad() {
+            // Simulate what happens when manager creates new request
+            const departmentSelect = document.getElementById('department');
+            const positionSelect = document.getElementById('position');
+            
+            // Set department value (as if manager's department is pre-selected)
+            departmentSelect.value = userDepartment;
+            
+            // Load positions
+            updatePositionOptions();
+            
+            alert(`Auto-loaded positions for department: ${userDepartment}\nFound ${positionSelect.options.length - 1} positions`);
+        }
+        
+        function testWithAllowedPositions() {
+            // Test manager with department (should see all department positions)
+            userDepartment = 'HR';
+            userAllowedPositions = ['Recruiter', 'HR Generalist'];
+            const departmentSelect = document.getElementById('department');
+            departmentSelect.value = userDepartment;
+            updatePositionOptions();
+            alert(`Manager WITH department: ${userDepartment}\nShould show ALL HR department positions (department takes priority)`);
+        }
+        
+        function testWithoutAllowedPositions() {
+            // Test manager without department but with allowed positions
+            userDepartment = null; // No department
+            userAllowedPositions = ['Recruiter', 'HR Generalist'];
+            const departmentSelect = document.getElementById('department');
+            departmentSelect.value = 'HR'; // Still select HR to test
+            updatePositionOptions();
+            alert(`Manager WITHOUT department but WITH allowed positions: ${userAllowedPositions.join(', ')}\nShould show only allowed positions`);
+        }
+        
+        // Form submit handler
+        document.getElementById('new-request-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const department = document.getElementById('department').value;
+            const position = document.getElementById('position').value;
+            const description = document.getElementById('description').value;
+            const headcount = document.getElementById('headcount').value;
+            
+            alert(`Form submitted:\nDepartment: ${department}\nPosition: ${position}\nDescription: ${description}\nHeadcount: ${headcount}`);
+        });
+        
+        // Initialize debug info
+        updateDebugInfo();
+    </script>
+</body>
+</html>

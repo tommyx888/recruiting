@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Manager Positions Access</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .position-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Test Manager Positions Access</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Manager Login</h2>
+        <button onclick="testManagerLogin()">Test Manager Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Department Positions</h2>
+        <button onclick="testDepartmentPositions()">Test Department Positions</button>
+        <div id="positions-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test New Request Form</h2>
+        <button onclick="testNewRequestForm()">Test New Request Form</button>
+        <div id="form-result"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        let supabase;
+        let authManager;
+        let userInfo;
+        
+        // Department positions mapping (same as in app.js)
+        const departmentPositions = {
+            'Business': ['Assistant Buyer', 'Buyer', 'Supplier Quality Assurance Engineer', 'Business Administration', 'Business Sales & Cost Analyst'],
+            'CI': ['CI Coordinator', 'CI Analyst', 'CI Technician'],
+            'Engineering': ['Senior Process Engineer 1', 'Senior Process Engineer IM', 'Process Engineer 1', 'Senior IM Technologist Coordinator', 'Process Engineer IM', 'Senior Technologist IM', 'Foreman Technologist IM', 'Technologist IM', 'Mold Changer', 'Materialist', 'Senior Process Engineer 2', 'Process Engineer 2', 'Senior Technologist Coordinator', 'Tooling Engineer', 'Product Engineer', 'Change BOM Coordinator', 'Programe Engineer', 'Technologist 1', 'Quality Program Engineer', 'Launch Coordinator', 'Data Analyst', 'Manufacturing Engineer'],
+            'Finance': ['Programme Controller', 'Finance Analyst', 'Chief Accountant', 'Financial Specialist Senior', 'Supplier Accountant', 'Services Accountant', 'Financial Assistant', 'Financial Clerk', 'Revenue Accountant', 'Financial Specialist', 'Treasury Analyst', 'Senior Treasury & Financial Analyst'],
+            'HR': ['Payroll accountant', 'Senior HR Generalist', 'Recruiter', 'HR Generalist 1', 'Junior Payroll', 'Training Center Trainer', 'HSE Specialist', 'Environment Officer', 'Executive assistant'],
+            'IT': ['IT Analyst / Administrator', 'Senior IT Specialist'],
+            'Logistics': ['Warehouse/Logistics Leader', 'Senior Logistics Planner', 'Logistics Disponent', 'Logistics Planner', 'Packaging Disponent', 'Logistics Referent', 'Inventory Counter', 'Internal Logistics Coordinator', 'Logistics Shift leader', 'Expedient', 'Supervisor Inventory Control', 'Logistics Planner IM', 'Senior Demand Specialist', 'Logistics operator Expedient', 'Logistics operator receiving'],
+            'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetic/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent'],
+            'Management': ['Operation Assistant General Manager', 'Financial Manager', 'HR Manager', 'Logistics Manager', 'Quality Manager', 'Production Manager', 'Maintenance Manager', 'Programme Manager', 'Purchasing Manager', 'IT Manager', 'Ext. Programme Manager', 'Business Manager', 'Program Manager'],
+            'Production': ['Production Coordinator', 'Production Shift leader', 'Production Referent'],
+            'Quality': ['Customer Quality Leader', 'Quality Leader', 'PPAP Technician', 'Quality Engineer QM System', 'Laboratory Leader/ Metrolog', 'Customer Quality Coordinator', 'Quality Auditors Coordinator', 'Supplier Quality Assurance', 'Sperrlager Coordinator', 'Sperrlager Quality Operator', 'Quality Auditor', 'Incoming Inspection', '3D Measurement', 'Laboratory technician', 'Resident']
+        };
+        
+        async function initTest() {
+            try {
+                // Initialize Supabase
+                supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+                
+                // Initialize managers
+                authManager = new AuthManager();
+                authManager.init(supabase);
+                
+                console.log('Test environment initialized');
+            } catch (error) {
+                console.error('Error initializing test:', error);
+            }
+        }
+        
+        async function testManagerLogin() {
+            const resultDiv = document.getElementById('login-result');
+            resultDiv.innerHTML = '<p class="info">Testing manager login...</p>';
+            
+            try {
+                // Test with a manager email
+                const email = 'hr.manager@company.com';
+                const password = 'test123'; // You might need to adjust this
+                
+                const result = await authManager.login(email, password);
+                
+                if (result.success) {
+                    resultDiv.innerHTML = '<p class="success">✅ Manager login successful!</p>';
+                    
+                    // Get user info
+                    userInfo = authManager.getUserInfo();
+                    resultDiv.innerHTML += `<p class="info">User role: ${userInfo.role}</p>`;
+                    resultDiv.innerHTML += `<p class="info">Department: ${userInfo.department}</p>`;
+                    resultDiv.innerHTML += `<p class="info">Allowed positions: ${userInfo.allowedPositions ? userInfo.allowedPositions.join(', ') : 'None'}</p>`;
+                } else {
+                    resultDiv.innerHTML = '<p class="error">❌ Manager login failed</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Login error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testDepartmentPositions() {
+            const resultDiv = document.getElementById('positions-result');
+            resultDiv.innerHTML = '<p class="info">Testing department positions...</p>';
+            
+            try {
+                if (!userInfo) {
+                    resultDiv.innerHTML = '<p class="error">❌ No user info available. Please login first.</p>';
+                    return;
+                }
+                
+                resultDiv.innerHTML = `<p class="info">Manager department: ${userInfo.department}</p>`;
+                
+                // Get positions for manager's department
+                const positions = departmentPositions[userInfo.department] || [];
+                
+                if (positions.length > 0) {
+                    resultDiv.innerHTML += `<p class="success">✅ Found ${positions.length} positions for department "${userInfo.department}"</p>`;
+                    resultDiv.innerHTML += '<div class="position-list">';
+                    positions.forEach(position => {
+                        resultDiv.innerHTML += `<div>• ${position}</div>`;
+                    });
+                    resultDiv.innerHTML += '</div>';
+                } else {
+                    resultDiv.innerHTML += `<p class="error">❌ No positions found for department "${userInfo.department}"</p>`;
+                }
+                
+                // Check if manager's allowed positions are subset of department positions
+                if (userInfo.allowedPositions && userInfo.allowedPositions.length > 0) {
+                    resultDiv.innerHTML += `<p class="info">Manager's allowed positions: ${userInfo.allowedPositions.join(', ')}</p>`;
+                    
+                    const allowedInDepartment = userInfo.allowedPositions.filter(pos => positions.includes(pos));
+                    resultDiv.innerHTML += `<p class="info">Allowed positions in department: ${allowedInDepartment.length}/${userInfo.allowedPositions.length}</p>`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Department positions test error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testNewRequestForm() {
+            const resultDiv = document.getElementById('form-result');
+            resultDiv.innerHTML = '<p class="info">Testing new request form...</p>';
+            
+            try {
+                if (!userInfo) {
+                    resultDiv.innerHTML = '<p class="error">❌ No user info available. Please login first.</p>';
+                    return;
+                }
+                
+                // Simulate creating new request form
+                resultDiv.innerHTML = '<p class="info">Simulating new request form creation...</p>';
+                
+                // Check if department is pre-selected for managers
+                resultDiv.innerHTML += `<p class="info">Department should be pre-selected: ${userInfo.department}</p>`;
+                
+                // Check if positions are available
+                const positions = departmentPositions[userInfo.department] || [];
+                resultDiv.innerHTML += `<p class="info">Available positions: ${positions.length}</p>`;
+                
+                if (positions.length > 0) {
+                    resultDiv.innerHTML += '<p class="success">✅ Manager should see all department positions in dropdown</p>';
+                    resultDiv.innerHTML += '<div class="position-list">';
+                    positions.slice(0, 10).forEach(position => { // Show first 10 positions
+                        resultDiv.innerHTML += `<div>• ${position}</div>`;
+                    });
+                    if (positions.length > 10) {
+                        resultDiv.innerHTML += `<div>... and ${positions.length - 10} more positions</div>`;
+                    }
+                    resultDiv.innerHTML += '</div>';
+                } else {
+                    resultDiv.innerHTML += '<p class="error">❌ No positions available for manager</p>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Form test error: ${error.message}</p>`;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initTest);
+    </script>
+</body>
+</html>

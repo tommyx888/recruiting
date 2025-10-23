@@ -982,7 +982,7 @@ function createRequestActionButtons(request) {
     let buttons = '';
     const userInfo = window.authManager.getUserInfo();
     
-    if ((userInfo.role === 'gm' || userInfo.role === 'recruiter') && request.status === 'Pending') {
+    if ((userInfo.role === 'gm' || userInfo.role === 'recruiter' || userInfo.role === 'manager') && request.status === 'Pending') {
         buttons = `
             <button onclick="approveRequest(${request.id})" class="btn btn-success" data-translate="Approve">Approve</button>
             <button onclick="rejectRequest(${request.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
@@ -1000,9 +1000,9 @@ function createRequestActionButtons(request) {
 
 async function showGMApproval() {
     const userInfo = window.authManager.getUserInfo();
-    if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
+    if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && userInfo.role !== 'manager') {
         const app = document.getElementById('app');
-        app.innerHTML = '<p data-translate="Access denied. Only GMs and Recruiters can view this page.">Access denied. Only GMs and Recruiters can view this page.</p>';
+        app.innerHTML = '<p data-translate="Access denied. Only GMs, Recruiters and Managers can view this page.">Access denied. Only GMs, Recruiters and Managers can view this page.</p>';
         window.uiManager.translatePage();
         return;
     }

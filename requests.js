@@ -58,7 +58,7 @@ class RequestsManager {
 
             // Apply filters based on user permissions
             const userInfo = window.authManager.getUserInfo();
-            if (userInfo.role !== 'gm') {
+            if (userInfo.role !== 'gm' && userInfo.role !== 'manager') {
                 query = query.eq('department', userInfo.department);
             }
 

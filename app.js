@@ -475,6 +475,9 @@ function renderCandidatesView(result) {
             <option value="" data-translate="All Departments">All Departments</option>
                 ${Object.keys(departmentPositions).map(dept => `<option value="${dept}">${dept}</option>`).join('')}
         </select>
+        <select id="position-filter">
+            <option value="" data-translate="All Positions">All Positions</option>
+        </select>
         <select id="source-filter">
             <option value="" data-translate="All Sources">All Sources</option>
                 ${sourceOptions.map(source => `<option value="${source}">${source}</option>`).join('')}
@@ -514,6 +517,75 @@ function renderCandidatesView(result) {
     }
 
     window.uiManager.translatePage();
+    
+    // Add event listener for department filter to update position filter
+    const departmentFilter = document.getElementById('department-filter');
+    const positionFilter = document.getElementById('position-filter');
+    
+    if (departmentFilter && positionFilter) {
+        departmentFilter.addEventListener('change', function() {
+            updatePositionFilterForCandidates();
+        });
+    }
+}
+
+function updatePositionFilterForCandidates() {
+    const departmentFilter = document.getElementById('department-filter');
+    const positionFilter = document.getElementById('position-filter');
+    
+    if (!departmentFilter || !positionFilter) return;
+    
+    const selectedDepartment = departmentFilter.value;
+    
+    // Clear position filter options
+    positionFilter.innerHTML = '<option value="" data-translate="All Positions">All Positions</option>';
+    
+    if (selectedDepartment && departmentPositions[selectedDepartment]) {
+        // Get all displayed candidates from the DOM
+        const candidateRows = document.querySelectorAll('#candidates-container table tbody tr');
+        const allPositions = new Set();
+        
+        candidateRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 2) {
+                const position = cells[2].textContent.trim();
+                if (position) {
+                    allPositions.add(position);
+                }
+            }
+        });
+        
+        // Add department-specific positions that exist in the displayed candidates
+        departmentPositions[selectedDepartment].forEach(position => {
+            if (allPositions.has(position)) {
+                const option = document.createElement('option');
+                option.value = position;
+                option.textContent = position;
+                positionFilter.appendChild(option);
+            }
+        });
+    } else {
+        // If no department selected, show all unique positions from displayed candidates
+        const candidateRows = document.querySelectorAll('#candidates-container table tbody tr');
+        const allPositions = new Set();
+        
+        candidateRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 2) {
+                const position = cells[2].textContent.trim();
+                if (position) {
+                    allPositions.add(position);
+                }
+            }
+        });
+        
+        Array.from(allPositions).forEach(position => {
+            const option = document.createElement('option');
+            option.value = position;
+            option.textContent = position;
+            positionFilter.appendChild(option);
+        });
+    }
 }
 
 function createCandidateTable(candidates, status) {
@@ -1601,11 +1673,13 @@ function showCandidateDetails(id) {
 
 async function applyFilters() {
     const departmentFilter = document.getElementById('department-filter');
+    const positionFilter = document.getElementById('position-filter');
     const sourceFilter = document.getElementById('source-filter');
     
     if (!departmentFilter || !sourceFilter) return;
     
     const selectedDepartment = departmentFilter.value;
+    const selectedPosition = positionFilter.value;
     const selectedSource = sourceFilter.value;
     
     try {
@@ -1623,6 +1697,13 @@ async function applyFilters() {
         if (selectedDepartment && selectedDepartment !== '') {
             filteredCandidates = filteredCandidates.filter(candidate => 
                 candidate.department === selectedDepartment
+            );
+        }
+        
+        // Apply position filter
+        if (selectedPosition && selectedPosition !== '') {
+            filteredCandidates = filteredCandidates.filter(candidate => 
+                candidate.position === selectedPosition
             );
         }
         

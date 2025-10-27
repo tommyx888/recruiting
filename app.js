@@ -484,6 +484,10 @@ function renderCandidatesView(result) {
         </select>
     <button onclick="applyFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
         <button onclick="clearFilters()" class="btn btn-outline" data-translate="Clear Filters">Clear Filters</button>
+        <label class="toggle-rejected" style="display: flex; align-items: center; gap: 8px; margin-left: 20px;">
+            <input type="checkbox" id="hide-rejected-toggle" checked onchange="toggleRejectedCandidates()">
+            <span data-translate="Hide Rejected Candidates">Hide Rejected Candidates</span>
+        </label>
         </div>
         <div id="candidates-container"></div>
     `;
@@ -531,6 +535,9 @@ function renderCandidatesView(result) {
             updatePositionFilterForCandidates();
         });
     }
+    
+    // Hide rejected candidates by default
+    toggleRejectedCandidates();
 }
 
 function updatePositionFilterForCandidates() {
@@ -1658,6 +1665,29 @@ function closeModal(modalId) {
 function showCandidateDetails(id) {
     console.log('Show candidate details for ID:', id);
     // TODO: Implement candidate details view
+}
+
+function toggleRejectedCandidates() {
+    const toggle = document.getElementById('hide-rejected-toggle');
+    const rejectedStatusGroups = document.querySelectorAll('.status-group');
+    
+    if (toggle && toggle.checked) {
+        // Hide rejected candidates
+        rejectedStatusGroups.forEach(group => {
+            const header = group.querySelector('.status-header');
+            if (header) {
+                const headerText = header.textContent.trim();
+                if (headerText === 'Rejected - Inform Source' || headerText === 'Rejected') {
+                    group.style.display = 'none';
+                }
+            }
+        });
+    } else {
+        // Show rejected candidates
+        rejectedStatusGroups.forEach(group => {
+            group.style.display = '';
+        });
+    }
 }
 
 async function applyFilters() {

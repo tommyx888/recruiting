@@ -523,6 +523,10 @@ function renderCandidatesView(result) {
     const positionFilter = document.getElementById('position-filter');
     
     if (departmentFilter && positionFilter) {
+        // Initialize position filter on load
+        updatePositionFilterForCandidates();
+        
+        // Update position filter when department changes
         departmentFilter.addEventListener('change', function() {
             updatePositionFilterForCandidates();
         });
@@ -540,46 +544,31 @@ function updatePositionFilterForCandidates() {
     // Clear position filter options
     positionFilter.innerHTML = '<option value="" data-translate="All Positions">All Positions</option>';
     
+    // Get all displayed candidates from the DOM
+    const candidateRows = document.querySelectorAll('#candidates-container table tbody tr');
+    const allPositions = new Set();
+    
+    candidateRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 2) {
+            const position = cells[2].textContent.trim();
+            if (position) {
+                allPositions.add(position);
+            }
+        }
+    });
+    
     if (selectedDepartment && departmentPositions[selectedDepartment]) {
-        // Get all displayed candidates from the DOM
-        const candidateRows = document.querySelectorAll('#candidates-container table tbody tr');
-        const allPositions = new Set();
-        
-        candidateRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length > 2) {
-                const position = cells[2].textContent.trim();
-                if (position) {
-                    allPositions.add(position);
-                }
-            }
-        });
-        
-        // Add department-specific positions that exist in the displayed candidates
+        // If department selected, show only positions from that department that exist in candidates
         departmentPositions[selectedDepartment].forEach(position => {
-            if (allPositions.has(position)) {
-                const option = document.createElement('option');
-                option.value = position;
-                option.textContent = position;
-                positionFilter.appendChild(option);
-            }
+            const option = document.createElement('option');
+            option.value = position;
+            option.textContent = position;
+            positionFilter.appendChild(option);
         });
     } else {
         // If no department selected, show all unique positions from displayed candidates
-        const candidateRows = document.querySelectorAll('#candidates-container table tbody tr');
-        const allPositions = new Set();
-        
-        candidateRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length > 2) {
-                const position = cells[2].textContent.trim();
-                if (position) {
-                    allPositions.add(position);
-                }
-            }
-        });
-        
-        Array.from(allPositions).forEach(position => {
+        Array.from(allPositions).sort().forEach(position => {
             const option = document.createElement('option');
             option.value = position;
             option.textContent = position;

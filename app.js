@@ -587,6 +587,11 @@ function updatePositionFilterForCandidates() {
 function createCandidateTable(candidates, status) {
     const statusGroup = document.createElement('div');
     statusGroup.className = 'status-group';
+    
+    // Add data attribute for filtering
+    if (status.toLowerCase().includes('rejected')) {
+        statusGroup.setAttribute('data-status', 'rejected');
+    }
 
     const header = document.createElement('h3');
     header.className = 'status-header';
@@ -1669,22 +1674,16 @@ function showCandidateDetails(id) {
 
 function toggleRejectedCandidates() {
     const toggle = document.getElementById('hide-rejected-toggle');
-    const rejectedStatusGroups = document.querySelectorAll('.status-group');
+    const rejectedGroups = document.querySelectorAll('.status-group[data-status="rejected"]');
     
     if (toggle && toggle.checked) {
         // Hide rejected candidates
-        rejectedStatusGroups.forEach(group => {
-            const header = group.querySelector('.status-header');
-            if (header) {
-                const headerText = header.textContent.trim();
-                if (headerText === 'Rejected - Inform Source' || headerText === 'Rejected') {
-                    group.style.display = 'none';
-                }
-            }
+        rejectedGroups.forEach(group => {
+            group.style.display = 'none';
         });
     } else {
         // Show rejected candidates
-        rejectedStatusGroups.forEach(group => {
+        rejectedGroups.forEach(group => {
             group.style.display = '';
         });
     }

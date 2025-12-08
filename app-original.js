@@ -1110,7 +1110,17 @@ function showAddCandidate() {
 function updatePositionOptions() {
     const departmentSelect = document.getElementById('department');
     const positionSelect = document.getElementById('position');
-    const selectedDepartment = departmentSelect.value;
+    
+    if (!departmentSelect || !positionSelect) {
+        console.error('Department or position select not found');
+        return;
+    }
+    
+    // Get selected department - if disabled, use userDepartment as fallback
+    let selectedDepartment = departmentSelect.value;
+    if (!selectedDepartment && userDepartment) {
+        selectedDepartment = userDepartment;
+    }
 
     positionSelect.innerHTML = '<option value="">Select a position</option>';
 
@@ -1120,22 +1130,25 @@ function updatePositionOptions() {
     if (userRole === 'Manager') {
         if (userDepartment) {
             // Manager has department - show all department positions
-            if (selectedDepartment && departmentPositions[selectedDepartment]) {
-                positionsToShow = departmentPositions[selectedDepartment];
+            const dept = selectedDepartment || userDepartment;
+            if (dept && departmentPositions[dept]) {
+                positionsToShow = departmentPositions[dept];
             }
         } else if (userAllowedPositions && userAllowedPositions.length > 0) {
             // Manager has no department but has allowed_positions - show only those
             positionsToShow = userAllowedPositions;
         } else {
             // Manager has neither department nor allowed_positions - show all department positions
-            if (selectedDepartment && departmentPositions[selectedDepartment]) {
-                positionsToShow = departmentPositions[selectedDepartment];
+            const dept = selectedDepartment || userDepartment;
+            if (dept && departmentPositions[dept]) {
+                positionsToShow = departmentPositions[dept];
             }
         }
     } else {
         // GM or other roles - show all department positions
-        if (selectedDepartment && departmentPositions[selectedDepartment]) {
-            positionsToShow = departmentPositions[selectedDepartment];
+        const dept = selectedDepartment || userDepartment;
+        if (dept && departmentPositions[dept]) {
+            positionsToShow = departmentPositions[dept];
         }
     }
     
@@ -1561,8 +1574,16 @@ function showNewRequest() {
         const departmentSelect = document.getElementById('department');
         if (departmentSelect) {
             departmentSelect.value = currentUserDepartment;
-            updatePositionOptions();
+            // Use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                updatePositionOptions();
+            }, 0);
         }
+    } else {
+        // For GM users, also initialize position options if department is pre-selected
+        setTimeout(() => {
+            updatePositionOptions();
+        }, 0);
     }
     applyTranslations(); // Apply translations after rendering content
 }

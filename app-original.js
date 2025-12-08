@@ -500,7 +500,26 @@ async function checkAuth() {
         if (data) {
             userRole = data.role;
             userDepartment = data.department;
-            userAllowedPositions = data.allowed_positions || [];
+            // Handle allowed_positions - could be array or JSON string
+            if (data.allowed_positions) {
+                if (typeof data.allowed_positions === 'string') {
+                    try {
+                        userAllowedPositions = JSON.parse(data.allowed_positions);
+                    } catch (e) {
+                        console.error('Error parsing allowed_positions:', e);
+                        userAllowedPositions = [];
+                    }
+                } else if (Array.isArray(data.allowed_positions)) {
+                    userAllowedPositions = data.allowed_positions;
+                } else {
+                    userAllowedPositions = [];
+                }
+            } else {
+                userAllowedPositions = [];
+            }
+            console.log('User role:', userRole);
+            console.log('User department:', userDepartment);
+            console.log('User allowed positions:', userAllowedPositions);
         }
 
         toggleVisibility(true);
@@ -562,11 +581,11 @@ async function showCandidates() {
 
     // Filter candidates based on user permissions
     if (userRole !== 'gm') {
-        if (userAllowedPositions.length > 0) {
+        if (userAllowedPositions && Array.isArray(userAllowedPositions) && userAllowedPositions.length > 0) {
             // User has specific position access
             query = query.in('position', userAllowedPositions);
-        } else {
-            // User has department-level access (manager)
+        } else if (userDepartment) {
+            // User has department-level access
             query = query.eq('department', userDepartment);
         }
     }
@@ -640,10 +659,19 @@ function applyFilters() {
 
     let query = supabase.from('candidates').select('*');
 
+    // Filter by user permissions first
+    if (userRole !== 'gm') {
+        if (userAllowedPositions && Array.isArray(userAllowedPositions) && userAllowedPositions.length > 0) {
+            // User has specific position access - filter by allowed positions
+            query = query.in('position', userAllowedPositions);
+        } else if (userDepartment) {
+            // User has department-level access
+            query = query.eq('department', userDepartment);
+        }
+    }
+
     if (departmentFilter) {
         query = query.eq('department', departmentFilter);
-    } else if (userRole !== 'gm') {
-        query = query.eq('department', userDepartment);
     }
 
     if (positionFilter) {
@@ -1101,6 +1129,19 @@ function showAddCandidate() {
             }
         }
     });
+    
+    // Auto-load positions for non-GM users
+    if (userRole !== 'gm') {
+        const departmentSelect = document.getElementById('department');
+        if (departmentSelect && userDepartment) {
+            departmentSelect.value = userDepartment;
+            // Use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                updatePositionOptions();
+            }, 0);
+        }
+    }
+    
     translatePage();
 }
 
@@ -1126,31 +1167,35 @@ function updatePositionOptions() {
 
     let positionsToShow = [];
     
-    // Check if user is manager
-    if (userRole === 'Manager') {
-        if (userDepartment) {
-            // Manager has department - show all department positions
-            const dept = selectedDepartment || userDepartment;
-            if (dept && departmentPositions[dept]) {
-                positionsToShow = departmentPositions[dept];
-            }
-        } else if (userAllowedPositions && userAllowedPositions.length > 0) {
-            // Manager has no department but has allowed_positions - show only those
-            positionsToShow = userAllowedPositions;
-        } else {
-            // Manager has neither department nor allowed_positions - show all department positions
-            const dept = selectedDepartment || userDepartment;
-            if (dept && departmentPositions[dept]) {
-                positionsToShow = departmentPositions[dept];
-            }
-        }
-    } else {
-        // GM or other roles - show all department positions
+    // Check if user is GM
+    if (userRole === 'gm') {
+        // GM sees all department positions
         const dept = selectedDepartment || userDepartment;
         if (dept && departmentPositions[dept]) {
             positionsToShow = departmentPositions[dept];
         }
+    } else {
+        // For all non-GM users (including Manager and others)
+        // Priority: if user has allowed_positions, show only those
+        if (userAllowedPositions && Array.isArray(userAllowedPositions) && userAllowedPositions.length > 0) {
+            console.log('Using allowed_positions:', userAllowedPositions);
+            positionsToShow = userAllowedPositions;
+        } else if (userDepartment) {
+            // User has department but no allowed_positions - show all department positions
+            const dept = selectedDepartment || userDepartment;
+            if (dept && departmentPositions[dept]) {
+                positionsToShow = departmentPositions[dept];
+            }
+        } else {
+            // User has neither department nor allowed_positions - show all department positions
+            const dept = selectedDepartment || userDepartment;
+            if (dept && departmentPositions[dept]) {
+                positionsToShow = departmentPositions[dept];
+            }
+        }
     }
+    
+    console.log('Positions to show:', positionsToShow);
     
     positionsToShow.forEach(position => {
         const option = document.createElement('option');
@@ -1368,7 +1413,6 @@ async function showEditCandidate(id) {
                 <label for="position" class="required">Position</label>
                 <select id="position" required>
                     <option value="">Select a position</option>
-                    ${departmentPositions[candidate.department].map(pos => `<option value="${pos}" ${candidate.position === pos ? 'selected' : ''}>${pos}</option>`).join('')}
                 </select>
             </div>
             <div class="form-group">
@@ -1416,6 +1460,15 @@ async function showEditCandidate(id) {
         <button onclick="showCandidates()" class="btn btn-primary">Back to Candidates</button>
     `;
     document.getElementById('edit-candidate-form').addEventListener('submit', updateCandidate);
+    
+    // Load positions and set current position value
+    setTimeout(() => {
+        updatePositionOptions();
+        const positionSelect = document.getElementById('position');
+        if (positionSelect && candidate.position) {
+            positionSelect.value = candidate.position;
+        }
+    }, 0);
 }
 
 // Update candidate

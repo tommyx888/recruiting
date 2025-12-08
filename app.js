@@ -1438,29 +1438,41 @@ function updatePositionOptions() {
 
     let positionsToShow = [];
     
-    // Check if user is manager
-    if (userRole === 'Manager' && window.authManager) {
-        const userInfo = window.authManager.getUserInfo();
-        if (userInfo && userInfo.department) {
-            // Manager has department - show all department positions
-            if (selectedDepartment && departmentPositions[selectedDepartment]) {
-                positionsToShow = departmentPositions[selectedDepartment];
-            }
-        } else if (userInfo && userInfo.allowedPositions && userInfo.allowedPositions.length > 0) {
-            // Manager has no department but has allowed_positions - show only those
+    // Get user info if available
+    const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
+    
+    // Check if user is GM
+    if (userRole === 'gm') {
+        // GM sees all department positions
+        if (selectedDepartment && departmentPositions[selectedDepartment]) {
+            positionsToShow = departmentPositions[selectedDepartment];
+        }
+    } else if (userInfo) {
+        // For all non-GM users (including Manager and others)
+        // Priority: if user has allowedPositions, show only those
+        if (userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) && userInfo.allowedPositions.length > 0) {
+            console.log('Using allowedPositions:', userInfo.allowedPositions);
             positionsToShow = userInfo.allowedPositions;
+        } else if (userInfo.department) {
+            // User has department but no allowedPositions - show all department positions
+            const dept = selectedDepartment || userInfo.department;
+            if (dept && departmentPositions[dept]) {
+                positionsToShow = departmentPositions[dept];
+            }
         } else {
-            // Manager has neither department nor allowed_positions - show all department positions
+            // User has neither department nor allowedPositions - show all department positions
             if (selectedDepartment && departmentPositions[selectedDepartment]) {
                 positionsToShow = departmentPositions[selectedDepartment];
             }
         }
     } else {
-        // GM or other roles - show all department positions
+        // Fallback - show all department positions
         if (selectedDepartment && departmentPositions[selectedDepartment]) {
             positionsToShow = departmentPositions[selectedDepartment];
         }
     }
+    
+    console.log('Positions to show:', positionsToShow);
     
     positionsToShow.forEach(position => {
         const option = document.createElement('option');

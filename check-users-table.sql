@@ -24,3 +24,7 @@ SELECT id, role, department, email, allowed_positions
 FROM users 
 ORDER BY role;
 
+
+
+
+

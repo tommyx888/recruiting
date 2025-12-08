@@ -59,3 +59,7 @@ supabase functions deploy send-email
 ## 📧 **Dočasné riešenie:**
 Zatiaľ môžete posielať testovacie emaily len na `t.ficek@gmail.com` - všetky notifikácie budú prichádzať tam.
 
+
+
+
+

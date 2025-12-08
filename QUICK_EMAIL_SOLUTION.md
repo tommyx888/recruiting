@@ -94,3 +94,7 @@ const response = await fetch(`${config.supabase.url}/functions/v1/send-email-mai
 
 **Ktoré riešenie si vyberiete?** 🚀
 
+
+
+
+

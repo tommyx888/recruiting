@@ -68,3 +68,7 @@ try {
 Write-Host "`nStep 4: Verify the user was added" -ForegroundColor Yellow
 Write-Host "You can now test the login with the Recruiter account!" -ForegroundColor Green
 
+
+
+
+

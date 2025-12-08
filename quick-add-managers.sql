@@ -23,3 +23,7 @@ SELECT role, department, email, allowed_positions
 FROM users 
 WHERE email IS NOT NULL;
 
+
+
+
+

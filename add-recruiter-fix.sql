@@ -37,3 +37,7 @@ INSERT INTO users (
 -- Verify the user was added
 SELECT * FROM users WHERE role = 'recruiter';
 
+
+
+
+

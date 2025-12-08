@@ -39,3 +39,7 @@ Write-Host "   - test-recruiter-access.html (Recruiter specific tests)"
 $continue = Read-Host "`nPress Enter to continue or Ctrl+C to cancel"
 Write-Host "`n✅ Ready to proceed with RLS policy fixes!" -ForegroundColor Green
 
+
+
+
+

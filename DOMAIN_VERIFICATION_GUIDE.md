@@ -29,3 +29,7 @@ supabase functions deploy send-email
 
 Po overení môžete posielať na akékoľvek adresy!
 
+
+
+
+

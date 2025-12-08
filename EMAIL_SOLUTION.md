@@ -92,3 +92,7 @@ New candidate added for position [Position] in department [Department]:
 
 **All email notifications are working! 🚀**
 
+
+
+
+

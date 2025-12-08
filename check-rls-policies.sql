@@ -100,3 +100,7 @@ WHERE tablename IN ('candidates', 'recruiting_requests', 'users')
 AND policyname LIKE '%Recruiter%'
 ORDER BY tablename, policyname;
 
+
+
+
+

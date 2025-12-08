@@ -83,3 +83,7 @@ const response = await fetch(`${config.supabase.url}/functions/v1/send-email-smt
 
 **Systém je pripravený na Gmail SMTP! 🚀**
 
+
+
+
+

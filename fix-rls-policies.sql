@@ -222,3 +222,7 @@ FROM pg_policies
 WHERE tablename IN ('candidates', 'recruiting_requests', 'users')
 ORDER BY tablename, policyname;
 
+
+
+
+

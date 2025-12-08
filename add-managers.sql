@@ -35,3 +35,7 @@ FROM users
 WHERE email IS NOT NULL 
 ORDER BY role, department;
 
+
+
+
+

@@ -85,9 +85,14 @@ class EmailManager {
                 
                 <p>Prosím, prihláste sa do systému a schváľte alebo zamietnite túto žiadosť.</p>
                 
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #2e0de6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                </div>
+                
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #666; font-size: 14px;">
-                        Tento email bol odoslaný automaticky zo systému na riadenie náboru.
+                        Tento email bol odoslaný automaticky zo systému na riadenie náboru.<br>
+                        <a href="https://recruiting.iacslovakia.sk/" style="color: #2e0de6;">https://recruiting.iacslovakia.sk/</a>
                     </p>
                 </div>
             </div>
@@ -109,6 +114,8 @@ Detaily pozície:
 - Popis: ${requestData.description}
 
 Prosím, prihláste sa do systému a schváľte alebo zamietnite túto žiadosť.
+
+Otvoriť systém: https://recruiting.iacslovakia.sk/
 
 Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         `;
@@ -145,9 +152,14 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                 
                 <p>Teraz môžete začať s náborom kandidátov pre túto pozíciu.</p>
                 
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                </div>
+                
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #666; font-size: 14px;">
-                        Tento email bol odoslaný automaticky zo systému na riadenie náboru.
+                        Tento email bol odoslaný automaticky zo systému na riadenie náboru.<br>
+                        <a href="https://recruiting.iacslovakia.sk/" style="color: #10b981;">https://recruiting.iacslovakia.sk/</a>
                     </p>
                 </div>
             </div>
@@ -168,6 +180,8 @@ Detaily pozície:
 - Počet miest: ${requestData.headcount}
 
 Teraz môžete začať s náborom kandidátov pre túto pozíciu.
+
+Otvoriť systém: https://recruiting.iacslovakia.sk/
 
 Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         `;
@@ -205,9 +219,14 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                 
                 <p>Prosím, prihláste sa do systému a pokračujte s procesom náboru.</p>
                 
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                </div>
+                
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #666; font-size: 14px;">
-                        Tento email bol odoslaný automaticky zo systému na riadenie náboru.
+                        Tento email bol odoslaný automaticky zo systému na riadenie náboru.<br>
+                        <a href="https://recruiting.iacslovakia.sk/" style="color: #3b82f6;">https://recruiting.iacslovakia.sk/</a>
                     </p>
                 </div>
             </div>
@@ -229,6 +248,8 @@ Detaily kandidáta:
 ${candidateData.notes ? `- Poznámky: ${candidateData.notes}` : ''}
 
 Prosím, prihláste sa do systému a pokračujte s procesom náboru.
+
+Otvoriť systém: https://recruiting.iacslovakia.sk/
 
 Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         `;
@@ -291,10 +312,15 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                             <strong>💡 Tip:</strong> Prehliadnite si aktualizované informácie o kandidátovi v systéme.
                         </p>
                     </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-                    <p>Tento email bol odoslaný automaticky zo systému na nábor.</p>
+                    <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
+                    <a href="https://recruiting.iacslovakia.sk/" style="color: #2196f3;">https://recruiting.iacslovakia.sk/</a></p>
                 </div>
             </div>
         `;
@@ -311,6 +337,8 @@ Dátum zmeny: ${new Date().toLocaleDateString('sk-SK')}
 ${notes ? `Poznámky: ${notes}` : ''}
 
 Prehliadnite si aktualizované informácie o kandidátovi v systéme.
+
+Otvoriť systém: https://recruiting.iacslovakia.sk/
 
 ---
 Tento email bol odoslaný automaticky zo systému na nábor.

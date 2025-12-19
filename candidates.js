@@ -145,9 +145,14 @@ class CandidatesManager {
                     throw new Error(`CV upload error: ${cvValidation.message}`);
                 }
                 
+                // Get original file extension
+                const originalFileName = candidateData.cvFile.name;
+                const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+                const fileName = `cv_${Date.now()}${fileExtension}`;
+                
                 const { data: cvData, error: cvError } = await this.supabase.storage
                     .from('candidate-files')
-                    .upload(`cv_${Date.now()}.pdf`, candidateData.cvFile);
+                    .upload(fileName, candidateData.cvFile);
 
                 if (cvError) throw cvError;
                 cvPath = cvData.path;
@@ -159,9 +164,14 @@ class CandidatesManager {
                     throw new Error(`Assessment upload error: ${assessmentValidation.message}`);
                 }
                 
+                // Get original file extension
+                const originalFileName = candidateData.assessmentFile.name;
+                const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+                const fileName = `assessment_${Date.now()}${fileExtension}`;
+                
                 const { data: assessmentData, error: assessmentError } = await this.supabase.storage
                     .from('candidate-files')
-                    .upload(`assessment_${Date.now()}.pdf`, candidateData.assessmentFile);
+                    .upload(fileName, candidateData.assessmentFile);
 
                 if (assessmentError) throw assessmentError;
                 assessmentPath = assessmentData.path;
@@ -253,6 +263,153 @@ class CandidatesManager {
             return { success: true, data: data[0] };
         } catch (error) {
             console.error('Error updating candidate status:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Update candidate with optional file re-upload
+     * @param {number} candidateId - Candidate ID
+     * @param {Object} candidateData - Updated candidate data
+     * @returns {Promise<Object>}
+     */
+    async updateCandidate(candidateId, candidateData) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        try {
+            // Prepare update data
+            const updateData = {
+                name: candidateData.name,
+                department: candidateData.department,
+                position: candidateData.position,
+                source: candidateData.source,
+                date_obtained: candidateData.date_obtained,
+                interviewer: candidateData.interviewer || null,
+                status: candidateData.status,
+                notes: candidateData.notes || null,
+                last_updated: new Date().toISOString()
+            };
+
+            // Handle CV re-upload if new file is provided
+            if (candidateData.cvFile) {
+                const cvValidation = window.utils.validateFile(candidateData.cvFile);
+                if (!cvValidation.isValid) {
+                    throw new Error(`CV upload error: ${cvValidation.message}`);
+                }
+
+                // Get original file extension
+                const originalFileName = candidateData.cvFile.name;
+                const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+                const fileName = `cv_${candidateId}_${Date.now()}${fileExtension}`;
+
+                // Delete old CV if exists
+                const { data: oldCandidate } = await this.supabase
+                    .from('candidates')
+                    .select('cv_file_path')
+                    .eq('id', candidateId)
+                    .single();
+
+                if (oldCandidate?.cv_file_path) {
+                    try {
+                        await this.supabase.storage
+                            .from('candidate-files')
+                            .remove([oldCandidate.cv_file_path]);
+                    } catch (deleteError) {
+                        console.warn('Error deleting old CV file:', deleteError);
+                        // Continue even if old file deletion fails
+                    }
+                }
+
+                // Upload new CV
+                const { data: cvData, error: cvError } = await this.supabase.storage
+                    .from('candidate-files')
+                    .upload(fileName, candidateData.cvFile);
+
+                if (cvError) throw cvError;
+                updateData.cv_file_path = cvData.path;
+            }
+
+            // Handle Assessment re-upload if new file is provided
+            if (candidateData.assessmentFile) {
+                const assessmentValidation = window.utils.validateFile(candidateData.assessmentFile);
+                if (!assessmentValidation.isValid) {
+                    throw new Error(`Assessment upload error: ${assessmentValidation.message}`);
+                }
+
+                // Get original file extension
+                const originalFileName = candidateData.assessmentFile.name;
+                const fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+                const fileName = `assessment_${candidateId}_${Date.now()}${fileExtension}`;
+
+                // Delete old Assessment if exists
+                const { data: oldCandidate } = await this.supabase
+                    .from('candidates')
+                    .select('assesment_file_path')
+                    .eq('id', candidateId)
+                    .single();
+
+                if (oldCandidate?.assesment_file_path) {
+                    try {
+                        await this.supabase.storage
+                            .from('candidate-files')
+                            .remove([oldCandidate.assesment_file_path]);
+                    } catch (deleteError) {
+                        console.warn('Error deleting old Assessment file:', deleteError);
+                        // Continue even if old file deletion fails
+                    }
+                }
+
+                // Upload new Assessment
+                const { data: assessmentData, error: assessmentError } = await this.supabase.storage
+                    .from('candidate-files')
+                    .upload(fileName, candidateData.assessmentFile);
+
+                if (assessmentError) throw assessmentError;
+                updateData.assesment_file_path = assessmentData.path;
+            }
+
+            // Update candidate record
+            const { data, error } = await this.supabase
+                .from('candidates')
+                .update(updateData)
+                .eq('id', candidateId)
+                .select();
+
+            if (error) throw error;
+
+            // Clear cache
+            this.clearCache();
+
+            return { success: true, data: data[0] };
+        } catch (error) {
+            console.error('Error updating candidate:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get candidate details by ID
+     * @param {number} candidateId - Candidate ID
+     * @returns {Promise<Object>}
+     */
+    async getCandidateDetails(candidateId) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        try {
+            const { data, error } = await this.supabase
+                .from('candidates')
+                .select('*')
+                .eq('id', candidateId)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error getting candidate details:', error);
             throw error;
         }
     }
@@ -360,12 +517,29 @@ class CandidatesManager {
 
             if (error) throw error;
 
-            // Create download link
-            const blob = new Blob([data], { type: 'application/pdf' });
+            // Get file extension from path
+            const fileExtension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
+            
+            // Determine MIME type based on file extension
+            const mimeTypes = {
+                '.pdf': 'application/pdf',
+                '.doc': 'application/msword',
+                '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            };
+            
+            const mimeType = mimeTypes[fileExtension] || 'application/octet-stream';
+            
+            // Create download link with correct MIME type and extension
+            const blob = new Blob([data], { type: mimeType });
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = `${fileType}_${candidateId}.pdf`;
+            link.download = `${fileType}_${candidateId}${fileExtension}`;
             link.click();
+            
+            // Clean up the object URL after a short delay
+            setTimeout(() => {
+                window.URL.revokeObjectURL(link.href);
+            }, 100);
         } catch (error) {
             console.error(`Error downloading ${fileType}:`, error);
             throw error;

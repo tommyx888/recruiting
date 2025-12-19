@@ -100,6 +100,9 @@ const translations = {
         "Approved": "Approved",
         "Rejected": "Rejected",
         "Filled": "Filled",
+        "All Departments": "All Departments",
+        "All Positions": "All Positions",
+        "All Sources": "All Sources",
         "Position": "Position",
         "Description": "Description",
         "Headcount": "Headcount",
@@ -129,7 +132,28 @@ const translations = {
         "Error rejecting request:": "Error rejecting request:",
         "Error updating position:": "Error updating position:",
         "Reports functionality coming soon!": "Reports functionality coming soon!",
-        "Clear Filters": "Clear Filters"
+        "Clear Filters": "Clear Filters",
+        "Request Details": "Request Details",
+        "Created At": "Created At",
+        "Days Old": "Days Old",
+        "Day": "Day",
+        "Days": "Days",
+        "Candidate Details": "Candidate Details",
+        "Not assigned": "Not assigned",
+        "No notes": "No notes",
+        "Last Updated": "Last Updated",
+        "Documents": "Documents",
+        "CV": "CV",
+        "Assessment": "Assessment",
+        "No CV uploaded": "No CV uploaded",
+        "No Assessment uploaded": "No Assessment uploaded",
+        "Re-upload CV": "Re-upload CV",
+        "Re-upload Assessment": "Re-upload Assessment",
+        "Upload CV": "Upload CV",
+        "Upload Assessment": "Upload Assessment",
+        "Re-upload Document": "Re-upload Document",
+        "Select File": "Select File",
+        "Upload": "Upload"
     },
     sk: {
         // Navigation
@@ -234,6 +258,9 @@ const translations = {
         "Approved": "Schválené",
         "Rejected": "Zamietnuté",
         "Filled": "Obsadené",
+        "All Departments": "Všetky oddelenia",
+        "All Positions": "Všetky pozície",
+        "All Sources": "Všetky zdroje",
         "Position": "Pozícia",
         "Description": "Popis",
         "Headcount": "Počet pracovníkov",
@@ -263,7 +290,28 @@ const translations = {
         "Error rejecting request:": "Chyba pri zamietaní žiadosti:",
         "Error updating position:": "Chyba pri aktualizácii pozície:",
         "Reports functionality coming soon!": "Funkcionalita reportov čoskoro!",
-        "Clear Filters": "Vymazať filtre"
+        "Clear Filters": "Vymazať filtre",
+        "Request Details": "Detaily žiadosti",
+        "Created At": "Vytvorené",
+        "Days Old": "Dní čaká",
+        "Day": "deň",
+        "Days": "dní",
+        "Candidate Details": "Detaily kandidáta",
+        "Not assigned": "Nepriradené",
+        "No notes": "Žiadne poznámky",
+        "Last Updated": "Posledná aktualizácia",
+        "Documents": "Dokumenty",
+        "CV": "CV",
+        "Assessment": "Assessment",
+        "No CV uploaded": "CV nie je nahrané",
+        "No Assessment uploaded": "Assessment nie je nahraný",
+        "Re-upload CV": "Znovu nahrať CV",
+        "Re-upload Assessment": "Znovu nahrať Assessment",
+        "Upload CV": "Nahrať CV",
+        "Upload Assessment": "Nahrať Assessment",
+        "Re-upload Document": "Znovu nahrať dokument",
+        "Select File": "Vybrať súbor",
+        "Upload": "Nahrať"
     }
 };
 
@@ -467,6 +515,9 @@ function renderCandidatesView(result) {
 
     console.log('Grouped candidates:', groupedCandidates);
 
+    // Get all unique statuses from candidates
+    const allStatuses = [...new Set(candidates.map(c => c.status).filter(Boolean))].sort();
+    
     let html = `
     <h2 data-translate="Candidates">Candidates</h2>
     <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">Add New Candidate</button>
@@ -482,12 +533,12 @@ function renderCandidatesView(result) {
             <option value="" data-translate="All Sources">All Sources</option>
                 ${sourceOptions.map(source => `<option value="${source}">${source}</option>`).join('')}
         </select>
-    <button onclick="applyFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
+        <select id="status-filter">
+            <option value="" data-translate="All Statuses">All Statuses</option>
+                ${allStatuses.map(status => `<option value="${status}">${window.uiManager.translate(status)}</option>`).join('')}
+        </select>
+        <button onclick="applyFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
         <button onclick="clearFilters()" class="btn btn-outline" data-translate="Clear Filters">Clear Filters</button>
-        <label class="toggle-rejected" style="display: flex; align-items: center; gap: 8px; margin-left: 20px;">
-            <input type="checkbox" id="hide-rejected-toggle" checked onchange="toggleRejectedCandidates()">
-            <span data-translate="Hide Rejected Candidates">Hide Rejected Candidates</span>
-        </label>
         </div>
         <div id="candidates-container"></div>
     `;
@@ -496,14 +547,27 @@ function renderCandidatesView(result) {
 
     // Render candidate tables
     const container = document.getElementById('candidates-container');
-    const statusOrder = ['New', 'In Process - First Round', 'In Process - Second Round', 'Hired - Contact Source', 'Rejected - Inform Source', 'Hired', 'Rejected'];
+    
+    // Define preferred status order
+    const preferredStatusOrder = ['New', 'In Process - First Round', 'In Process - Second Round', 'Hired - Contact Source', 'Rejected - Inform Source', 'Hired', 'Rejected'];
+    
+    // Get all statuses from grouped candidates
+    const allStatusesInData = Object.keys(groupedCandidates);
+    
+    // Combine preferred order with any additional statuses
+    const statusOrder = [
+        ...preferredStatusOrder.filter(s => allStatusesInData.includes(s)),
+        ...allStatusesInData.filter(s => !preferredStatusOrder.includes(s)).sort()
+    ];
 
-    // Always show all status groups, even if empty
+    // Show all status groups that have candidates
     statusOrder.forEach(status => {
         const candidatesForStatus = groupedCandidates[status] || [];
-        console.log(`Status: ${status}, Count: ${candidatesForStatus.length}`);
-        const table = createCandidateTable(candidatesForStatus, status);
-        container.appendChild(table);
+        if (candidatesForStatus.length > 0) {
+            console.log(`Status: ${status}, Count: ${candidatesForStatus.length}`);
+            const table = createCandidateTable(candidatesForStatus, status);
+            container.appendChild(table);
+        }
     });
 
     // If no candidates at all, show a message
@@ -536,8 +600,7 @@ function renderCandidatesView(result) {
         });
     }
     
-    // Hide rejected candidates by default
-    toggleRejectedCandidates();
+    // Show all candidates by default (including rejected)
 }
 
 function updatePositionFilterForCandidates() {
@@ -1009,7 +1072,7 @@ function createRequestsTable(requests) {
 
     // Create header row
     const headerRow = document.createElement('tr');
-    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Category', 'Status', 'ID', 'Actions'].forEach(headerText => {
+    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Category', 'Status', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = window.uiManager.translate(headerText);
         headerRow.appendChild(th);
@@ -1017,13 +1080,26 @@ function createRequestsTable(requests) {
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
+    // Helper function to calculate days since creation
+    function getDaysOld(createdAt) {
+        if (!createdAt) return 'N/A';
+        const created = new Date(createdAt);
+        const now = new Date();
+        const diffTime = Math.abs(now - created);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    }
+
     // Create data rows
     requests.forEach(request => {
         const row = document.createElement('tr');
         row.className = `request-row status-${request.status.toLowerCase()}`;
         
-        // Add cells
-        [
+        const daysOld = getDaysOld(request.created_at);
+        const daysOldDisplay = daysOld === 'N/A' ? 'N/A' : `${daysOld} ${daysOld === 1 ? window.uiManager.translate('Day') : window.uiManager.translate('Days')}`;
+        
+        // Prepare cell data
+        const cellData = [
             request.position || '',
             request.department || '',
             request.description ? request.description.substring(0, 50) + '...' : '',
@@ -1031,11 +1107,22 @@ function createRequestsTable(requests) {
             request.position_type || '',
             request.position_category || '',
             createStatusBadge(request.status),
+            daysOldDisplay,
             request.id ? `#${request.id}` : '',
             createRequestActionButtons(request)
-        ].forEach(cellContent => {
+        ];
+        
+        // Add cells
+        cellData.forEach((cellContent, index) => {
             const td = document.createElement('td');
             td.innerHTML = cellContent;
+            
+            // Add styling for days old column (index 7) - highlight if > 3 days
+            if (index === 7 && typeof daysOld === 'number' && daysOld > 3) {
+                td.style.color = daysOld >= 7 ? '#dc2626' : '#f59e0b';
+                td.style.fontWeight = 'bold';
+            }
+            
             row.appendChild(td);
         });
 
@@ -1204,9 +1291,78 @@ async function fillPosition(id) {
     }
 }
 
-function showRequestDetails(id) {
-    console.log('Show request details for ID:', id);
-    // TODO: Implement request details view
+async function showRequestDetails(id) {
+    try {
+        window.uiManager.showLoading('Loading request details...');
+        
+        const request = await window.requestsManager.getRequestDetails(id);
+        
+        const app = document.getElementById('app');
+        if (!app) return;
+        
+        const userInfo = window.authManager.getUserInfo();
+        
+        let detailsHtml = `
+            <h2 data-translate="Request Details">Request Details</h2>
+            <div class="request-details">
+                <p><strong data-translate="Position">Position:</strong> ${request.position || 'N/A'}</p>
+                <p><strong data-translate="Department">Department:</strong> ${request.department || 'N/A'}</p>
+                <p><strong data-translate="Headcount">Headcount:</strong> ${request.headcount || 'N/A'}</p>
+                <p><strong data-translate="Job Description">Job Description:</strong> ${request.description || 'N/A'}</p>
+                <p><strong data-translate="Position Type">Position Type:</strong> ${request.position_type || 'N/A'}</p>
+                <p><strong data-translate="Position Category">Position Category:</strong> ${request.position_category || 'N/A'}</p>
+                <p><strong data-translate="Status">Status:</strong> ${createStatusBadge(request.status)}</p>
+                <p><strong data-translate="Confidential">Confidential:</strong> ${request.is_confidential ? window.uiManager.translate('Yes') : window.uiManager.translate('No')}</p>
+        `;
+        
+        if (request.position_type === 'new' && request.new_position_reason) {
+            detailsHtml += `<p><strong data-translate="Reason for New Position">Reason for New Position:</strong> ${request.new_position_reason}</p>`;
+        } else if (request.position_type === 'replacement' && request.replacement_name) {
+            detailsHtml += `<p><strong data-translate="Name of Person Being Replaced">Name of Person Being Replaced:</strong> ${request.replacement_name}</p>`;
+        }
+        
+        if (request.created_at) {
+            detailsHtml += `<p><strong data-translate="Created At">Created At:</strong> ${new Date(request.created_at).toLocaleString()}</p>`;
+        }
+        
+        detailsHtml += `
+            </div>
+            <div class="action-buttons" style="margin-top: 20px;">
+        `;
+        
+        // Add action buttons based on user role and request status
+        if ((userInfo.role === 'gm' || userInfo.role === 'recruiter') && request.status === 'Pending') {
+            detailsHtml += `
+                <button onclick="approveRequest(${request.id})" class="btn btn-success" data-translate="Approve">Approve</button>
+                <button onclick="rejectRequest(${request.id})" class="btn btn-danger" data-translate="Reject">Reject</button>
+            `;
+        }
+        
+        if (request.status === 'Approved') {
+            detailsHtml += `
+                <button onclick="fillPosition(${request.id})" class="btn btn-primary" data-translate="Fill Position">Fill Position</button>
+            `;
+        }
+        
+        // Back button - go to GM approval if user is GM/recruiter and request is pending, otherwise go to requests
+        const backFunction = ((userInfo.role === 'gm' || userInfo.role === 'recruiter') && request.status === 'Pending') 
+            ? 'showGMApproval()' 
+            : 'showRequests()';
+        
+        detailsHtml += `
+                <button onclick="${backFunction}" class="btn btn-secondary" data-translate="Back">Back</button>
+            </div>
+        `;
+        
+        app.innerHTML = detailsHtml;
+        window.uiManager.translatePage();
+        
+        // Add fade-in animation
+        app.classList.add('fade-in');
+    } catch (error) {
+        console.error('Error loading request details:', error);
+        window.utils.showMessage('Error loading request details: ' + error.message, 'error');
+    }
 }
 
 function showNewRequest() {
@@ -1636,8 +1792,8 @@ async function addCandidate() {
             interviewer: document.getElementById('candidate-interviewer').value.trim(),
             status: document.getElementById('candidate-status').value,
             notes: document.getElementById('candidate-notes').value.trim(),
-            cv_file: document.getElementById('candidate-cv').files[0],
-            assessment_file: document.getElementById('candidate-assessment').files[0]
+            cvFile: document.getElementById('candidate-cv').files[0],
+            assessmentFile: document.getElementById('candidate-assessment').files[0]
         };
         
         // Validate required fields
@@ -1679,68 +1835,298 @@ function closeModal(modalId) {
     }
 }
 
-function showCandidateDetails(id) {
-    console.log('Show candidate details for ID:', id);
-    // TODO: Implement candidate details view
-}
-
-function toggleRejectedCandidates() {
-    const toggle = document.getElementById('hide-rejected-toggle');
-    const rejectedGroups = document.querySelectorAll('.status-group[data-status="rejected"]');
-    
-    if (toggle && toggle.checked) {
-        // Hide rejected candidates
-        rejectedGroups.forEach(group => {
-            group.style.display = 'none';
-        });
-    } else {
-        // Show rejected candidates
-        rejectedGroups.forEach(group => {
-            group.style.display = '';
-        });
+async function showCandidateDetails(id) {
+    try {
+        window.uiManager.showLoading('Loading candidate details...');
+        
+        const candidate = await window.candidatesManager.getCandidateDetails(id);
+        
+        const app = document.getElementById('app');
+        if (!app) return;
+        
+        // Format dates
+        const dateObtained = candidate.date_obtained ? new Date(candidate.date_obtained).toLocaleDateString('sk-SK') : 'N/A';
+        const createdDate = candidate.created_at ? new Date(candidate.created_at).toLocaleDateString('sk-SK') : 'N/A';
+        const lastUpdated = candidate.last_updated ? new Date(candidate.last_updated).toLocaleDateString('sk-SK') : 'N/A';
+        
+        let detailsHtml = `
+            <h2 data-translate="Candidate Details">Candidate Details</h2>
+            <div class="candidate-details card">
+                <div class="detail-row">
+                    <strong data-translate="Name">Name:</strong>
+                    <span>${candidate.name || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Department">Department:</strong>
+                    <span>${candidate.department || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Position">Position:</strong>
+                    <span>${candidate.position || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Source">Source:</strong>
+                    <span>${candidate.source || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Date Obtained">Date Obtained:</strong>
+                    <span>${dateObtained}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Interviewer">Interviewer:</strong>
+                    <span>${candidate.interviewer || window.uiManager.translate('Not assigned')}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Status">Status:</strong>
+                    <span>${createStatusBadge(candidate.status)}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Notes">Notes:</strong>
+                    <span>${candidate.notes || window.uiManager.translate('No notes')}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Created At">Created At:</strong>
+                    <span>${createdDate}</span>
+                </div>
+                <div class="detail-row">
+                    <strong data-translate="Last Updated">Last Updated:</strong>
+                    <span>${lastUpdated}</span>
+                </div>
+            </div>
+            
+            <div class="documents-section" style="margin-top: 20px;">
+                <h3 data-translate="Documents">Documents</h3>
+                <div class="document-actions" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+        `;
+        
+        // CV section
+        if (candidate.cv_file_path) {
+            detailsHtml += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                    <span><strong data-translate="CV">CV:</strong></span>
+                    <button onclick="downloadFile(${candidate.id}, 'cv')" class="btn btn-secondary" data-translate="Download CV">Download CV</button>
+                    <button onclick="showReuploadDocument(${candidate.id}, 'cv')" class="btn btn-primary" data-translate="Re-upload CV">Re-upload CV</button>
+                </div>
+            `;
+        } else {
+            detailsHtml += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                    <span><strong data-translate="CV">CV:</strong> <span data-translate="No CV uploaded">No CV uploaded</span></span>
+                    <button onclick="showReuploadDocument(${candidate.id}, 'cv')" class="btn btn-primary" data-translate="Upload CV">Upload CV</button>
+                </div>
+            `;
+        }
+        
+        // Assessment section
+        if (candidate.assesment_file_path) {
+            detailsHtml += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                    <span><strong data-translate="Assessment">Assessment:</strong></span>
+                    <button onclick="downloadFile(${candidate.id}, 'assessment')" class="btn btn-secondary" data-translate="Download Assessment">Download Assessment</button>
+                    <button onclick="showReuploadDocument(${candidate.id}, 'assessment')" class="btn btn-primary" data-translate="Re-upload Assessment">Re-upload Assessment</button>
+                </div>
+            `;
+        } else {
+            detailsHtml += `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                    <span><strong data-translate="Assessment">Assessment:</strong> <span data-translate="No Assessment uploaded">No Assessment uploaded</span></span>
+                    <button onclick="showReuploadDocument(${candidate.id}, 'assessment')" class="btn btn-primary" data-translate="Upload Assessment">Upload Assessment</button>
+                </div>
+            `;
+        }
+        
+        detailsHtml += `
+                </div>
+            </div>
+            
+            <div class="action-buttons" style="margin-top: 20px;">
+                <button onclick="showCandidates()" class="btn btn-secondary" data-translate="Back">Back</button>
+            </div>
+        `;
+        
+        app.innerHTML = detailsHtml;
+        window.uiManager.translatePage();
+        
+        // Add fade-in animation
+        app.classList.add('fade-in');
+    } catch (error) {
+        console.error('Error loading candidate details:', error);
+        window.utils.showMessage('Error loading candidate details: ' + error.message, 'error');
     }
 }
+
+function showReuploadDocument(candidateId, documentType) {
+    const documentName = documentType === 'cv' ? window.uiManager.translate('CV') : window.uiManager.translate('Assessment');
+    const uploadText = documentType === 'cv' ? window.uiManager.translate('Upload CV') : window.uiManager.translate('Upload Assessment');
+    
+    // Create modal for file upload
+    const modal = document.createElement('div');
+    modal.id = 'reupload-document-modal';
+    modal.className = 'modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%;">
+            <h2 data-translate="Re-upload Document">Re-upload ${documentName}</h2>
+            <form id="reupload-form">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="reupload-file" data-translate="Select File">Select File:</label>
+                    <input type="file" id="reupload-file" accept=".pdf,.doc,.docx" required style="margin-top: 10px; width: 100%; padding: 8px;">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" onclick="closeReuploadModal()" class="btn btn-secondary" data-translate="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-translate="Upload">Upload</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    window.uiManager.translatePage();
+    
+    // Handle form submission
+    document.getElementById('reupload-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await reuploadDocument(candidateId, documentType);
+    });
+}
+
+function closeReuploadModal() {
+    const modal = document.getElementById('reupload-document-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+async function reuploadDocument(candidateId, documentType) {
+    try {
+        const fileInput = document.getElementById('reupload-file');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            window.utils.showMessage('Please select a file', 'error');
+            return;
+        }
+        
+        // Validate file
+        const validation = window.utils.validateFile(file);
+        if (!validation.isValid) {
+            window.utils.showMessage(validation.message, 'error');
+            return;
+        }
+        
+        window.uiManager.showLoading('Uploading document...');
+        
+        // Prepare update data
+        const updateData = {
+            name: '', // Will be fetched from existing candidate
+            department: '',
+            position: '',
+            source: '',
+            date_obtained: '',
+            interviewer: '',
+            status: '',
+            notes: ''
+        };
+        
+        // Get existing candidate data
+        const candidate = await window.candidatesManager.getCandidateDetails(candidateId);
+        updateData.name = candidate.name;
+        updateData.department = candidate.department;
+        updateData.position = candidate.position;
+        updateData.source = candidate.source;
+        updateData.date_obtained = candidate.date_obtained;
+        updateData.interviewer = candidate.interviewer;
+        updateData.status = candidate.status;
+        updateData.notes = candidate.notes;
+        
+        // Add file to update data
+        if (documentType === 'cv') {
+            updateData.cvFile = file;
+        } else {
+            updateData.assessmentFile = file;
+        }
+        
+        // Update candidate with new document
+        const result = await window.candidatesManager.updateCandidate(candidateId, updateData);
+        
+        if (result.success) {
+            window.utils.showMessage('Document uploaded successfully!', 'success');
+            closeReuploadModal();
+            // Refresh candidate details
+            showCandidateDetails(candidateId);
+        } else {
+            throw new Error(result.message || 'Failed to upload document');
+        }
+    } catch (error) {
+        console.error('Error reuploading document:', error);
+        window.utils.showMessage('Error uploading document: ' + error.message, 'error');
+    }
+}
+
+// Function removed - rejected candidates are now shown by default and can be filtered using status filter
 
 async function applyFilters() {
     const departmentFilter = document.getElementById('department-filter');
     const positionFilter = document.getElementById('position-filter');
     const sourceFilter = document.getElementById('source-filter');
+    const statusFilter = document.getElementById('status-filter');
     
     if (!departmentFilter || !sourceFilter) return;
     
     const selectedDepartment = departmentFilter.value;
     const selectedPosition = positionFilter.value;
     const selectedSource = sourceFilter.value;
+    const selectedStatus = statusFilter ? statusFilter.value : '';
     
     try {
         window.uiManager.showLoading('Loading filtered candidates...');
         
-        // Get all candidates
+        // Get all candidates with status filter if specified
         const result = await window.candidatesManager.getCandidates({
             page: 1,
-            pageSize: 1000
+            pageSize: 1000,
+            status: selectedStatus || undefined,
+            department: selectedDepartment || undefined,
+            position: selectedPosition || undefined,
+            source: selectedSource || undefined
         });
         
         let filteredCandidates = result.candidates;
         
-        // Apply department filter
+        // Apply additional client-side filters if needed (for consistency)
         if (selectedDepartment && selectedDepartment !== '') {
             filteredCandidates = filteredCandidates.filter(candidate => 
                 candidate.department === selectedDepartment
             );
         }
         
-        // Apply position filter
         if (selectedPosition && selectedPosition !== '') {
             filteredCandidates = filteredCandidates.filter(candidate => 
                 candidate.position === selectedPosition
             );
         }
         
-        // Apply source filter
         if (selectedSource && selectedSource !== '') {
             filteredCandidates = filteredCandidates.filter(candidate => 
                 candidate.source === selectedSource
+            );
+        }
+        
+        if (selectedStatus && selectedStatus !== '') {
+            filteredCandidates = filteredCandidates.filter(candidate => 
+                candidate.status === selectedStatus
             );
         }
         
@@ -1810,13 +2196,21 @@ async function clearRequestFilters() {
 
 async function clearFilters() {
     const departmentFilter = document.getElementById('department-filter');
+    const positionFilter = document.getElementById('position-filter');
     const sourceFilter = document.getElementById('source-filter');
+    const statusFilter = document.getElementById('status-filter');
     
     if (departmentFilter) {
         departmentFilter.value = '';
     }
+    if (positionFilter) {
+        positionFilter.value = '';
+    }
     if (sourceFilter) {
         sourceFilter.value = '';
+    }
+    if (statusFilter) {
+        statusFilter.value = '';
     }
     
     // Reload all candidates

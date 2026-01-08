@@ -194,7 +194,7 @@ class AuthManager {
      * @returns {boolean}
      */
     canAccessDepartment(department) {
-        if (this.userRole === 'gm') return true;
+        if (this.userRole === 'gm' || this.userRole === 'recruiter') return true;
         return this.userDepartment === department;
     }
 
@@ -204,7 +204,7 @@ class AuthManager {
      * @returns {boolean}
      */
     canAccessPosition(position) {
-        if (this.userRole === 'gm') return true;
+        if (this.userRole === 'gm' || this.userRole === 'recruiter') return true;
         if (this.userAllowedPositions.length === 0) return true; // Department-level access
         return this.userAllowedPositions.includes(position);
     }

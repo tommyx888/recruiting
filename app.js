@@ -84,8 +84,27 @@ const translations = {
         "New Password": "New Password",
         "Confirm New Password": "Confirm New Password",
         "New passwords do not match": "New passwords do not match",
+        "Passwords do not match": "Passwords do not match",
         "Password updated successfully": "Password updated successfully",
         "Error updating password. Please try again.": "Error updating password. Please try again.",
+        "Password Strength": "Password Strength",
+        "Weak": "Weak",
+        "Medium": "Medium",
+        "Strong": "Strong",
+        "At least 8 characters": "At least 8 characters",
+        "One uppercase letter": "One uppercase letter",
+        "One lowercase letter": "One lowercase letter",
+        "One number": "One number",
+        "One special character": "One special character",
+        "Cancel": "Cancel",
+        "Updating...": "Updating...",
+        "Current password is required": "Current password is required",
+        "New password is required": "New password is required",
+        "Password must be at least 8 characters long": "Password must be at least 8 characters long",
+        "Password does not meet all requirements": "Password does not meet all requirements",
+        "Please confirm your new password": "Please confirm your new password",
+        "Current password is incorrect": "Current password is incorrect",
+        "New password must be different from current password": "New password must be different from current password",
         "Apply Filters": "Apply Filters",
         "Documents": "Documents",
         "No documents": "No documents",
@@ -128,6 +147,36 @@ const translations = {
         "Request approved successfully!": "Request approved successfully!",
         "Request rejected successfully!": "Request rejected successfully!",
         "Position marked as filled!": "Position marked as filled!",
+        "Download Excel": "Download Excel",
+        "Export Options": "Export Options",
+        "Select what to export": "Select what to export",
+        "Only Approved": "Only Approved",
+        "Approved and Pending": "Approved and Pending",
+        "Export": "Export",
+        "Exporting...": "Exporting...",
+        "Export completed successfully": "Export completed successfully",
+        "Error exporting data": "Error exporting data",
+        "No data to export": "No data to export",
+        "Please select export type": "Please select export type",
+        "Notify Recruiter": "Notify Recruiter",
+        "Send Interview Dates": "Send Interview Dates",
+        "Add Interview Date": "Add Interview Date",
+        "Date": "Date",
+        "Time": "Time",
+        "Duration (minutes)": "Duration (minutes)",
+        "Remove": "Remove",
+        "Continue": "Continue",
+        "Skip": "Skip",
+        "Interview Dates": "Interview Dates",
+        "Please add at least one interview date": "Please add at least one interview date",
+        "Interview dates sent to recruiter": "Interview dates sent to recruiter",
+        "Interview Type": "Interview Type",
+        "In Person": "In Person",
+        "Teams": "Teams",
+        "Interviewer Name": "Interviewer Name",
+        "Specify Interview Type": "Specify Interview Type",
+        "Specify Interviewer": "Specify Interviewer",
+        "Enter interviewer name": "Enter interviewer name",
         "Error approving request:": "Error approving request:",
         "Error rejecting request:": "Error rejecting request:",
         "Error updating position:": "Error updating position:",
@@ -245,6 +294,26 @@ const translations = {
         "New Password": "Nové heslo",
         "Confirm New Password": "Potvrďte nové heslo",
         "New passwords do not match": "Nové heslá sa nezhodujú",
+        "Passwords do not match": "Heslá sa nezhodujú",
+        "Password Strength": "Sila hesla",
+        "Weak": "Slabé",
+        "Medium": "Stredné",
+        "Strong": "Silné",
+        "At least 8 characters": "Najmenej 8 znakov",
+        "One uppercase letter": "Jedno veľké písmeno",
+        "One lowercase letter": "Jedno malé písmeno",
+        "One number": "Jedno číslo",
+        "One special character": "Jeden špeciálny znak",
+        "Cancel": "Zrušiť",
+        "Updating...": "Aktualizuje sa...",
+        "Current password is required": "Aktuálne heslo je povinné",
+        "New password is required": "Nové heslo je povinné",
+        "Password must be at least 8 characters long": "Heslo musí mať najmenej 8 znakov",
+        "Password does not meet all requirements": "Heslo nespĺňa všetky požiadavky",
+        "Please confirm your new password": "Prosím potvrďte nové heslo",
+        "Current password is incorrect": "Aktuálne heslo je nesprávne",
+        "New password must be different from current password": "Nové heslo sa musí líšiť od aktuálneho hesla",
+        "New passwords do not match": "Nové heslá sa nezhodujú",
         "Password updated successfully": "Heslo bolo úspešne aktualizované",
         "Error updating password. Please try again.": "Chyba pri aktualizácii hesla. Prosím, skúste to znova.",
         "Error": "Chyba",
@@ -286,6 +355,36 @@ const translations = {
         "Request approved successfully!": "Žiadosť bola úspešne schválená!",
         "Request rejected successfully!": "Žiadosť bola úspešne zamietnutá!",
         "Position marked as filled!": "Pozícia bola označená ako obsadená!",
+        "Download Excel": "Stiahnuť Excel",
+        "Export Options": "Možnosti exportu",
+        "Select what to export": "Vyberte, čo exportovať",
+        "Only Approved": "Len schválené",
+        "Approved and Pending": "Schválené a čakajúce",
+        "Export": "Exportovať",
+        "Exporting...": "Exportujem...",
+        "Export completed successfully": "Export úspešne dokončený",
+        "Error exporting data": "Chyba pri exportovaní dát",
+        "No data to export": "Žiadne dáta na export",
+        "Please select export type": "Prosím vyberte typ exportu",
+        "Notify Recruiter": "Upozorniť Recruitera",
+        "Send Interview Dates": "Poslať termíny na pohovor",
+        "Add Interview Date": "Pridať termín",
+        "Date": "Dátum",
+        "Time": "Čas",
+        "Duration (minutes)": "Dĺžka (minúty)",
+        "Remove": "Odstrániť",
+        "Continue": "Pokračovať",
+        "Skip": "Preskočiť",
+        "Interview Dates": "Termíny na pohovor",
+        "Please add at least one interview date": "Prosím pridajte aspoň jeden termín",
+        "Interview dates sent to recruiter": "Termíny boli odoslané recruiterovi",
+        "Interview Type": "Typ pohovoru",
+        "In Person": "Osobne",
+        "Teams": "Teams",
+        "Interviewer Name": "Meno pohovorujúceho",
+        "Specify Interview Type": "Určiť typ pohovoru",
+        "Specify Interviewer": "Určiť pohovorujúceho",
+        "Enter interviewer name": "Zadajte meno pohovorujúceho",
         "Error approving request:": "Chyba pri schvaľovaní žiadosti:",
         "Error rejecting request:": "Chyba pri zamietaní žiadosti:",
         "Error updating position:": "Chyba pri aktualizácii pozície:",
@@ -432,7 +531,7 @@ async function initializeModules() {
         console.log('Module initialization completed successfully');
     } catch (error) {
         console.error('Error initializing modules:', error);
-        window.uiManager.showError('Failed to initialize application. Please refresh the page.');
+        window.uiManager.showErrorPage('Failed to initialize application. Please refresh the page.');
     }
 }
 
@@ -878,11 +977,243 @@ function closeNotesModal() {
 
 // Candidate action functions
 async function inviteCandidate(id) {
+    // Show modal to optionally add interview dates
+    showInterviewDatesModal(id, 'In Process - First Round', 'Candidate invited to first round interview.');
+}
+
+async function secondRound(id) {
+    // Show modal to optionally add interview dates
+    showInterviewDatesModal(id, 'In Process - Second Round', 'Candidate moved to second round interview.');
+}
+
+function showInterviewDatesModal(candidateId, newStatus, successMessage) {
+    const modal = document.createElement('div');
+    modal.id = 'interview-dates-modal';
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    
+    // Reset interview dates
+    interviewDatesData = [];
+    
+    const updateModalContent = () => {
+        const datesContainer = document.getElementById('interview-dates-container');
+        if (!datesContainer) return;
+        
+        datesContainer.innerHTML = interviewDatesData.map((date, index) => `
+            <div class="interview-date-item" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                <input type="date" id="date-${index}" value="${date.date}" required style="flex: 1; padding: 8px;">
+                <input type="time" id="time-${index}" value="${date.time}" required style="flex: 1; padding: 8px;">
+                <input type="number" id="duration-${index}" value="${date.duration}" placeholder="${window.uiManager.translate('Duration (minutes)')}" min="15" step="15" required style="flex: 1; padding: 8px;">
+                <button type="button" onclick="removeInterviewDate(${index})" class="btn btn-danger" style="padding: 8px 15px;">${window.uiManager.translate('Remove')}</button>
+            </div>
+        `).join('');
+        
+        // Add event listeners to update data
+        interviewDatesData.forEach((date, index) => {
+            const dateInput = document.getElementById(`date-${index}`);
+            const timeInput = document.getElementById(`time-${index}`);
+            const durationInput = document.getElementById(`duration-${index}`);
+            
+            if (dateInput) dateInput.addEventListener('change', () => {
+                interviewDatesData[index].date = dateInput.value;
+            });
+            if (timeInput) timeInput.addEventListener('change', () => {
+                interviewDatesData[index].time = timeInput.value;
+            });
+            if (durationInput) durationInput.addEventListener('change', () => {
+                interviewDatesData[index].duration = parseInt(durationInput.value) || 60;
+            });
+        });
+    };
+    
+    const addInterviewDate = () => {
+        const today = new Date().toISOString().split('T')[0];
+        interviewDatesData.push({ date: today, time: '09:00', duration: 60 });
+        updateModalContent();
+    };
+    
+    window.removeInterviewDate = (index) => {
+        interviewDatesData.splice(index, 1);
+        updateModalContent();
+    };
+    
+    modal.innerHTML = `
+        <div class="modal-content interview-dates-modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 data-translate="Send Interview Dates">Send Interview Dates</h2>
+                <span class="close" onclick="closeInterviewDatesModal()">&times;</span>
+            </div>
+            <div class="interview-dates-modal-content">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="notify-recruiter" checked style="margin-right: 10px; width: 20px; height: 20px;">
+                        <span data-translate="Notify Recruiter">Notify Recruiter</span>
+                    </label>
+                </div>
+                
+                <div id="interview-dates-section" style="margin-top: 20px;">
+                    <h3 data-translate="Interview Dates">Interview Dates</h3>
+                    <div id="interview-dates-container"></div>
+                    <button type="button" onclick="addInterviewDateToModal()" class="btn btn-secondary" style="margin-top: 10px;" data-translate="Add Interview Date">Add Interview Date</button>
+                </div>
+                
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="specify-interview-type" style="margin-right: 10px; width: 20px; height: 20px;" onchange="toggleInterviewType()">
+                            <span data-translate="Specify Interview Type">Specify Interview Type</span>
+                        </label>
+                    </div>
+                    <div id="interview-type-section" style="margin-left: 30px; margin-top: 10px; display: none;">
+                        <label style="display: block; margin-bottom: 5px;" data-translate="Interview Type">Interview Type:</label>
+                        <select id="interview-type" style="width: 100%; padding: 8px; margin-bottom: 10px;" disabled>
+                            <option value="In Person" data-translate="In Person">In Person</option>
+                            <option value="Teams" data-translate="Teams">Teams</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; margin-top: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="specify-interviewer" style="margin-right: 10px; width: 20px; height: 20px;" onchange="toggleInterviewer()">
+                            <span data-translate="Specify Interviewer">Specify Interviewer</span>
+                        </label>
+                    </div>
+                    <div id="interviewer-section" style="margin-left: 30px; margin-top: 10px; display: none;">
+                        <label style="display: block; margin-bottom: 5px;" data-translate="Interviewer Name">Interviewer Name:</label>
+                        <input type="text" id="interviewer-name" placeholder="${window.uiManager.translate('Enter interviewer name')}" style="width: 100%; padding: 8px;" disabled>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                    <button onclick="closeInterviewDatesModal()" class="btn btn-secondary" data-translate="Skip">Skip</button>
+                    <button onclick="processInterviewDates(${candidateId}, '${newStatus}', '${successMessage.replace(/'/g, "\\'")}')" class="btn btn-primary" data-translate="Continue">Continue</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    window.uiManager.translatePage();
+    
+    // Make addInterviewDate accessible
+    window.addInterviewDateToModal = addInterviewDate;
+    
+    // Toggle functions for interview type and interviewer
+    window.toggleInterviewType = () => {
+        const checkbox = document.getElementById('specify-interview-type');
+        const section = document.getElementById('interview-type-section');
+        const select = document.getElementById('interview-type');
+        
+        if (checkbox.checked) {
+            section.style.display = 'block';
+            select.disabled = false;
+        } else {
+            section.style.display = 'none';
+            select.disabled = true;
+            select.value = 'In Person'; // Reset to default
+        }
+    };
+    
+    window.toggleInterviewer = () => {
+        const checkbox = document.getElementById('specify-interviewer');
+        const section = document.getElementById('interviewer-section');
+        const input = document.getElementById('interviewer-name');
+        
+        if (checkbox.checked) {
+            section.style.display = 'block';
+            input.disabled = false;
+        } else {
+            section.style.display = 'none';
+            input.disabled = true;
+            input.value = ''; // Clear value
+        }
+    };
+    
+    // Add first date by default
+    addInterviewDate();
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeInterviewDatesModal();
+        }
+    });
+}
+
+function closeInterviewDatesModal() {
+    const modal = document.getElementById('interview-dates-modal');
+    if (modal) {
+        modal.remove();
+    }
+    // Clean up global functions
+    interviewDatesData = [];
+    delete window.addInterviewDateToModal;
+    delete window.removeInterviewDate;
+    delete window.toggleInterviewType;
+    delete window.toggleInterviewer;
+}
+
+async function processInterviewDates(candidateId, newStatus, successMessage) {
     try {
-        await window.candidatesManager.updateCandidateStatus(id, 'In Process - First Round');
-        window.utils.showMessage('Candidate invited to first round interview.', 'success');
+        const notifyRecruiter = document.getElementById('notify-recruiter')?.checked || false;
+        
+        // Collect all interview dates from the form
+        const interviewDates = [];
+        interviewDatesData.forEach((date, index) => {
+            const dateInput = document.getElementById(`date-${index}`);
+            const timeInput = document.getElementById(`time-${index}`);
+            const durationInput = document.getElementById(`duration-${index}`);
+            
+            if (dateInput && timeInput && durationInput) {
+                const dateValue = dateInput.value;
+                const timeValue = timeInput.value;
+                const durationValue = parseInt(durationInput.value) || 60;
+                
+                if (dateValue && timeValue && durationValue) {
+                    interviewDates.push({ 
+                        date: dateValue, 
+                        time: timeValue, 
+                        duration: durationValue 
+                    });
+                }
+            }
+        });
+        
+        if (notifyRecruiter && interviewDates.length === 0) {
+            window.utils.showMessage(window.uiManager.translate('Please add at least one interview date'), 'error');
+            return;
+        }
+        
+        // Get interview type and interviewer if specified
+        const specifyType = document.getElementById('specify-interview-type')?.checked || false;
+        const specifyInterviewer = document.getElementById('specify-interviewer')?.checked || false;
+        const interviewType = specifyType ? document.getElementById('interview-type')?.value : null;
+        const interviewerName = specifyInterviewer ? document.getElementById('interviewer-name')?.value : null;
+        
+        // Update candidate status
+        await window.candidatesManager.updateCandidateStatus(candidateId, newStatus);
+        
+        // Send email to recruiter if requested
+        if (notifyRecruiter && interviewDates.length > 0) {
+            try {
+                const candidate = await window.candidatesManager.getCandidateDetails(candidateId);
+                await window.emailManager.notifyRecruiterInterviewDates(
+                    candidate, 
+                    newStatus, 
+                    interviewDates,
+                    interviewType,
+                    interviewerName
+                );
+                window.utils.showMessage(window.uiManager.translate('Interview dates sent to recruiter'), 'success');
+            } catch (emailError) {
+                console.warn('Error sending interview dates email:', emailError);
+                // Don't fail the status update if email fails
+            }
+        }
+        
+        window.utils.showMessage(successMessage, 'success');
+        closeInterviewDatesModal();
         showCandidates();
-        // Update navigation indicators after status change
         updateNavigationIndicators();
     } catch (error) {
         window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
@@ -903,16 +1234,6 @@ async function rejectCandidate(id) {
     }
 }
 
-async function secondRound(id) {
-    try {
-        await window.candidatesManager.updateCandidateStatus(id, 'In Process - Second Round');
-        window.utils.showMessage('Candidate moved to second round interview.', 'success');
-        showCandidates();
-        updateNavigationIndicators();
-    } catch (error) {
-        window.utils.showMessage('Error updating candidate status: ' + error.message, 'error');
-    }
-}
 
 async function hireCandidate(id) {
     try {
@@ -1010,7 +1331,10 @@ function renderRequestsView(result) {
 
     let html = `
         <h2 data-translate="Recruiting Requests">Recruiting Requests</h2>
-        <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
+            <button onclick="showExportModal()" class="btn btn-secondary" data-translate="Download Excel">Download Excel</button>
+        </div>
         <div class="filters">
             <select id="status-filter">
                 <option value="" data-translate="All Statuses">All Statuses</option>
@@ -1374,7 +1698,7 @@ function showNewRequest() {
 
     // Get department options based on user role
     let departmentOptions = '';
-    if (userRole === 'gm') {
+    if (userRole === 'gm' || userRole === 'recruiter') {
         departmentOptions = Object.keys(departmentPositions).map(dept =>
             `<option value="${dept}">${dept}</option>`
         ).join('');
@@ -1388,7 +1712,7 @@ function showNewRequest() {
         <form id="new-request-form">
             <div class="form-group">
                     <label for="department" data-translate="Department">Oddelenie:</label>
-                    <select id="department" name="department" required ${userRole !== 'gm' ? 'disabled' : ''} onchange="updatePositionOptions()">
+                    <select id="department" name="department" required ${userRole !== 'gm' && userRole !== 'recruiter' ? 'disabled' : ''} onchange="updatePositionOptions()">
                         <option value="" data-translate="Select Department">Vyberte oddelenie</option>
                     ${departmentOptions}
                 </select>
@@ -1476,8 +1800,8 @@ function showNewRequest() {
         form.addEventListener('submit', createRequest);
     }
 
-    // Auto-load positions for managers (non-GM users)
-    if (userRole !== 'gm') {
+    // Auto-load positions for managers (non-GM and non-recruiter users)
+    if (userRole !== 'gm' && userRole !== 'recruiter') {
         // Get current user info
         const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
         const currentUserDepartment = userInfo ? userInfo.department : userDepartment;
@@ -1598,9 +1922,9 @@ function updatePositionOptions() {
     // Get user info if available
     const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
     
-    // Check if user is GM
-    if (userRole === 'gm') {
-        // GM sees all department positions
+    // Check if user is GM or recruiter
+    if (userRole === 'gm' || userRole === 'recruiter') {
+        // GM and recruiter see all department positions
         if (selectedDepartment && departmentPositions[selectedDepartment]) {
             positionsToShow = departmentPositions[selectedDepartment];
         }
@@ -2287,6 +2611,184 @@ function updateNavIndicator(navId, orangeCount, redCount) {
         indicator.innerHTML = `⚠️ ${orangeCount}`;
         indicator.title = `${orangeCount} kandidátov bez zmeny viac ako týždeň`;
         navElement.appendChild(indicator);
+    }
+}
+
+// Export modal and functions
+function showExportModal() {
+    const modal = document.createElement('div');
+    modal.id = 'export-modal';
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 data-translate="Export Options">Export Options</h2>
+                <span class="close" onclick="closeExportModal()">&times;</span>
+            </div>
+            <div style="padding: 20px;">
+                <p data-translate="Select what to export">Select what to export</p>
+                <div style="margin: 20px 0;">
+                    <label style="display: flex; align-items: center; margin: 15px 0; cursor: pointer;">
+                        <input type="radio" name="export-type" value="approved" checked style="margin-right: 10px;">
+                        <span data-translate="Only Approved">Only Approved</span>
+                    </label>
+                    <label style="display: flex; align-items: center; margin: 15px 0; cursor: pointer;">
+                        <input type="radio" name="export-type" value="approved-pending" style="margin-right: 10px;">
+                        <span data-translate="Approved and Pending">Approved and Pending</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button onclick="closeExportModal()" class="btn btn-secondary" data-translate="Cancel">Cancel</button>
+                    <button onclick="exportToExcel()" class="btn btn-primary" data-translate="Export">Export</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    window.uiManager.translatePage();
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeExportModal();
+        }
+    });
+}
+
+function closeExportModal() {
+    const modal = document.getElementById('export-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+async function exportToExcel() {
+    try {
+        const exportType = document.querySelector('input[name="export-type"]:checked')?.value;
+        if (!exportType) {
+            window.utils.showMessage(window.uiManager.translate('Please select export type'), 'error');
+            return;
+        }
+        
+        // Show loading
+        const exportBtn = document.querySelector('#export-modal button[onclick="exportToExcel()"]');
+        if (exportBtn) {
+            exportBtn.disabled = true;
+            exportBtn.textContent = window.uiManager.translate('Exporting...');
+        }
+        
+        // Determine status filter
+        const statuses = exportType === 'approved' ? ['Approved'] : ['Approved', 'Pending'];
+        
+        // Fetch all requests with the selected statuses directly from Supabase
+        const allRequests = [];
+        
+        // Get Supabase instance
+        const supabase = window.authManager.supabase;
+        if (!supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        
+        // Build query based on user permissions
+        const userInfo = window.authManager.getUserInfo();
+        let query = supabase.from('recruiting_requests').select('*');
+        
+        // Apply department filter based on user role
+        if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
+            if (userInfo.role === 'Manager') {
+                query = query.eq('department', userInfo.department);
+            }
+        }
+        
+        // Apply status filter - use 'in' for multiple statuses
+        if (statuses.length === 1) {
+            query = query.eq('status', statuses[0]);
+        } else {
+            query = query.in('status', statuses);
+        }
+        
+        // Order by created_at descending
+        query = query.order('created_at', { ascending: false });
+        
+        // Execute query
+        const { data: requests, error } = await query;
+        
+        if (error) {
+            throw error;
+        }
+        
+        if (requests) {
+            allRequests.push(...requests);
+        }
+        
+        if (allRequests.length === 0) {
+            window.utils.showMessage(window.uiManager.translate('No data to export'), 'info');
+            closeExportModal();
+            return;
+        }
+        
+        // Prepare data for Excel
+        const excelData = allRequests.map(request => ({
+            'Position': request.position || '',
+            'Department': request.department || '',
+            'Description': request.description || '',
+            'Headcount': request.headcount || '',
+            'Type': request.position_type || '',
+            'Category': request.position_category || '',
+            'Status': request.status || '',
+            'Created At': request.created_at ? new Date(request.created_at).toLocaleDateString('sk-SK', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : ''
+        }));
+        
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        
+        // Set column widths
+        const colWidths = [
+            { wch: 25 }, // Position
+            { wch: 20 }, // Department
+            { wch: 50 }, // Description
+            { wch: 10 }, // Headcount
+            { wch: 15 }, // Type
+            { wch: 15 }, // Category
+            { wch: 12 }, // Status
+            { wch: 20 }  // Created At
+        ];
+        ws['!cols'] = colWidths;
+        
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Recruiting Requests');
+        
+        // Generate filename
+        const dateStr = new Date().toISOString().split('T')[0];
+        const filename = `recruiting_requests_${exportType}_${dateStr}.xlsx`;
+        
+        // Write file
+        XLSX.writeFile(wb, filename);
+        
+        // Show success message
+        window.utils.showMessage(window.uiManager.translate('Export completed successfully'), 'success');
+        closeExportModal();
+        
+    } catch (error) {
+        console.error('Error exporting to Excel:', error);
+        window.utils.showMessage(window.uiManager.translate('Error exporting data') + ': ' + error.message, 'error');
+        
+        // Re-enable button
+        const exportBtn = document.querySelector('#export-modal button[onclick="exportToExcel()"]');
+        if (exportBtn) {
+            exportBtn.disabled = false;
+            exportBtn.textContent = window.uiManager.translate('Export');
+        }
     }
 }
 

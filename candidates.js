@@ -52,7 +52,7 @@ class CandidatesManager {
 
             // Apply filters based on user permissions
             const userInfo = window.authManager.getUserInfo();
-            if (userInfo.role !== 'gm') {
+            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
                 if (userInfo.allowedPositions.length > 0) {
                     query = query.in('position', userInfo.allowedPositions);
                 } else {

@@ -139,26 +139,83 @@ class UIManager {
     setupPasswordModal() {
         const modal = document.getElementById('update-password-modal');
         const updatePasswordBtn = document.getElementById('update-password-btn');
-        const closeBtn = document.getElementsByClassName('close')[0];
+        const closeBtn = modal?.querySelector('.close');
+        const cancelBtn = document.getElementById('cancel-password-update');
+        const newPasswordInput = document.getElementById('new-password');
+        const confirmPasswordInput = document.getElementById('confirm-new-password');
+        const currentPasswordInput = document.getElementById('current-password');
 
+        // Open modal
         if (updatePasswordBtn) {
             updatePasswordBtn.onclick = () => {
-                if (modal) modal.style.display = 'block';
+                if (modal) {
+                    modal.style.display = 'block';
+                    // Reset form when opening
+                    this.resetPasswordForm();
+                    // Focus on current password
+                    if (currentPasswordInput) {
+                        setTimeout(() => currentPasswordInput.focus(), 100);
+                    }
+                }
             };
         }
 
+        // Close modal handlers
+        const closeModal = () => {
+            if (modal) {
+                modal.style.display = 'none';
+                this.resetPasswordForm();
+            }
+        };
+
         if (closeBtn) {
-            closeBtn.onclick = () => {
-                if (modal) modal.style.display = 'none';
-            };
+            closeBtn.onclick = closeModal;
+        }
+
+        if (cancelBtn) {
+            cancelBtn.onclick = closeModal;
         }
 
         // Close modal when clicking outside
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
+        if (modal) {
+            modal.onclick = (event) => {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            };
+        }
+
+        // Toggle password visibility
+        const toggleButtons = modal?.querySelectorAll('.toggle-password');
+        if (toggleButtons) {
+            toggleButtons.forEach(btn => {
+                btn.onclick = () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (input) {
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        btn.querySelector('.eye-icon').textContent = isPassword ? '🙈' : '👁️';
+                    }
+                };
+            });
+        }
+
+        // Password strength checker
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('input', () => {
+                this.checkPasswordStrength(newPasswordInput.value);
+                this.validatePasswordRequirements(newPasswordInput.value);
+                this.validatePasswordMatch();
+            });
+        }
+
+        // Confirm password match checker
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', () => {
+                this.validatePasswordMatch();
+            });
+        }
 
         // Handle password update form
         const updatePasswordForm = document.getElementById('update-password-form');
@@ -171,29 +228,352 @@ class UIManager {
     }
 
     /**
+     * Reset password form
+     */
+    resetPasswordForm() {
+        const form = document.getElementById('update-password-form');
+        if (form) {
+            // Clear all errors first
+            this.clearPasswordErrors();
+            
+            // Reset form
+            form.reset();
+            
+            // Reset all visual indicators
+            this.resetPasswordStrength();
+            this.resetPasswordRequirements();
+            
+            // Reset password visibility
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            toggleButtons.forEach(btn => {
+                const targetId = btn.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (input) {
+                    input.type = 'password';
+                    btn.querySelector('.eye-icon').textContent = '👁️';
+                }
+            });
+            
+            // Remove all error/success classes from inputs
+            const inputs = document.querySelectorAll('.password-input');
+            inputs.forEach(input => {
+                input.classList.remove('error', 'success');
+            });
+        }
+    }
+
+    /**
+     * Check password strength
+     */
+    checkPasswordStrength(password) {
+        const strengthFill = document.getElementById('strength-fill');
+        const strengthText = document.getElementById('strength-text');
+        
+        if (!strengthFill || !strengthText) return;
+
+        if (!password) {
+            strengthFill.className = 'strength-fill';
+            strengthFill.style.width = '0%';
+            strengthText.textContent = this.translate('Password Strength');
+            return;
+        }
+
+        let strength = 0;
+        let strengthLabel = '';
+        let strengthClass = '';
+
+        // Check length
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+
+        // Check for uppercase
+        if (/[A-Z]/.test(password)) strength++;
+
+        // Check for lowercase
+        if (/[a-z]/.test(password)) strength++;
+
+        // Check for numbers
+        if (/[0-9]/.test(password)) strength++;
+
+        // Check for special characters
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        if (strength <= 2) {
+            strengthClass = 'weak';
+            strengthLabel = this.translate('Weak');
+        } else if (strength <= 4) {
+            strengthClass = 'medium';
+            strengthLabel = this.translate('Medium');
+        } else {
+            strengthClass = 'strong';
+            strengthLabel = this.translate('Strong');
+        }
+
+        strengthFill.className = `strength-fill ${strengthClass}`;
+        strengthText.textContent = `${this.translate('Password Strength')}: ${strengthLabel}`;
+    }
+
+    /**
+     * Validate password requirements
+     */
+    validatePasswordRequirements(password) {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[^A-Za-z0-9]/.test(password)
+        };
+
+        const reqIds = {
+            length: 'req-length',
+            uppercase: 'req-uppercase',
+            lowercase: 'req-lowercase',
+            number: 'req-number',
+            special: 'req-special'
+        };
+
+        Object.keys(requirements).forEach(key => {
+            const reqElement = document.getElementById(reqIds[key]);
+            if (reqElement) {
+                const icon = reqElement.querySelector('.req-icon');
+                if (requirements[key]) {
+                    reqElement.classList.add('valid');
+                    reqElement.classList.remove('invalid');
+                    if (icon) icon.textContent = '✓';
+                } else {
+                    reqElement.classList.remove('valid');
+                    reqElement.classList.add('invalid');
+                    if (icon) icon.textContent = '✗';
+                }
+            }
+        });
+    }
+
+    /**
+     * Validate password match
+     */
+    validatePasswordMatch() {
+        // Don't validate if modal is hidden or form is being reset
+        const modal = document.getElementById('update-password-modal');
+        if (!modal || modal.style.display === 'none') {
+            return;
+        }
+
+        const newPassword = document.getElementById('new-password')?.value;
+        const confirmPassword = document.getElementById('confirm-new-password')?.value;
+        const confirmInput = document.getElementById('confirm-new-password');
+        const errorElement = document.getElementById('confirm-password-error');
+
+        // Double check modal is still visible
+        if (modal.style.display === 'none') {
+            return;
+        }
+
+        if (!confirmPassword) {
+            this.clearError('confirm-password-error');
+            if (confirmInput) confirmInput.classList.remove('error', 'success');
+            return;
+        }
+
+        if (newPassword && confirmPassword) {
+            if (newPassword === confirmPassword) {
+                if (confirmInput) {
+                    confirmInput.classList.remove('error');
+                    confirmInput.classList.add('success');
+                }
+                this.clearError('confirm-password-error');
+            } else {
+                // Only show error if modal is still visible
+                if (modal.style.display !== 'none') {
+                    if (confirmInput) {
+                        confirmInput.classList.remove('success');
+                        confirmInput.classList.add('error');
+                    }
+                    this.showError('confirm-password-error', this.translate('Passwords do not match'));
+                }
+            }
+        }
+    }
+
+    /**
+     * Show error message
+     */
+    showError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+    }
+
+    /**
+     * Clear error message
+     */
+    clearError(elementId) {
+        const errorElement = document.getElementById(elementId);
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+        }
+    }
+
+    /**
+     * Clear all password errors
+     */
+    clearPasswordErrors() {
+        ['current-password-error', 'new-password-error', 'confirm-password-error'].forEach(id => {
+            this.clearError(id);
+        });
+        const inputs = document.querySelectorAll('.password-input');
+        inputs.forEach(input => {
+            input.classList.remove('error', 'success');
+        });
+    }
+
+    /**
+     * Reset password strength indicator
+     */
+    resetPasswordStrength() {
+        const strengthFill = document.getElementById('strength-fill');
+        const strengthText = document.getElementById('strength-text');
+        if (strengthFill) {
+            strengthFill.className = 'strength-fill';
+            strengthFill.style.width = '0%';
+        }
+        if (strengthText) {
+            strengthText.textContent = this.translate('Password Strength');
+        }
+    }
+
+    /**
+     * Reset password requirements
+     */
+    resetPasswordRequirements() {
+        const reqIds = ['req-length', 'req-uppercase', 'req-lowercase', 'req-number', 'req-special'];
+        reqIds.forEach(id => {
+            const reqElement = document.getElementById(id);
+            if (reqElement) {
+                reqElement.classList.remove('valid', 'invalid');
+                const icon = reqElement.querySelector('.req-icon');
+                if (icon) icon.textContent = '✗';
+            }
+        });
+    }
+
+    /**
      * Handle password update
      */
     async handlePasswordUpdate() {
-        const currentPassword = document.getElementById('current-password').value;
-        const newPassword = document.getElementById('new-password').value;
-        const confirmNewPassword = document.getElementById('confirm-new-password').value;
+        // Clear previous errors
+        this.clearPasswordErrors();
 
-        if (newPassword !== confirmNewPassword) {
-            window.utils.showMessage(this.translate('New passwords do not match'), 'error');
+        const currentPassword = document.getElementById('current-password')?.value.trim();
+        const newPassword = document.getElementById('new-password')?.value.trim();
+        const confirmNewPassword = document.getElementById('confirm-new-password')?.value.trim();
+        const submitBtn = document.getElementById('submit-password-update');
+
+        // Validate inputs
+        let hasErrors = false;
+
+        if (!currentPassword) {
+            this.showError('current-password-error', this.translate('Current password is required'));
+            document.getElementById('current-password')?.classList.add('error');
+            hasErrors = true;
+        }
+
+        if (!newPassword) {
+            this.showError('new-password-error', this.translate('New password is required'));
+            document.getElementById('new-password')?.classList.add('error');
+            hasErrors = true;
+        } else if (newPassword.length < 8) {
+            this.showError('new-password-error', this.translate('Password must be at least 8 characters long'));
+            document.getElementById('new-password')?.classList.add('error');
+            hasErrors = true;
+        } else {
+            // Check password requirements
+            const requirements = {
+                uppercase: /[A-Z]/.test(newPassword),
+                lowercase: /[a-z]/.test(newPassword),
+                number: /[0-9]/.test(newPassword),
+                special: /[^A-Za-z0-9]/.test(newPassword)
+            };
+
+            const missingRequirements = Object.entries(requirements)
+                .filter(([_, met]) => !met)
+                .map(([key]) => key);
+
+            if (missingRequirements.length > 0) {
+                this.showError('new-password-error', this.translate('Password does not meet all requirements'));
+                document.getElementById('new-password')?.classList.add('error');
+                hasErrors = true;
+            }
+        }
+
+        if (!confirmNewPassword) {
+            this.showError('confirm-password-error', this.translate('Please confirm your new password'));
+            document.getElementById('confirm-new-password')?.classList.add('error');
+            hasErrors = true;
+        } else if (newPassword !== confirmNewPassword) {
+            this.showError('confirm-password-error', this.translate('Passwords do not match'));
+            document.getElementById('confirm-new-password')?.classList.add('error');
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
             return;
+        }
+
+        // Disable submit button during processing
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = this.translate('Updating...');
         }
 
         try {
             await window.authManager.updatePassword(currentPassword, newPassword);
-            window.utils.showMessage(this.translate('Password updated successfully'), 'success');
             
-            // Close modal and clear form
+            // Close modal first to prevent any validation triggers
             const modal = document.getElementById('update-password-modal');
-            if (modal) modal.style.display = 'none';
+            if (modal) {
+                modal.style.display = 'none';
+            }
             
-            document.getElementById('update-password-form').reset();
+            // Clear all errors and reset form after modal is closed
+            this.clearPasswordErrors();
+            this.resetPasswordForm();
+            
+            // Show success message after everything is cleared
+            setTimeout(() => {
+                window.utils.showMessage(this.translate('Password updated successfully'), 'success');
+            }, 100);
         } catch (error) {
-            window.utils.showMessage(this.translate('Error updating password. Please try again.'), 'error');
+            console.error('Password update error:', error);
+            
+            // Show specific error messages
+            let errorMessage = this.translate('Error updating password. Please try again.');
+            
+            if (error.message) {
+                if (error.message.includes('incorrect') || error.message.includes('Current password')) {
+                    errorMessage = this.translate('Current password is incorrect');
+                    this.showError('current-password-error', errorMessage);
+                    document.getElementById('current-password')?.classList.add('error');
+                } else if (error.message.includes('same')) {
+                    errorMessage = this.translate('New password must be different from current password');
+                    this.showError('new-password-error', errorMessage);
+                    document.getElementById('new-password')?.classList.add('error');
+                } else {
+                    window.utils.showMessage(errorMessage, 'error');
+                }
+            } else {
+                window.utils.showMessage(errorMessage, 'error');
+            }
+        } finally {
+            // Re-enable submit button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = this.translate('Update Password');
+            }
         }
     }
 
@@ -250,10 +630,10 @@ class UIManager {
     }
 
     /**
-     * Show error state
+     * Show error state (full page error)
      * @param {string} message - Error message
      */
-    showError(message) {
+    showErrorPage(message) {
         const app = document.getElementById('app');
         if (app) {
             app.innerHTML = `

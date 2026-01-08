@@ -85,28 +85,83 @@
 
     <!-- Update Password Modal -->
     <div id="update-password-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 data-translate="Update Password">Update Password</h2>
+        <div class="modal-content password-modal">
+            <div class="modal-header">
+                <h2 data-translate="Update Password">Update Password</h2>
+                <span class="close">&times;</span>
+            </div>
             <form id="update-password-form">
                 <div class="form-group">
                     <label for="current-password" data-translate="Current Password">Current Password:</label>
-                    <input type="password" id="current-password" required>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="current-password" class="password-input" required autocomplete="current-password">
+                        <button type="button" class="toggle-password" data-target="current-password" aria-label="Show password">
+                            <span class="eye-icon">👁️</span>
+                        </button>
+                    </div>
+                    <div class="error-message" id="current-password-error"></div>
                 </div>
+                
                 <div class="form-group">
                     <label for="new-password" data-translate="New Password">New Password:</label>
-                    <input type="password" id="new-password" required>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="new-password" class="password-input" required autocomplete="new-password" minlength="8">
+                        <button type="button" class="toggle-password" data-target="new-password" aria-label="Show password">
+                            <span class="eye-icon">👁️</span>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strength-fill"></div>
+                        </div>
+                        <div class="strength-text" id="strength-text" data-translate="Password Strength">Password Strength</div>
+                    </div>
+                    <div class="password-requirements" id="password-requirements">
+                        <div class="requirement" id="req-length">
+                            <span class="req-icon">✗</span>
+                            <span data-translate="At least 8 characters">At least 8 characters</span>
+                        </div>
+                        <div class="requirement" id="req-uppercase">
+                            <span class="req-icon">✗</span>
+                            <span data-translate="One uppercase letter">One uppercase letter</span>
+                        </div>
+                        <div class="requirement" id="req-lowercase">
+                            <span class="req-icon">✗</span>
+                            <span data-translate="One lowercase letter">One lowercase letter</span>
+                        </div>
+                        <div class="requirement" id="req-number">
+                            <span class="req-icon">✗</span>
+                            <span data-translate="One number">One number</span>
+                        </div>
+                        <div class="requirement" id="req-special">
+                            <span class="req-icon">✗</span>
+                            <span data-translate="One special character">One special character</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="new-password-error"></div>
                 </div>
+                
                 <div class="form-group">
                     <label for="confirm-new-password" data-translate="Confirm New Password">Confirm New Password:</label>
-                    <input type="password" id="confirm-new-password" required>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="confirm-new-password" class="password-input" required autocomplete="new-password">
+                        <button type="button" class="toggle-password" data-target="confirm-new-password" aria-label="Show password">
+                            <span class="eye-icon">👁️</span>
+                        </button>
+                    </div>
+                    <div class="error-message" id="confirm-password-error"></div>
                 </div>
-                <button type="submit" class="btn btn-primary" data-translate="Update Password">Update Password</button>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-password-update" data-translate="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submit-password-update" data-translate="Update Password">Update Password</button>
+                </div>
             </form>
         </div>
     </div>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="config.js"></script>
     <script src="utils.js"></script>
     <script src="pagination.js"></script>

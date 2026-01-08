@@ -351,6 +351,173 @@ Tento email bol odoslaný automaticky zo systému na nábor.
             text: text
         });
     }
+
+    /**
+     * Notify Recruiter about interview dates
+     * @param {Object} candidate - Candidate data
+     * @param {string} status - New status (First Round or Second Round)
+     * @param {Array} interviewDates - Array of {date, time, duration} objects
+     * @param {string|null} interviewType - Interview type (In Person or Teams) or null
+     * @param {string|null} interviewerName - Interviewer name or null
+     * @returns {Promise<Object>}
+     */
+    async notifyRecruiterInterviewDates(candidate, status, interviewDates, interviewType = null, interviewerName = null) {
+        // Get recruiter emails from users table
+        const config = window.config;
+        if (!config || !config.supabase) {
+            throw new Error('Supabase configuration not found');
+        }
+
+        const supabase = window.authManager?.supabase;
+        if (!supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        // Get recruiter emails
+        const { data: recruiters, error: recruiterError } = await supabase
+            .from('users')
+            .select('email, role')
+            .eq('role', 'recruiter')
+            .not('email', 'is', null);
+
+        if (recruiterError) {
+            console.warn('Error fetching recruiter emails:', recruiterError);
+            throw recruiterError;
+        }
+
+        if (!recruiters || recruiters.length === 0) {
+            console.warn('No recruiters with emails found');
+            throw new Error('No recruiters found');
+        }
+
+        const statusText = status === 'In Process - First Round' ? 'Prvé kolo' : 'Druhé kolo';
+        
+        // Format interview dates
+        const datesHtml = interviewDates.map((item, index) => {
+            const date = new Date(item.date);
+            const dateStr = date.toLocaleDateString('sk-SK', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            const hours = Math.floor(item.duration / 60);
+            const minutes = item.duration % 60;
+            const durationStr = hours > 0 ? `${hours}h ${minutes > 0 ? minutes + 'min' : ''}` : `${minutes}min`;
+            
+            return `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #2196f3;">
+                    <p style="margin: 5px 0;"><strong>Termín ${index + 1}:</strong></p>
+                    <p style="margin: 5px 0;"><strong>Dátum:</strong> ${dateStr}</p>
+                    <p style="margin: 5px 0;"><strong>Čas:</strong> ${item.time}</p>
+                    <p style="margin: 5px 0;"><strong>Dĺžka:</strong> ${durationStr}</p>
+                </div>
+            `;
+        }).join('');
+
+        const datesText = interviewDates.map((item, index) => {
+            const date = new Date(item.date);
+            const dateStr = date.toLocaleDateString('sk-SK');
+            const hours = Math.floor(item.duration / 60);
+            const minutes = item.duration % 60;
+            const durationStr = hours > 0 ? `${hours}h ${minutes > 0 ? minutes + 'min' : ''}` : `${minutes}min`;
+            
+            return `Termín ${index + 1}:
+- Dátum: ${dateStr}
+- Čas: ${item.time}
+- Dĺžka: ${durationStr}`;
+        }).join('\n\n');
+        
+        const additionalInfo = [];
+        if (interviewType) {
+            additionalInfo.push(`Typ pohovoru: ${interviewType === 'In Person' ? 'Osobne' : 'Teams'}`);
+        }
+        if (interviewerName) {
+            additionalInfo.push(`Pohovorujúci: ${interviewerName}`);
+        }
+        const additionalInfoText = additionalInfo.length > 0 ? '\n\n' + additionalInfo.join('\n') : '';
+
+        const subject = `Termíny na pohovor - ${candidate.name} (${statusText})`;
+        
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                <div style="background-color: #2196f3; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; font-size: 24px;">📅 Termíny na pohovor</h1>
+                </div>
+                
+                <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333; margin-top: 0;">Kandidát: ${candidate.name}</h2>
+                    
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <p style="margin: 5px 0;"><strong>Pozícia:</strong> ${candidate.position}</p>
+                        <p style="margin: 5px 0;"><strong>Oddelenie:</strong> ${candidate.department}</p>
+                        <p style="margin: 5px 0;"><strong>Kolo:</strong> <span style="color: #2196f3; font-weight: bold;">${statusText}</span></p>
+                        ${interviewType ? `<p style="margin: 5px 0;"><strong>Typ pohovoru:</strong> ${interviewType === 'In Person' ? 'Osobne' : 'Teams'}</p>` : ''}
+                        ${interviewerName ? `<p style="margin: 5px 0;"><strong>Pohovorujúci:</strong> ${interviewerName}</p>` : ''}
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <h3 style="color: #333; margin-bottom: 15px;">Potenciálne termíny na pohovor:</h3>
+                        ${datesHtml}
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background-color: #e3f2fd; border-radius: 5px;">
+                        <p style="margin: 0; color: #1976d2;">
+                            <strong>💡 Prosím:</strong> Vyberte vhodný termín a kontaktujte kandidáta.
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                    <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
+                    <a href="https://recruiting.iacslovakia.sk/" style="color: #2196f3;">https://recruiting.iacslovakia.sk/</a></p>
+                </div>
+            </div>
+        `;
+
+        const text = `
+Termíny na pohovor - ${candidate.name} (${statusText})
+
+Kandidát: ${candidate.name}
+Pozícia: ${candidate.position}
+Oddelenie: ${candidate.department}
+Kolo: ${statusText}${additionalInfoText}
+
+Potenciálne termíny na pohovor:
+
+${datesText}
+
+Prosím, vyberte vhodný termín a kontaktujte kandidáta.
+
+Otvoriť systém: https://recruiting.iacslovakia.sk/
+
+---
+Tento email bol odoslaný automaticky zo systému na nábor.
+        `;
+
+        // Send email to all recruiters
+        const results = [];
+        for (const recruiter of recruiters) {
+            try {
+                const result = await this.sendEmail({
+                    to: recruiter.email,
+                    subject: subject,
+                    html: html,
+                    text: text
+                });
+                results.push({ email: recruiter.email, success: true, result });
+            } catch (error) {
+                console.warn(`Error sending email to recruiter ${recruiter.email}:`, error);
+                results.push({ email: recruiter.email, success: false, error });
+            }
+        }
+
+        return { success: true, results };
+    }
 }
 
 // Create global instance

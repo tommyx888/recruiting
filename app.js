@@ -585,10 +585,52 @@ async function showCandidates() {
     try {
         window.uiManager.showLoading('Loading candidates...');
         
-        const result = await window.candidatesManager.getCandidates({
-            page: 1,
-            pageSize: 1000  // Load all candidates for display
-        });
+        // Check if there's a saved filter state
+        const savedState = sessionStorage.getItem('candidateFilterState');
+        
+        let result;
+        if (savedState) {
+            // Apply saved filters
+            try {
+                const filterState = JSON.parse(savedState);
+                result = await window.candidatesManager.getCandidates({
+                    page: 1,
+                    pageSize: 1000,
+                    status: filterState.status || undefined,
+                    department: filterState.department || undefined,
+                    position: filterState.position || undefined,
+                    source: filterState.source || undefined
+                });
+                
+                // Apply client-side filtering for consistency
+                let filteredCandidates = result.candidates;
+                if (filterState.department) {
+                    filteredCandidates = filteredCandidates.filter(c => c.department === filterState.department);
+                }
+                if (filterState.position) {
+                    filteredCandidates = filteredCandidates.filter(c => c.position === filterState.position);
+                }
+                if (filterState.source) {
+                    filteredCandidates = filteredCandidates.filter(c => c.source === filterState.source);
+                }
+                if (filterState.status) {
+                    filteredCandidates = filteredCandidates.filter(c => c.status === filterState.status);
+                }
+                result = { candidates: filteredCandidates, pagination: result.pagination };
+            } catch (error) {
+                // If filter state is invalid, load all candidates
+                result = await window.candidatesManager.getCandidates({
+                    page: 1,
+                    pageSize: 1000
+                });
+            }
+        } else {
+            // No saved filter, load all candidates
+            result = await window.candidatesManager.getCandidates({
+                page: 1,
+                pageSize: 1000  // Load all candidates for display
+            });
+        }
 
         renderCandidatesView(result);
     } catch (error) {
@@ -686,12 +728,15 @@ function renderCandidatesView(result) {
 
     window.uiManager.translatePage();
     
+    // Restore filter state if it exists
+    restoreFilterState();
+    
     // Add event listener for department filter to update position filter
     const departmentFilter = document.getElementById('department-filter');
     const positionFilter = document.getElementById('position-filter');
     
     if (departmentFilter && positionFilter) {
-        // Initialize position filter on load
+        // Initialize position filter on load (after restoring filter state)
         updatePositionFilterForCandidates();
         
         // Update position filter when department changes
@@ -2403,6 +2448,64 @@ async function reuploadDocument(candidateId, documentType) {
 
 // Function removed - rejected candidates are now shown by default and can be filtered using status filter
 
+// Save filter state to sessionStorage
+function saveFilterState() {
+    const departmentFilter = document.getElementById('department-filter');
+    const positionFilter = document.getElementById('position-filter');
+    const sourceFilter = document.getElementById('source-filter');
+    const statusFilter = document.getElementById('status-filter');
+    
+    if (!departmentFilter || !sourceFilter) return;
+    
+    const filterState = {
+        department: departmentFilter.value || '',
+        position: positionFilter.value || '',
+        source: sourceFilter.value || '',
+        status: statusFilter ? statusFilter.value || '' : ''
+    };
+    
+    sessionStorage.setItem('candidateFilterState', JSON.stringify(filterState));
+}
+
+// Restore filter state from sessionStorage
+function restoreFilterState() {
+    const savedState = sessionStorage.getItem('candidateFilterState');
+    if (!savedState) return;
+    
+    try {
+        const filterState = JSON.parse(savedState);
+        const departmentFilter = document.getElementById('department-filter');
+        const positionFilter = document.getElementById('position-filter');
+        const sourceFilter = document.getElementById('source-filter');
+        const statusFilter = document.getElementById('status-filter');
+        
+        if (departmentFilter && filterState.department) {
+            departmentFilter.value = filterState.department;
+        }
+        if (positionFilter && filterState.position) {
+            positionFilter.value = filterState.position;
+        }
+        if (sourceFilter && filterState.source) {
+            sourceFilter.value = filterState.source;
+        }
+        if (statusFilter && filterState.status) {
+            statusFilter.value = filterState.status;
+        }
+        
+        // Update position filter options based on department
+        if (departmentFilter && departmentFilter.value) {
+            updatePositionFilterForCandidates();
+        }
+    } catch (error) {
+        console.error('Error restoring filter state:', error);
+    }
+}
+
+// Clear saved filter state
+function clearFilterState() {
+    sessionStorage.removeItem('candidateFilterState');
+}
+
 async function applyFilters() {
     const departmentFilter = document.getElementById('department-filter');
     const positionFilter = document.getElementById('position-filter');
@@ -2415,6 +2518,9 @@ async function applyFilters() {
     const selectedPosition = positionFilter.value;
     const selectedSource = sourceFilter.value;
     const selectedStatus = statusFilter ? statusFilter.value : '';
+    
+    // Save filter state
+    saveFilterState();
     
     try {
         window.uiManager.showLoading('Loading filtered candidates...');
@@ -2538,6 +2644,9 @@ async function clearFilters() {
     if (statusFilter) {
         statusFilter.value = '';
     }
+    
+    // Clear saved filter state
+    clearFilterState();
     
     // Reload all candidates
     showCandidates();

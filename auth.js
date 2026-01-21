@@ -107,7 +107,29 @@ class AuthManager {
             if (data) {
                 this.userRole = data.role;
                 this.userDepartment = data.department;
-                this.userAllowedPositions = data.allowed_positions || [];
+                
+                // Parse allowed_positions - could be array, JSON string, or null
+                let allowedPositions = [];
+                if (data.allowed_positions) {
+                    if (typeof data.allowed_positions === 'string') {
+                        try {
+                            // Try to parse as JSON string
+                            allowedPositions = JSON.parse(data.allowed_positions);
+                        } catch (e) {
+                            console.error('Error parsing allowed_positions JSON:', e);
+                            allowedPositions = [];
+                        }
+                    } else if (Array.isArray(data.allowed_positions)) {
+                        allowedPositions = data.allowed_positions;
+                    }
+                }
+                this.userAllowedPositions = allowedPositions;
+                
+                console.log('User permissions loaded:', {
+                    role: this.userRole,
+                    department: this.userDepartment,
+                    allowedPositions: this.userAllowedPositions
+                });
             }
         } catch (error) {
             console.error('Error fetching user permissions:', error);

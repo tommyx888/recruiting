@@ -759,6 +759,11 @@ function updatePositionFilterForCandidates() {
     // Clear position filter options
     positionFilter.innerHTML = '<option value="" data-translate="All Positions">All Positions</option>';
     
+    // Get user info to check allowed positions
+    const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
+    const isGMOrRecruiter = userInfo && (userInfo.role === 'gm' || userInfo.role === 'recruiter');
+    const userAllowedPositions = userInfo && userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) ? userInfo.allowedPositions : [];
+    
     // Get all displayed candidates from the DOM
     const candidateRows = document.querySelectorAll('#candidates-container table tbody tr');
     const allPositions = new Set();
@@ -773,23 +778,28 @@ function updatePositionFilterForCandidates() {
         }
     });
     
+    let positionsToShow = [];
+    
     if (selectedDepartment && departmentPositions[selectedDepartment]) {
         // If department selected, show only positions from that department that exist in candidates
-        departmentPositions[selectedDepartment].forEach(position => {
-            const option = document.createElement('option');
-            option.value = position;
-            option.textContent = position;
-            positionFilter.appendChild(option);
-        });
+        positionsToShow = departmentPositions[selectedDepartment];
     } else {
         // If no department selected, show all unique positions from displayed candidates
-        Array.from(allPositions).sort().forEach(position => {
-            const option = document.createElement('option');
-            option.value = position;
-            option.textContent = position;
-            positionFilter.appendChild(option);
-        });
+        positionsToShow = Array.from(allPositions).sort();
     }
+    
+    // Filter by user's allowed positions if not GM/Recruiter and has allowed positions
+    if (!isGMOrRecruiter && userAllowedPositions.length > 0) {
+        positionsToShow = positionsToShow.filter(position => userAllowedPositions.includes(position));
+    }
+    
+    // Add positions to filter dropdown
+    positionsToShow.forEach(position => {
+        const option = document.createElement('option');
+        option.value = position;
+        option.textContent = position;
+        positionFilter.appendChild(option);
+    });
 }
 
 function createCandidateTable(candidates, status) {

@@ -498,9 +498,10 @@ class CandidatesManager {
         try {
             const fieldName = fileType === 'cv' ? 'cv_file_path' : 'assesment_file_path';
             
+            // Get candidate data including name
             const { data: candidateData, error: candidateError } = await this.supabase
                 .from('candidates')
-                .select(fieldName)
+                .select(`${fieldName}, name`)
                 .eq('id', candidateId)
                 .single();
 
@@ -529,11 +530,18 @@ class CandidatesManager {
             
             const mimeType = mimeTypes[fileExtension] || 'application/octet-stream';
             
-            // Create download link with correct MIME type and extension
+            // Sanitize candidate name for filename (remove invalid characters)
+            const candidateName = candidateData.name || 'Candidate';
+            const sanitizedName = candidateName
+                .replace(/[<>:"/\\|?*]/g, '_') // Replace invalid filename characters
+                .replace(/\s+/g, '_') // Replace spaces with underscores
+                .trim();
+            
+            // Create download link with candidate name in filename
             const blob = new Blob([data], { type: mimeType });
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = `${fileType}_${candidateId}${fileExtension}`;
+            link.download = `${sanitizedName}_${fileType.toUpperCase()}${fileExtension}`;
             link.click();
             
             // Clean up the object URL after a short delay

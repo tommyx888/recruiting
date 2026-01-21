@@ -60,8 +60,13 @@ class RequestsManager {
             const userInfo = window.authManager.getUserInfo();
             if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
                 if (userInfo.role === 'Manager') {
-                    // Managers see only their department requests
-                    query = query.eq('department', userInfo.department);
+                    // If manager has allowed_positions, filter by those positions
+                    if (userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) && userInfo.allowedPositions.length > 0) {
+                        query = query.in('position', userInfo.allowedPositions);
+                    } else if (userInfo.department) {
+                        // Otherwise, filter by department
+                        query = query.eq('department', userInfo.department);
+                    }
                 }
             }
 

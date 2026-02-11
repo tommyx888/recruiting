@@ -3,6 +3,16 @@
  * Handles sending emails via Resend (Edge Function)
  */
 
+/** Encode UTF-8 string to base64 (safe for ICS and text with diacritics) */
+function utf8ToBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
+
 class EmailManager {
     constructor() {
         this.service = 'Resend API';
@@ -16,16 +26,31 @@ class EmailManager {
      * @param {string} emailData.subject - Email subject
      * @param {string} emailData.html - HTML content
      * @param {string} emailData.text - Plain text content
+     * @param {Array} emailData.attachments - Array of attachment objects {filename, content, contentType}
      */
     async sendEmail(emailData) {
         try {
             console.log('📤 Attempting to send email via Resend...');
-            console.log('📧 Email data:', { to: emailData.to, subject: emailData.subject });
+            console.log('📧 Email data:', { to: emailData.to, subject: emailData.subject, hasAttachments: !!emailData.attachments });
 
             // Get Supabase configuration
             const config = window.config;
             if (!config || !config.supabase) {
                 throw new Error('Supabase configuration not found');
+            }
+
+            // Prepare request body
+            const requestBody = {
+                to: emailData.to,
+                subject: emailData.subject,
+                html: emailData.html,
+                text: emailData.text,
+                from: this.fromEmail
+            };
+
+            // Add attachments if provided
+            if (emailData.attachments && emailData.attachments.length > 0) {
+                requestBody.attachments = emailData.attachments;
             }
 
             // Call Resend Edge Function
@@ -35,13 +60,7 @@ class EmailManager {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${config.supabase.anonKey}`
                 },
-                body: JSON.stringify({
-                    to: emailData.to,
-                    subject: emailData.subject,
-                    html: emailData.html,
-                    text: emailData.text,
-                    from: this.fromEmail
-                })
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
@@ -134,6 +153,7 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
      * @param {string} managerEmail - Manager email who created the request
      */
     async notifyRequestApproved(requestData, managerEmail) {
+        const category = requestData.position_category || requestData.category || '—';
         const subject = `Žiadosť o nábor schválená - ${requestData.position}`;
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -146,7 +166,7 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                     <p><strong>Pozícia:</strong> ${requestData.position}</p>
                     <p><strong>Oddelenie:</strong> ${requestData.department}</p>
                     <p><strong>Typ:</strong> ${requestData.position_type}</p>
-                    <p><strong>Kategória:</strong> ${requestData.category}</p>
+                    <p><strong>Kategória:</strong> ${category}</p>
                     <p><strong>Počet miest:</strong> ${requestData.headcount}</p>
                 </div>
                 
@@ -176,7 +196,7 @@ Detaily pozície:
 - Pozícia: ${requestData.position}
 - Oddelenie: ${requestData.department}
 - Typ: ${requestData.position_type}
-- Kategória: ${requestData.category}
+- Kategória: ${category}
 - Počet miest: ${requestData.headcount}
 
 Teraz môžete začať s náborom kandidátov pre túto pozíciu.
@@ -276,9 +296,13 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         const statusTranslations = {
             'New': 'Nový',
             'In Process': 'V procese',
+            'In Process - First Round': 'Prvé kolo (v procese)',
+            'In Process - Second Round': 'Druhé kolo (v procese)',
             'Interviewed': 'Pohovorovaný',
             'Rejected': 'Zamietnutý',
+            'Rejected - Inform Source': 'Zamietnutý - informovať zdroj',
             'Hired': 'Prijatý',
+            'Hired - Contact Source': 'Prijatý - kontaktovať zdroj',
             'Withdrawn': 'Odstúpil'
         };
 
@@ -517,6 +541,266 @@ Tento email bol odoslaný automaticky zo systému na nábor.
         }
 
         return { success: true, results };
+    }
+
+    /**
+     * Notify one agency (by email) that new interview slots are available for a position.
+     * @param {string} agencyEmail - Agency user email from users table
+     * @param {Object} request - Recruiting request { position, department }
+     * @param {string} round - 'first' or 'second'
+     * @param {Array} slots - Array of { startTime, endTime } (ISO strings)
+     * @returns {Promise<Object>}
+     */
+    async notifyAgencyNewSlots(agencyEmail, request, round, slots = []) {
+        const roundText = round === 'first' ? 'Prvé kolo' : 'Druhé kolo';
+        const subject = `Nové termíny na pohovory – ${request.position} (${roundText})`;
+        const siteUrl = 'https://recruiting.iacslovakia.sk/';
+
+        const formatSlot = (start, end) => {
+            const d = new Date(start);
+            const e = new Date(end);
+            const dateStr = d.toLocaleDateString('sk-SK', { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
+            const timeStr = `${d.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })} – ${e.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+            return `${dateStr}, ${timeStr}`;
+        };
+        const slotsListHtml = slots.length > 0
+            ? `
+            <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #949C58;">
+                <p style="margin: 0 0 8px 0; font-weight: 600;">Výpis termínov:</p>
+                <ul style="margin: 0; padding-left: 20px;">
+                    ${slots.map(s => `<li style="margin: 4px 0;">${formatSlot(s.startTime, s.endTime)}</li>`).join('')}
+                </ul>
+            </div>
+            `
+            : '';
+
+        const slotsListText = slots.length > 0
+            ? slots.map(s => `  • ${formatSlot(s.startTime, s.endTime)}`).join('\n')
+            : '';
+
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                <div style="background-color: #949C58; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; font-size: 24px;">Nové termíny na pohovory</h1>
+                </div>
+                <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <p>Dobrý deň,</p>
+                    <p>Recruiter pridal nové termíny na pohovory pre pozíciu, na ktorú máte priradených kandidátov.</p>
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <p style="margin: 5px 0;"><strong>Pozícia:</strong> ${request.position || ''}</p>
+                        <p style="margin: 5px 0;"><strong>Oddelenie:</strong> ${request.department || ''}</p>
+                        <p style="margin: 5px 0;"><strong>Kolo:</strong> ${roundText}</p>
+                    </div>
+                    ${slotsListHtml}
+                    <p>Rezerváciu termínov pre svojich kandidátov môžete urobiť v náborovom systéme v sekcii „Rezervácia termínov“.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${siteUrl}" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť náborový systém</a>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 0.9rem; color: #555;">Odkaz na stránku: <a href="${siteUrl}" style="color: #949C58;">${siteUrl}</a></p>
+                </div>
+                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                    <p>Tento email bol odoslaný automaticky zo systému na nábor.</p>
+                </div>
+            </div>
+        `;
+        const text = `Nové termíny na pohovory – ${request.position}, ${request.department}, ${roundText}.\n${slotsListText ? '\nVýpis termínov:\n' + slotsListText + '\n' : ''}\nOtvorte systém a rezervujte termíny: ${siteUrl}`;
+        return this.sendEmail({ to: agencyEmail, subject, html, text });
+    }
+
+    /**
+     * Notify recruiter(s) and manager(s) when agency books an interview slot
+     * @param {Object} slotData - Slot data with candidate and request info
+     * @param {string|string[]} recruiterEmail - Recruiter email(s)
+     * @param {string|string[]} managerEmail - Manager email(s)
+     * @param {string} icsContent - ICS file content for calendar invitation
+     * @returns {Promise<Object>}
+     */
+    async notifySlotBooked(slotData, recruiterEmail, managerEmail, icsContent) {
+        const { slot, candidate, request } = slotData;
+        const roundText = slot.round === 'first' ? 'Prvé kolo' : 'Druhé kolo';
+        const startDate = new Date(slot.start_time);
+        const endDate = new Date(slot.end_time);
+        
+        const dateStr = startDate.toLocaleDateString('sk-SK', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const timeStr = `${startDate.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })} - ${endDate.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+        
+        const subject = `Rezervovaný termín na pohovor - ${candidate.name} (${request.position})`;
+        
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                <div style="background-color: #949C58; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; font-size: 24px;">✅ Rezervovaný termín na pohovor</h1>
+                </div>
+                
+                <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333; margin-top: 0;">Kandidát: ${candidate.name}</h2>
+                    
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <p style="margin: 5px 0;"><strong>Pozícia:</strong> ${request.position}</p>
+                        <p style="margin: 5px 0;"><strong>Oddelenie:</strong> ${request.department}</p>
+                        <p style="margin: 5px 0;"><strong>Kolo:</strong> <span style="color: #949C58; font-weight: bold;">${roundText}</span></p>
+                        <p style="margin: 5px 0;"><strong>Agentúra:</strong> ${slot.agency_source}</p>
+                    </div>
+                    
+                    <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #949C58;">
+                        <h3 style="color: #333; margin-top: 0;">📅 Termín pohovoru:</h3>
+                        <p style="margin: 5px 0; font-size: 18px;"><strong>${dateStr}</strong></p>
+                        <p style="margin: 5px 0; font-size: 16px;"><strong>${timeStr}</strong></p>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background-color: #fff3e0; border-radius: 5px;">
+                        <p style="margin: 0; color: #e65100;">
+                            <strong>📎 Prílohy:</strong> V prílohe nájdete CV a Assessment kandidáta, ako aj Outlook pozvánku (.ics súbor), ktorú môžete importovať do kalendára.
+                        </p>
+                    </div>
+                    
+                    <div style="background-color: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2196f3;">
+                        <p style="margin: 0; color: #1976d2;">
+                            <strong>💡 Tip:</strong> Dvojklikom na .ics súbor v prílohe vytvoríte udalosť v Outlook kalendári s automaticky vyplnenými údajmi o pohovore.
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                    <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
+                    <a href="https://recruiting.iacslovakia.sk/" style="color: #949C58;">https://recruiting.iacslovakia.sk/</a></p>
+                </div>
+            </div>
+        `;
+
+        const text = `
+Rezervovaný termín na pohovor - ${candidate.name} (${request.position})
+
+Kandidát: ${candidate.name}
+Pozícia: ${request.position}
+Oddelenie: ${request.department}
+Kolo: ${roundText}
+Agentúra: ${slot.agency_source}
+
+Termín pohovoru:
+${dateStr}
+${timeStr}
+
+V prílohe nájdete CV a Assessment kandidáta, ako aj Outlook pozvánku (.ics súbor), ktorú môžete importovať do kalendára.
+
+Tip: Dvojklikom na .ics súbor vytvoríte udalosť v Outlook kalendári s automaticky vyplnenými údajmi o pohovore.
+
+Otvoriť systém: https://recruiting.iacslovakia.sk/
+
+---
+Tento email bol odoslaný automaticky zo systému na nábor.
+        `;
+
+        // Prepare attachments (ICS first so it always appears)
+        const attachments = [];
+        
+        if (icsContent && typeof icsContent === 'string') {
+            attachments.push({
+                filename: `Interview_${candidate.name.replace(/[<>:"/\\|?*]/g, '_')}_${Date.now()}.ics`,
+                content: utf8ToBase64(icsContent),
+                contentType: 'text/calendar; charset=utf-8'
+            });
+        }
+        
+        // Get CV and Assessment files from Supabase Storage
+        const config = window.config;
+        if (!config || !config.supabase) {
+            throw new Error('Supabase configuration not found');
+        }
+        
+        const supabase = window.supabase;
+        if (!supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        
+        // Download CV file if exists
+        if (candidate.cv_file_path) {
+            try {
+                const { data: cvData, error: cvError } = await supabase.storage
+                    .from('candidate-files')
+                    .download(candidate.cv_file_path);
+                
+                if (!cvError && cvData) {
+                    const arrayBuffer = await cvData.arrayBuffer();
+                    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+                    const fileExtension = candidate.cv_file_path.substring(candidate.cv_file_path.lastIndexOf('.')).toLowerCase();
+                    const sanitizedName = candidate.name.replace(/[<>:"/\\|?*]/g, '_');
+                    
+                    attachments.push({
+                        filename: `CV_${sanitizedName}${fileExtension}`,
+                        content: base64,
+                        contentType: fileExtension === '.pdf' ? 'application/pdf' : 
+                                   fileExtension === '.doc' ? 'application/msword' : 
+                                   fileExtension === '.docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+                                   'application/octet-stream'
+                    });
+                }
+            } catch (error) {
+                console.warn('Error downloading CV file:', error);
+            }
+        }
+        
+        // Download Assessment file if exists
+        if (candidate.assesment_file_path) {
+            try {
+                const { data: assessmentData, error: assessmentError } = await supabase.storage
+                    .from('candidate-files')
+                    .download(candidate.assesment_file_path);
+                
+                if (!assessmentError && assessmentData) {
+                    const arrayBuffer = await assessmentData.arrayBuffer();
+                    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+                    const fileExtension = candidate.assesment_file_path.substring(candidate.assesment_file_path.lastIndexOf('.')).toLowerCase();
+                    const sanitizedName = candidate.name.replace(/[<>:"/\\|?*]/g, '_');
+                    
+                    attachments.push({
+                        filename: `Assessment_${sanitizedName}${fileExtension}`,
+                        content: base64,
+                        contentType: fileExtension === '.pdf' ? 'application/pdf' : 
+                                   fileExtension === '.doc' ? 'application/msword' : 
+                                   fileExtension === '.docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+                                   'application/octet-stream'
+                    });
+                }
+            } catch (error) {
+                console.warn('Error downloading Assessment file:', error);
+            }
+        }
+        
+        // HTML already includes all necessary information
+
+        // Send to all recruiters and managers (deduplicated)
+        const results = [];
+        const recruiterList = Array.isArray(recruiterEmail) ? recruiterEmail : (recruiterEmail ? [recruiterEmail] : []);
+        const managerList = Array.isArray(managerEmail) ? managerEmail : (managerEmail ? [managerEmail] : []);
+        const emails = [...new Set([...recruiterList, ...managerList].filter(Boolean))];
+
+        for (const email of emails) {
+            try {
+                const result = await this.sendEmail({
+                    to: email,
+                    subject: subject,
+                    html: html,
+                    text: text,
+                    attachments: attachments
+                });
+                results.push({ email, success: true, result });
+            } catch (error) {
+                console.warn(`Error sending email to ${email}:`, error);
+                results.push({ email, success: false, error });
+            }
+        }
+
+        return { success: true, results, icsContent };
     }
 }
 

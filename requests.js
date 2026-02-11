@@ -58,7 +58,7 @@ class RequestsManager {
 
             // Apply filters based on user permissions
             const userInfo = window.authManager.getUserInfo();
-            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
+            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && userInfo.role !== 'agency') {
                 if (userInfo.role === 'Manager') {
                     // If manager has allowed_positions, filter by those positions
                     if (userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) && userInfo.allowedPositions.length > 0) {
@@ -69,6 +69,7 @@ class RequestsManager {
                     }
                 }
             }
+            // Agency can see all approved requests (no additional filtering needed)
 
             // Apply additional filters
             Object.entries(allFilters).forEach(([key, value]) => {
@@ -77,10 +78,26 @@ class RequestsManager {
                 }
             });
 
-            // Get total count for pagination
-            const { count } = await this.supabase
-                .from('recruiting_requests')
-                .select('*', { count: 'exact', head: true });
+            query = query.order('id', { ascending: false });
+
+            // Get total count with the SAME filters (so pagination matches filtered results)
+            let countQuery = this.supabase.from('recruiting_requests').select('*', { count: 'exact', head: true });
+            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && userInfo.role !== 'agency') {
+                if (userInfo.role === 'Manager') {
+                    if (userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) && userInfo.allowedPositions.length > 0) {
+                        countQuery = countQuery.in('position', userInfo.allowedPositions);
+                    } else if (userInfo.department) {
+                        countQuery = countQuery.eq('department', userInfo.department);
+                    }
+                }
+            }
+            Object.entries(allFilters).forEach(([key, value]) => {
+                if (value !== null && value !== undefined && value !== '') {
+                    countQuery = countQuery.eq(key, value);
+                }
+            });
+            const { count: filteredCount } = await countQuery;
+            const count = filteredCount != null ? filteredCount : 0;
 
             // Apply pagination
             const from = (page - 1) * pageSize;
@@ -196,10 +213,16 @@ class RequestsManager {
 
             // Send notification if request was approved
             if (status === 'Approved') {
+                const request = data[0];
                 try {
-                    await this.notifyManagerApproved(data[0]);
+                    await this.notifyManagerApproved(request);
                 } catch (emailError) {
-                    console.warn('Error sending approval notification:', emailError);
+                    console.warn('Error sending approval notification to manager:', emailError);
+                }
+                try {
+                    await this.notifyRecruiterApproved(request);
+                } catch (emailError) {
+                    console.warn('Error sending approval notification to recruiter:', emailError);
                 }
             }
 
@@ -387,6 +410,42 @@ class RequestsManager {
             }
         } catch (error) {
             console.warn('Error in notifyGMs:', error);
+        }
+    }
+
+    /**
+     * Notify recruiters when request is approved (so they can start recruiting)
+     * @param {Object} request - Request data
+     * @returns {Promise<void>}
+     */
+    async notifyRecruiterApproved(request) {
+        try {
+            const { data: recruiters, error } = await this.supabase
+                .from('users')
+                .select('email')
+                .eq('role', 'recruiter')
+                .not('email', 'is', null);
+
+            if (error) {
+                console.warn('Error fetching recruiter emails:', error);
+                return;
+            }
+            if (!recruiters || recruiters.length === 0) {
+                console.warn('No recruiters with emails found');
+                return;
+            }
+            for (const r of recruiters) {
+                if (r.email) {
+                    try {
+                        await window.emailManager.notifyRequestApproved(request, r.email);
+                        console.log('Approval email sent to recruiter:', r.email);
+                    } catch (emailError) {
+                        console.warn('Error sending approval email to recruiter', r.email, emailError);
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('Error in notifyRecruiterApproved:', err);
         }
     }
 

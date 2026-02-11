@@ -6,58 +6,80 @@
     <title data-translate="Recruiting Management System">Recruiting Management System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 <body>
-    <div id="login-form" class="card">
-        <div class="logo">
-            <i class="fas fa-user-tie"></i>
+    <div id="login-screen" class="login-screen">
+        <div class="login-screen-bg" aria-hidden="true"></div>
+        <div id="login-form" class="login-card card">
+            <div class="logo">
+                <img src="artifex-logo.png" alt="Artifex logo" class="artifex-logo">
+            </div>
+            <h2 class="login-title" data-translate="Login">Login</h2>
+            <p class="login-subtitle" data-translate="Recruiting Management System">Recruiting Management System</p>
+            <form id="auth-form" class="login-form-inner">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Email" required autocomplete="email">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember-me">
+                    <label for="remember-me" data-translate="Remember me">Remember me</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-login" data-translate="Login">Login</button>
+            </form>
         </div>
-        <h2 data-translate="Login">Login</h2>
-        <form id="auth-form">
-            <div class="input-group">
-                <input type="email" id="email" placeholder="Email" required>
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            <div class="remember-me">
-                <input type="checkbox" id="remember-me">
-                <label for="remember" data-translate="Remember me">Remember me</label>
-            </div>
-            <button type="submit" class="btn btn-primary" data-translate="Login">Login</button>
-        </form>
     </div>
 
     <div id="app-content" style="display: none;">
         <header>
-            <h1 data-translate="Recruiting Management System">Recruiting Management System</h1>
+            <div class="app-brand">
+                <img src="artifex-logo.png" alt="Artifex logo" class="artifex-logo app-brand-logo">
+                <div class="brand-text">
+                    <h1 data-translate="Recruiting Management System">Recruiting Management System</h1>
+                </div>
+            </div>
             <nav>
-                <ul>
+                <ul class="nav-main">
                     <li><a href="#" id="nav-dashboard" data-translate="Dashboard">Dashboard</a></li>
-                    <li><a href="#" id="nav-candidates" data-translate="Candidates">Candidates</a></li>
+                    <li>
+                        <a href="#" id="nav-candidates" data-translate="Candidates">Candidates</a>
+                        <span class="nav-badge" id="candidates-badge" style="display: none;">0</span>
+                    </li>
                     <li><a href="#" id="nav-requests" data-translate="Recruiting Requests">Recruiting Requests</a></li>
                     <li><a href="#" id="nav-gm-approval" data-translate="GM/Recruiter Approval">GM/Recruiter Approval</a></li>
+                </ul>
+                <ul class="nav-secondary">
+                    <li><a href="#" id="nav-manage-slots" data-translate="Manage Slots" style="display: none;">Manage Slots</a></li>
+                    <li><a href="#" id="nav-agency-view" data-translate="Book Interviews" style="display: none;">Book Interviews</a></li>
                     <li><a href="#" id="nav-statistics" data-translate="Statistics">Statistics</a></li>
                     <li><a href="#" id="nav-reports" data-translate="Reports">Reports</a></li>
                 </ul>
             </nav>
             <div id="user-actions">
-                <div id="language-switcher">
-                    <button id="dark-mode-toggle" class="btn">🌙</button>
-                    <button id="en-lang" class="lang-btn active" onclick="switchLanguage('en')">
-                        <img src="english-flag.png" alt="English" width="24" height="24">
+                <div class="user-actions-top">
+                    <button id="dark-mode-toggle" class="btn-icon-btn" title="Toggle Dark Mode">
+                        <span class="icon">🌙</span>
                     </button>
-                    <button id="sk-lang" class="lang-btn" onclick="switchLanguage('sk')">
-                        <img src="slovak-flag.png" alt="Slovak" width="24" height="24">
-                    </button>
+                    <div id="language-switcher">
+                        <button id="en-lang" class="lang-btn active" onclick="switchLanguage('en')" title="English">
+                            <img src="english-flag.png" alt="English" width="24" height="24">
+                        </button>
+                        <button id="sk-lang" class="lang-btn" onclick="switchLanguage('sk')" title="Slovenčina">
+                            <img src="slovak-flag.png" alt="Slovak" width="24" height="24">
+                        </button>
+                    </div>
                 </div>
-                <button id="update-password-btn" data-translate="Update Password">Update Password</button>
-                <button id="nav-logout" data-translate="Logout">Logout</button>
+                <div class="user-actions-bottom">
+                    <button id="update-password-btn" class="btn-header" data-translate="Update Password">Update Password</button>
+                    <button id="nav-logout" class="btn-header" data-translate="Logout">Logout</button>
+                </div>
             </div>
 <div id="statistics-page" style="display: none;">
     <h2 data-translate="Recruitment Statistics">Recruitment Statistics</h2>
@@ -169,6 +191,8 @@
     <script src="auth.js"></script>
     <script src="candidates.js"></script>
     <script src="requests.js"></script>
+    <script src="interview-slots.js"></script>
+    <script src="agency-view.js"></script>
     <script src="ui.js"></script>
     <script src="email.js"></script>
     <script src="app.js"></script>

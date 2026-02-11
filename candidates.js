@@ -52,7 +52,17 @@ class CandidatesManager {
 
             // Apply filters based on user permissions
             const userInfo = window.authManager.getUserInfo();
-            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
+            if (userInfo.role === 'agency') {
+                // Agencies can only see their own candidates (filtered by source from users table)
+                if (userInfo.source) {
+                    console.log('🔍 Agency filter: Filtering candidates by source:', userInfo.source);
+                    query = query.eq('source', userInfo.source);
+                } else {
+                    console.warn('⚠️ Agency user has no source set, returning empty results');
+                    // If no source set, return empty result
+                    query = query.eq('source', '__NO_SOURCE__'); // This will return no results
+                }
+            } else if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
                 if (userInfo.allowedPositions.length > 0) {
                     query = query.in('position', userInfo.allowedPositions);
                 } else {
@@ -66,10 +76,31 @@ class CandidatesManager {
             if (source) query = query.eq('source', source);
             if (status) query = query.eq('status', status);
 
-            // Get total count for pagination
-            const { count } = await this.supabase
-                .from('candidates')
-                .select('*', { count: 'exact', head: true });
+            // Get total count for pagination (using same filters)
+            let countQuery = this.supabase.from('candidates').select('*', { count: 'exact', head: true });
+            
+            // Apply same permission filters to count query
+            if (userInfo.role === 'agency') {
+                if (userInfo.source) {
+                    countQuery = countQuery.eq('source', userInfo.source);
+                } else {
+                    countQuery = countQuery.eq('source', '__NO_SOURCE__');
+                }
+            } else if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
+                if (userInfo.allowedPositions.length > 0) {
+                    countQuery = countQuery.in('position', userInfo.allowedPositions);
+                } else {
+                    countQuery = countQuery.eq('department', userInfo.department);
+                }
+            }
+            
+            // Apply same additional filters to count query
+            if (department) countQuery = countQuery.eq('department', department);
+            if (position) countQuery = countQuery.eq('position', position);
+            if (source) countQuery = countQuery.eq('source', source);
+            if (status) countQuery = countQuery.eq('status', status);
+            
+            const { count } = await countQuery;
 
             // Apply pagination
             const from = (page - 1) * pageSize;
@@ -279,6 +310,13 @@ class CandidatesManager {
         }
 
         try {
+            const { data: currentRow } = await this.supabase
+                .from('candidates')
+                .select('status')
+                .eq('id', candidateId)
+                .single();
+            const previousStatus = currentRow?.status;
+
             // Prepare update data
             const updateData = {
                 name: candidateData.name,
@@ -381,6 +419,15 @@ class CandidatesManager {
 
             // Clear cache
             this.clearCache();
+
+            // Notify agency if status was changed
+            if (candidateData.status != null && candidateData.status !== previousStatus) {
+                try {
+                    await this.notifyRecruiterStatusChange(candidateId, candidateData.status, null);
+                } catch (notifyErr) {
+                    console.warn('Agency status change notification failed:', notifyErr);
+                }
+            }
 
             return { success: true, data: data[0] };
         } catch (error) {
@@ -684,16 +731,39 @@ class CandidatesManager {
     }
 
     /**
-     * Notify Recruiter about candidate status changes
-     * DISABLED - No notifications will be sent
+     * Notify agency (and optionally recruiter) about candidate status changes.
+     * Sends email to all agency users whose source matches the candidate's source.
      * @param {number} candidateId - Candidate ID
      * @param {string} status - New status
      * @param {string} notes - Additional notes
      */
     async notifyRecruiterStatusChange(candidateId, status, notes = null) {
-        // All recruiter notifications are disabled
-        console.log(`🔇 Recruiter notifications disabled for status: ${status}`);
-        return;
+        if (!this.supabase || !window.emailManager) return;
+        try {
+            const candidate = await this.getCandidateDetails(candidateId);
+            if (!candidate || !candidate.source) return;
+
+            const { data: agencyRows, error: rpcError } = await this.supabase
+                .rpc('get_agency_emails_for_new_slots', { sources: [candidate.source] });
+
+            if (rpcError) {
+                console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
+                return;
+            }
+            const emails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
+            if (emails.length === 0) return;
+
+            for (const toEmail of emails) {
+                try {
+                    await window.emailManager.notifyRecruiterStatusChange(candidate, status, notes, toEmail);
+                    console.log('Agency status change email sent to:', toEmail);
+                } catch (emailErr) {
+                    console.warn('Failed to send agency status change email to:', toEmail, emailErr);
+                }
+            }
+        } catch (err) {
+            console.warn('Error in notifyRecruiterStatusChange (agency):', err);
+        }
     }
 }
 

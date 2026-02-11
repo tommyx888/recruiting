@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { Resend } from "npm:resend@2.0.0"
+import { Buffer } from "node:buffer"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,20 @@ const corsHeaders = {
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || ""
 const DEFAULT_FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "nabor@iacslovakia.sk"
 
-async function sendViaResend(to: string, subject: string, html: string, text: string, from?: string) {
+interface Attachment {
+  filename: string
+  content: string // Base64 encoded
+  contentType?: string
+}
+
+async function sendViaResend(
+  to: string, 
+  subject: string, 
+  html: string, 
+  text: string, 
+  from?: string,
+  attachments?: Attachment[]
+) {
   if (!RESEND_API_KEY) {
     return {
       success: false,
@@ -22,13 +36,31 @@ async function sendViaResend(to: string, subject: string, html: string, text: st
   const resend = new Resend(RESEND_API_KEY)
 
   try {
-    const result = await resend.emails.send({
+    // Prepare email options
+    const emailOptions: any = {
       from: from || DEFAULT_FROM_EMAIL,
       to,
       subject,
       html,
       text,
-    })
+    }
+
+    // Add attachments if provided (Buffer format for Resend)
+    if (attachments && attachments.length > 0) {
+      emailOptions.attachments = attachments
+        .map(att => {
+          try {
+            const content = Buffer.from(att.content, 'base64')
+            return { filename: att.filename, content, contentType: att.contentType || 'application/octet-stream' }
+          } catch (e) {
+            console.warn('Attachment base64 decode failed:', att.filename, e)
+            return null
+          }
+        })
+        .filter(Boolean)
+    }
+
+    const result = await resend.emails.send(emailOptions)
 
     if ((result as any)?.error) {
       return { success: false, error: (result as any).error }
@@ -50,7 +82,7 @@ serve(async (req) => {
   }
 
   try {
-    const { to, subject, html, text, from } = await req.json()
+    const { to, subject, html, text, from, attachments } = await req.json()
 
     if (!to || !subject || (!html && !text)) {
       return new Response(JSON.stringify({ success: false, message: "Missing required fields (to, subject, html/text)" }), {
@@ -59,7 +91,29 @@ serve(async (req) => {
       })
     }
 
-    const result = await sendViaResend(to, subject, html || "", text || "", from)
+    // Validate attachments format if provided
+    if (attachments && Array.isArray(attachments)) {
+      for (const att of attachments) {
+        if (!att.filename || !att.content) {
+          return new Response(JSON.stringify({ 
+            success: false, 
+            message: "Invalid attachment format. Each attachment must have 'filename' and 'content' (base64)" 
+          }), {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          })
+        }
+      }
+    }
+
+    const result = await sendViaResend(
+      to, 
+      subject, 
+      html || "", 
+      text || "", 
+      from,
+      attachments
+    )
 
     const status = result.success ? 200 : 400
     return new Response(JSON.stringify(result), {

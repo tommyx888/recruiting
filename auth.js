@@ -6,6 +6,7 @@ class AuthManager {
         this.userRole = '';
         this.userDepartment = '';
         this.userAllowedPositions = [];
+        this.userSource = null; // Agency source for agency role users
         this.currentUser = null;
     }
 
@@ -100,13 +101,21 @@ class AuthManager {
         try {
             const { data, error } = await this.supabase
                 .from('users')
-                .select('role, department, allowed_positions')
+                .select('role, department, allowed_positions, source')
                 .eq('id', userId)
                 .single();
 
             if (data) {
                 this.userRole = data.role;
                 this.userDepartment = data.department;
+                this.userSource = data.source || null; // Store agency source if available
+                
+                console.log('🔍 AuthManager: Loaded user data:', {
+                    role: this.userRole,
+                    department: this.userDepartment,
+                    source: this.userSource,
+                    rawData: data
+                });
                 
                 // Parse allowed_positions - could be array, JSON string, or null
                 let allowedPositions = [];
@@ -128,7 +137,8 @@ class AuthManager {
                 console.log('User permissions loaded:', {
                     role: this.userRole,
                     department: this.userDepartment,
-                    allowedPositions: this.userAllowedPositions
+                    allowedPositions: this.userAllowedPositions,
+                    source: this.userSource
                 });
             }
         } catch (error) {
@@ -137,6 +147,7 @@ class AuthManager {
             this.userRole = 'user';
             this.userDepartment = '';
             this.userAllowedPositions = [];
+            this.userSource = null;
         }
     }
 
@@ -240,7 +251,8 @@ class AuthManager {
             user: this.currentUser,
             role: this.userRole,
             department: this.userDepartment,
-            allowedPositions: this.userAllowedPositions
+            allowedPositions: this.userAllowedPositions,
+            source: this.userSource // Agency source for agency role
         };
     }
 

@@ -6,6 +6,7 @@ const translations = {
         // Navigation
         "Dashboard": "Dashboard",
         "Candidates": "Candidates",
+        "View and manage candidates by status": "View and manage candidates by status",
         "Recruiting Requests": "Recruiting Requests",
         "GM Approval": "GM Approval",
         "Logout": "Logout",
@@ -44,6 +45,7 @@ const translations = {
         "Replacement": "Replacement",
         "Reason for New Position": "Reason for New Position",
         "Name of Person Being Replaced": "Name of Person Being Replaced",
+        "Replaced person": "Replaced person",
         "Position Category": "Position Category",
         "SAL": "SAL",
         "IND": "IND",
@@ -64,6 +66,8 @@ const translations = {
         "Admin Actions": "Admin Actions",
         "View Details": "View Details",
         "Edit": "Edit",
+        "Edit Candidate": "Edit Candidate",
+        "Save Changes": "Save Changes",
         "Delete": "Delete",
         "Invite": "Invite",
         "Second Round": "Second Round",
@@ -119,6 +123,62 @@ const translations = {
         "Approved": "Approved",
         "Rejected": "Rejected",
         "Filled": "Filled",
+        "Manage Slots": "Manage Slots",
+        "Book Interviews": "Book Time Slots",
+        "Add Interview Slots": "Add Interview Slots",
+        "Add First Round Slots": "Add First Round Slots",
+        "Add Second Round Slots": "Add Second Round Slots",
+        "View Slots": "View Slots",
+        "Add": "Add",
+        "View": "View",
+        "First Round": "First Round",
+        "Second Round": "Second Round",
+        "Add Another Slot": "Add Another Slot",
+        "Duration": "Duration",
+        "Select": "Select",
+        "Save Slots": "Save Slots",
+        "Saving slots...": "Saving slots...",
+        "Notifying agencies...": "Notifying agencies...",
+        "Interview Slots": "Interview Slots",
+        "Available Slots": "Available Slots",
+        "No available slots": "No available slots",
+        "Book Slot": "Book Slot",
+        "Book Interview Slot": "Book Interview Slot",
+        "Select Candidate": "Select Candidate",
+        "Available Positions": "Available Positions",
+        "No approved positions": "No approved positions",
+        "First Round Slots": "First Round Slots",
+        "Second Round Slots": "Second Round Slots",
+        "No positions with candidates": "No positions with candidates",
+        "Candidates": "Candidates",
+        "Candidate Names": "Candidate Names",
+        "First Round": "First Round",
+        "Second Round": "Second Round",
+        "slots": "slots",
+        "slot": "slot",
+        "available": "available",
+        "available slot": "available slot",
+        "available slots": "available slots",
+        "Loading available slots...": "Loading available slots...",
+        "Booked by": "Booked by",
+        "Available": "Available",
+        "Select a position to book interview slots": "Select a position to book interview slots",
+        "Book": "Book",
+        "Today": "Today",
+        "No slots available": "No slots available",
+        "No available slots for this round": "No available slots for this round. Please check back later.",
+        "Add Interview Slots": "Add Interview Slots",
+        "Time slots are set in 15-minute intervals, each slot lasts 30 minutes": "Time slots are set in 15-minute intervals (e.g., 10:00, 10:15, 10:30), each slot lasts 30 minutes",
+        "Date": "Date",
+        "Start Time": "Start Time",
+        "End Time": "End Time",
+        "Remove Slot": "Remove Slot",
+        "End time must be after start time": "End time must be after start time",
+        "Minimum slot duration is 30 minutes": "Minimum slot duration is 30 minutes",
+        "Slot duration must be a multiple of 30 minutes": "Slot duration must be a multiple of 30 minutes",
+        "Candidate is already booked for another slot in this round": "Candidate is already booked for another slot in this round.",
+        "Create and manage interview time slots for approved positions": "Create and manage interview time slots for approved positions",
+        "available": "available",
         "All Departments": "All Departments",
         "All Positions": "All Positions",
         "All Sources": "All Sources",
@@ -143,6 +203,14 @@ const translations = {
         "Avg. Time to Hire (days)": "Avg. Time to Hire (days)",
         "By Status": "By Status",
         "Request Statistics": "Request Statistics",
+        "Dashboard Overview": "Dashboard Overview",
+        "Quick Actions": "Quick Actions",
+        "Open Requests": "Open Requests",
+        "Approved Requests": "Approved Requests",
+        "Pending Requests": "Pending Requests",
+        "View Candidates": "View Candidates",
+        "View Requests": "View Requests",
+        "Manage Time Slots": "Manage Time Slots",
         "Total Requests": "Total Requests",
         "Request approved successfully!": "Request approved successfully!",
         "Request rejected successfully!": "Request rejected successfully!",
@@ -208,6 +276,7 @@ const translations = {
         // Navigation
         "Dashboard": "Nástenka",
         "Candidates": "Kandidáti",
+        "View and manage candidates by status": "Zobraziť a spravovať kandidátov podľa stavu",
         "Recruiting Requests": "Žiadosti o nábor",
         "GM Approval": "Schválenie GM",
         "Logout": "Odhlásiť sa",
@@ -230,6 +299,7 @@ const translations = {
         "Replacement": "Náhrada",
         "Reason for New Position": "Dôvod novej pozície",
         "Name of Person Being Replaced": "Meno nahradzovanej osoby",
+        "Replaced person": "Nahradzovaná osoba",
         "Position Category": "Kategória pozície",
         "SAL": "SAL",
         "IND": "IND",
@@ -279,6 +349,9 @@ const translations = {
         "Actions": "Akcie",
         "Admin Actions": "Administratívne akcie",
         "View Details": "Zobraziť detaily",
+        "Edit": "Upraviť",
+        "Edit Candidate": "Upraviť kandidáta",
+        "Save Changes": "Uložiť zmeny",
         "Invite": "Pozvať",
         "Reject": "Zamietnuť",
         "Second Round": "Druhé kolo",
@@ -327,6 +400,62 @@ const translations = {
         "Approved": "Schválené",
         "Rejected": "Zamietnuté",
         "Filled": "Obsadené",
+        "Manage Slots": "Spravovať termíny",
+        "Book Interviews": "Rezervácia termínov",
+        "Add Interview Slots": "Pridať termíny na pohovor",
+        "Add First Round Slots": "Pridať termíny - Prvé kolo",
+        "Add Second Round Slots": "Pridať termíny - Druhé kolo",
+        "View Slots": "Zobraziť termíny",
+        "Add": "Pridať",
+        "View": "Zobraziť",
+        "First Round": "Prvé kolo",
+        "Second Round": "Druhé kolo",
+        "Add Another Slot": "Pridať ďalší termín",
+        "Duration": "Trvanie",
+        "Select": "Vybrať",
+        "Save Slots": "Uložiť termíny",
+        "Saving slots...": "Ukladám termíny...",
+        "Notifying agencies...": "Posielam informácie agentúram...",
+        "Interview Slots": "Termíny na pohovor",
+        "Available Slots": "Dostupné termíny",
+        "No available slots": "Žiadne dostupné termíny",
+        "Book Slot": "Rezervovať termín",
+        "Book Interview Slot": "Rezervovať termín na pohovor",
+        "Select Candidate": "Vybrať kandidáta",
+        "Available Positions": "Dostupné pozície",
+        "No approved positions": "Žiadne schválené pozície",
+        "First Round Slots": "Termíny - Prvé kolo",
+        "Second Round Slots": "Termíny - Druhé kolo",
+        "No positions with candidates": "Žiadne pozície, pre ktoré máte kandidátov",
+        "Candidates": "Kandidáti",
+        "Candidate Names": "Menná kandidátov",
+        "First Round": "Prvé kolo",
+        "Second Round": "Druhé kolo",
+        "slots": "slotov",
+        "slot": "slot",
+        "available": "dostupných",
+        "available slot": "dostupný slot",
+        "available slots": "dostupné sloty",
+        "Loading available slots...": "Načítavanie dostupných slotov...",
+        "Booked by": "Rezervované",
+        "Available": "Dostupné",
+        "Select a position to book interview slots": "Vyberte pozíciu na rezerváciu termínov pohovoru",
+        "Book": "Rezervovať",
+        "Today": "Dnes",
+        "No slots available": "Žiadne dostupné sloty",
+        "No available slots for this round": "Pre toto kolo nie sú k dispozícii žiadne sloty. Skúste to neskôr.",
+        "Add Interview Slots": "Pridať termíny na pohovor",
+        "Time slots are set in 15-minute intervals, each slot lasts 30 minutes": "Časové sloty sú nastavené po 15 minútach (napr. 10:00, 10:15, 10:30), každý slot trvá 30 minút",
+        "Date": "Dátum",
+        "Start Time": "Začiatok",
+        "End Time": "Koniec",
+        "Remove Slot": "Odstrániť slot",
+        "End time must be after start time": "Čas konca musí byť po čase začiatku",
+        "Minimum slot duration is 30 minutes": "Minimálna dĺžka slotu je 30 minút",
+        "Slot duration must be a multiple of 30 minutes": "Dĺžka slotu musí byť násobkom 30 minút",
+        "Candidate is already booked for another slot in this round": "Kandidát už má rezervovaný iný termín v tomto kole.",
+        "Create and manage interview time slots for approved positions": "Vytvárajte a spravujte termíny na pohovory pre schválené pozície",
+        "available": "dostupných",
         "All Departments": "Všetky oddelenia",
         "All Positions": "Všetky pozície",
         "All Sources": "Všetky zdroje",
@@ -351,6 +480,14 @@ const translations = {
         "Avg. Time to Hire (days)": "Priemerný čas do prijatia (dni)",
         "By Status": "Podľa stavu",
         "Request Statistics": "Štatistiky žiadostí",
+        "Dashboard Overview": "Prehľad nástenky",
+        "Quick Actions": "Rýchle akcie",
+        "Open Requests": "Otvorené žiadosti",
+        "Approved Requests": "Schválené žiadosti",
+        "Pending Requests": "Čakajúce žiadosti",
+        "View Candidates": "Zobraziť kandidátov",
+        "View Requests": "Zobraziť žiadosti",
+        "Manage Time Slots": "Spravovať termíny",
         "Total Requests": "Celkový počet žiadostí",
         "Request approved successfully!": "Žiadosť bola úspešne schválená!",
         "Request rejected successfully!": "Žiadosť bola úspešne zamietnutá!",
@@ -495,6 +632,9 @@ async function initializeModules() {
         window.authManager.init(supabase);
         window.candidatesManager.init(supabase);
         window.requestsManager.init(supabase);
+        if (window.interviewSlotsManager) {
+            window.interviewSlotsManager.init(supabase);
+        }
         window.uiManager.init(translations);
         console.log('All modules initialized');
 
@@ -515,7 +655,11 @@ async function initializeModules() {
             console.log('User is authenticated, showing app');
             window.uiManager.showApp();
             window.uiManager.updateNavigationVisibility();
-        showDashboard();
+            if (userInfo && userInfo.role === 'agency') {
+                showAgencyView();
+            } else {
+                showDashboard();
+            }
             
             // Update navigation indicators after a short delay to ensure modules are ready
             setTimeout(() => {
@@ -556,7 +700,12 @@ function setupLoginForm() {
                 
                 window.uiManager.showApp();
                 window.uiManager.updateNavigationVisibility();
-                showDashboard();
+                const userInfo = await window.authManager.getUserInfo();
+                if (userInfo && userInfo.role === 'agency') {
+                    showAgencyView();
+                } else {
+                    showDashboard();
+                }
             } catch (error) {
                 console.error('Login failed:', error);
                 window.utils.showMessage('Login failed: ' + error.message, 'error');
@@ -569,16 +718,96 @@ function setupLoginForm() {
 }
 
 // Navigation functions
-function showDashboard() {
+async function showDashboard() {
     const app = document.getElementById('app');
-    app.innerHTML = `
-        <h2 data-translate="Welcome to the Recruiting Management Dashboard!">Welcome to the Recruiting Management Dashboard!</h2>
-        <div class="quick-actions">
-            <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">Add New Candidate</button>
-            <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create Recruiting Request">Create Recruiting Request</button>
-        </div>
-    `;
-    window.uiManager.translatePage();
+    
+    try {
+        window.uiManager.showLoading('Loading dashboard...');
+        
+        const [candidateStats, requestStats] = await Promise.all([
+            window.candidatesManager.getStatistics(),
+            window.requestsManager.getStatistics()
+        ]);
+        
+        window.uiManager.hideLoading();
+        
+        const totalCandidates = candidateStats.total || 0;
+        const totalRequests = requestStats.total || 0;
+        const approvedRequests = requestStats.byStatus?.Approved || 0;
+        const pendingRequests = requestStats.byStatus?.Pending || 0;
+        
+        app.innerHTML = `
+            <div class="dashboard-layout">
+                <section class="dashboard-hero">
+                    <div class="dashboard-hero-text">
+                        <h2 data-translate="Dashboard Overview">Dashboard Overview</h2>
+                        <p data-translate="Welcome to the Recruiting Management Dashboard!">
+                            Welcome to the Recruiting Management Dashboard!
+                        </p>
+                    </div>
+                    <div class="dashboard-hero-actions">
+                        <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">
+                            Add New Candidate
+                        </button>
+                        <button onclick="showNewRequest()" class="btn btn-secondary" data-translate="Create Recruiting Request">
+                            Create Recruiting Request
+                        </button>
+                    </div>
+                </section>
+                
+                <section class="dashboard-grid">
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label" data-translate="Total Candidates">Total Candidates</span>
+                        </div>
+                        <div class="metric-value">${totalCandidates}</div>
+                        <button class="link-button" onclick="showCandidates()" data-translate="View Candidates">
+                            View Candidates
+                        </button>
+                    </div>
+                    
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label" data-translate="Total Requests">Total Requests</span>
+                        </div>
+                        <div class="metric-value">${totalRequests}</div>
+                        <button class="link-button" onclick="showRequests()" data-translate="View Requests">
+                            View Requests
+                        </button>
+                    </div>
+                    
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label" data-translate="Approved Requests">Approved Requests</span>
+                        </div>
+                        <div class="metric-value">${approvedRequests}</div>
+                    </div>
+                    
+                    <div class="dashboard-card metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label" data-translate="Pending Requests">Pending Requests</span>
+                        </div>
+                        <div class="metric-value">${pendingRequests}</div>
+                        <button class="link-button" onclick="showManageSlots()" data-translate="Manage Time Slots">
+                            Manage Time Slots
+                        </button>
+                    </div>
+                </section>
+            </div>
+        `;
+        
+        window.uiManager.translatePage();
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        window.uiManager.hideLoading();
+        app.innerHTML = `
+            <div class="error-state">
+                <h2 data-translate="Error">Error</h2>
+                <p>${error.message}</p>
+            </div>
+        `;
+        window.uiManager.translatePage();
+    }
 }
 
 async function showCandidates() {
@@ -627,9 +856,9 @@ async function showCandidates() {
         } else {
             // No saved filter, load all candidates
             result = await window.candidatesManager.getCandidates({
-                page: 1,
-                pageSize: 1000  // Load all candidates for display
-            });
+            page: 1,
+            pageSize: 1000  // Load all candidates for display
+        });
         }
 
         renderCandidatesView(result);
@@ -659,30 +888,41 @@ function renderCandidatesView(result) {
 
     // Get all unique statuses from candidates
     const allStatuses = [...new Set(candidates.map(c => c.status).filter(Boolean))].sort();
-    
+
     let html = `
-    <h2 data-translate="Candidates">Candidates</h2>
-    <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">Add New Candidate</button>
-    <div class="filters">
-        <select id="department-filter">
-            <option value="" data-translate="All Departments">All Departments</option>
-                ${Object.keys(departmentPositions).map(dept => `<option value="${dept}">${dept}</option>`).join('')}
-        </select>
-        <select id="position-filter">
-            <option value="" data-translate="All Positions">All Positions</option>
-        </select>
-        <select id="source-filter">
-            <option value="" data-translate="All Sources">All Sources</option>
-                ${sourceOptions.map(source => `<option value="${source}">${source}</option>`).join('')}
-        </select>
-        <select id="status-filter">
-            <option value="" data-translate="All Statuses">All Statuses</option>
-                ${allStatuses.map(status => `<option value="${status}">${window.uiManager.translate(status)}</option>`).join('')}
-        </select>
-        <button onclick="applyFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
-        <button onclick="clearFilters()" class="btn btn-outline" data-translate="Clear Filters">Clear Filters</button>
-        </div>
-        <div id="candidates-container"></div>
+    <div class="candidates-layout">
+        <section class="candidates-hero">
+            <div class="candidates-hero-text">
+                <h2 data-translate="Candidates">Candidates</h2>
+                <p class="candidates-subtitle" data-translate="View and manage candidates by status">View and manage candidates by status</p>
+            </div>
+            <div class="candidates-hero-actions">
+                <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">Add New Candidate</button>
+            </div>
+        </section>
+        <section class="candidates-filters-card card">
+            <div class="candidates-filters">
+                <select id="department-filter" class="filter-select">
+                    <option value="" data-translate="All Departments">All Departments</option>
+                    ${Object.keys(departmentPositions).map(dept => `<option value="${dept}">${dept}</option>`).join('')}
+                </select>
+                <select id="position-filter" class="filter-select">
+                    <option value="" data-translate="All Positions">All Positions</option>
+                </select>
+                <select id="source-filter" class="filter-select">
+                    <option value="" data-translate="All Sources">All Sources</option>
+                    ${sourceOptions.map(source => `<option value="${source}">${source}</option>`).join('')}
+                </select>
+                <select id="status-filter" class="filter-select">
+                    <option value="" data-translate="All Statuses">All Statuses</option>
+                    ${allStatuses.map(status => `<option value="${status}">${window.uiManager.translate(status)}</option>`).join('')}
+                </select>
+                <button onclick="applyFilters()" class="btn btn-primary" data-translate="Apply Filters">Apply Filters</button>
+                <button onclick="clearFilters()" class="btn btn-secondary" data-translate="Clear Filters">Clear Filters</button>
+            </div>
+        </section>
+        <div id="candidates-container" class="candidates-container"></div>
+    </div>
     `;
 
     app.innerHTML = html;
@@ -702,8 +942,14 @@ function renderCandidatesView(result) {
         ...allStatusesInData.filter(s => !preferredStatusOrder.includes(s)).sort()
     ];
 
-    // Show all status groups that have candidates
-    statusOrder.forEach(status => {
+    const userInfo = window.authManager.getUserInfo();
+    const isAgency = userInfo && userInfo.role === 'agency';
+    const statusesToShow = isAgency
+        ? statusOrder.filter(s => s !== 'Rejected')
+        : statusOrder;
+
+    // Show status groups that have candidates (agency: last section is Hired, no Rejected)
+    statusesToShow.forEach(status => {
         const candidatesForStatus = groupedCandidates[status] || [];
         if (candidatesForStatus.length > 0) {
             console.log(`Status: ${status}, Count: ${candidatesForStatus.length}`);
@@ -795,18 +1041,17 @@ function updatePositionFilterForCandidates() {
     
     // Add positions to filter dropdown
     positionsToShow.forEach(position => {
-        const option = document.createElement('option');
-        option.value = position;
-        option.textContent = position;
-        positionFilter.appendChild(option);
-    });
+            const option = document.createElement('option');
+            option.value = position;
+            option.textContent = position;
+            positionFilter.appendChild(option);
+        });
 }
 
 function createCandidateTable(candidates, status) {
     const statusGroup = document.createElement('div');
     statusGroup.className = 'status-group';
     
-    // Add data attribute for filtering
     if (status.toLowerCase().includes('rejected')) {
         statusGroup.setAttribute('data-status', 'rejected');
     }
@@ -821,9 +1066,14 @@ function createCandidateTable(candidates, status) {
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
 
-    // Create header row
+    const userInfo = window.authManager.getUserInfo();
+    const isAgency = userInfo && userInfo.role === 'agency';
+    const headers = isAgency
+        ? ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Documents', 'Actions', 'Admin Actions']
+        : ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Time in Process', 'Documents', 'Notes', 'Actions', 'Admin Actions'];
+
     const headerRow = document.createElement('tr');
-    ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Time in Process', 'Documents', 'Notes', 'Actions', 'Admin Actions'].forEach(headerText => {
+    headers.forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = window.uiManager.translate(headerText);
         headerRow.appendChild(th);
@@ -831,30 +1081,41 @@ function createCandidateTable(candidates, status) {
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    // Create data rows
     candidates.forEach(candidate => {
         const row = document.createElement('tr');
         const timeInProcess = calculateTimeInProcess(candidate.last_updated);
-        const alertClass = timeInProcess.days > 7 ? 'alert-status' : '';
+        const alertClass = !isAgency && timeInProcess.days > 7 ? 'alert-status' : '';
         row.className = alertClass;
 
-        // Create name cell with warning indicators
         const nameWithWarning = createNameWithWarning(candidate);
 
-        // Add cells
-        [
-            nameWithWarning,
-            candidate.department || '',
-            candidate.position || '',
-            candidate.source || '',
-            candidate.date_obtained || '',
-            candidate.interviewer || '',
-            formatTimeInProcess(timeInProcess),
-            createDocumentsCell(candidate),
-            createNotesCell(candidate),
-            createActionButtons(candidate),
-            createAdminActionButtons(candidate)
-        ].forEach(cellContent => {
+        const cells = isAgency
+            ? [
+                nameWithWarning,
+                candidate.department || '',
+                candidate.position || '',
+                candidate.source || '',
+                candidate.date_obtained || '',
+                candidate.interviewer || '',
+                createDocumentsCell(candidate),
+                createActionButtons(candidate),
+                createAdminActionButtons(candidate)
+            ]
+            : [
+                nameWithWarning,
+                candidate.department || '',
+                candidate.position || '',
+                candidate.source || '',
+                candidate.date_obtained || '',
+                candidate.interviewer || '',
+                formatTimeInProcess(timeInProcess),
+                createDocumentsCell(candidate),
+                createNotesCell(candidate),
+                createActionButtons(candidate),
+                createAdminActionButtons(candidate)
+            ];
+
+        cells.forEach(cellContent => {
             const td = document.createElement('td');
             td.innerHTML = cellContent;
             row.appendChild(td);
@@ -1387,7 +1648,7 @@ function renderRequestsView(result) {
     let html = `
         <h2 data-translate="Recruiting Requests">Recruiting Requests</h2>
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
+        <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
             <button onclick="showExportModal()" class="btn btn-secondary" data-translate="Download Excel">Download Excel</button>
         </div>
         <div class="filters">
@@ -1452,7 +1713,7 @@ function createRequestsTable(requests) {
 
     // Create header row
     const headerRow = document.createElement('tr');
-    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Category', 'Status', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
+    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Replaced person', 'Category', 'Status', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = window.uiManager.translate(headerText);
         headerRow.appendChild(th);
@@ -1478,6 +1739,11 @@ function createRequestsTable(requests) {
         const daysOld = getDaysOld(request.created_at);
         const daysOldDisplay = daysOld === 'N/A' ? 'N/A' : `${daysOld} ${daysOld === 1 ? window.uiManager.translate('Day') : window.uiManager.translate('Days')}`;
         
+        // Replaced person: show name only when type is replacement
+        const replacedPersonDisplay = (request.position_type === 'replacement' && request.replacement_name)
+            ? request.replacement_name
+            : '—';
+
         // Prepare cell data
         const cellData = [
             request.position || '',
@@ -1485,6 +1751,7 @@ function createRequestsTable(requests) {
             request.description ? request.description.substring(0, 50) + '...' : '',
             request.headcount || '',
             request.position_type || '',
+            replacedPersonDisplay,
             request.position_category || '',
             createStatusBadge(request.status),
             daysOldDisplay,
@@ -1495,10 +1762,14 @@ function createRequestsTable(requests) {
         // Add cells
         cellData.forEach((cellContent, index) => {
             const td = document.createElement('td');
-            td.innerHTML = cellContent;
+            if (typeof cellContent === 'string' && cellContent.includes('<')) {
+                td.innerHTML = cellContent;
+            } else {
+                td.textContent = cellContent;
+            }
             
-            // Add styling for days old column (index 7) - highlight if > 3 days
-            if (index === 7 && typeof daysOld === 'number' && daysOld > 3) {
+            // Add styling for days old column (index 8) - highlight if > 3 days
+            if (index === 8 && typeof daysOld === 'number' && daysOld > 3) {
                 td.style.color = daysOld >= 7 ? '#dc2626' : '#f59e0b';
                 td.style.fontWeight = 'bold';
             }
@@ -2221,6 +2492,8 @@ async function showCandidateDetails(id) {
         window.uiManager.showLoading('Loading candidate details...');
         
         const candidate = await window.candidatesManager.getCandidateDetails(id);
+        // Cache currently viewed candidate for editing
+        window.currentCandidateDetails = candidate;
         
         const app = document.getElementById('app');
         if (!app) return;
@@ -2265,6 +2538,7 @@ async function showCandidateDetails(id) {
                     <strong data-translate="Notes">Notes:</strong>
                     <span>${candidate.notes || window.uiManager.translate('No notes')}</span>
                 </div>
+                ${(window.authManager.getUserInfo() || {}).role !== 'agency' ? `
                 <div class="detail-row">
                     <strong data-translate="Created At">Created At:</strong>
                     <span>${createdDate}</span>
@@ -2273,6 +2547,7 @@ async function showCandidateDetails(id) {
                     <strong data-translate="Last Updated">Last Updated:</strong>
                     <span>${lastUpdated}</span>
                 </div>
+                ` : ''}
             </div>
             
             <div class="documents-section" style="margin-top: 20px;">
@@ -2321,6 +2596,7 @@ async function showCandidateDetails(id) {
             </div>
             
             <div class="action-buttons" style="margin-top: 20px;">
+                <button onclick="showEditCandidateModal(${candidate.id})" class="btn btn-primary" data-translate="Edit Candidate">Edit Candidate</button>
                 <button onclick="showCandidates()" class="btn btn-secondary" data-translate="Back">Back</button>
             </div>
         `;
@@ -2387,6 +2663,217 @@ function closeReuploadModal() {
     const modal = document.getElementById('reupload-document-modal');
     if (modal) {
         modal.remove();
+    }
+}
+
+async function showEditCandidateModal(candidateId) {
+    try {
+        // Prefer candidate data cached from showCandidateDetails to avoid extra loading state
+        let candidate = window.currentCandidateDetails;
+        if (!candidate || candidate.id !== candidateId) {
+            candidate = await window.candidatesManager.getCandidateDetails(candidateId);
+        }
+        
+        // Get all possible statuses
+        const allStatuses = [
+            'New',
+            'In Process - First Round',
+            'In Process - Second Round',
+            'Hired - Contact Source',
+            'Rejected - Inform Source',
+            'Hired',
+            'Rejected'
+        ];
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.id = 'edit-candidate-modal';
+        modal.className = 'modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        // Get positions for current department
+        const currentPositions = departmentPositions[candidate.department] || [];
+        const dateObtainedValue = candidate.date_obtained ? new Date(candidate.date_obtained).toISOString().split('T')[0] : '';
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+                <h2 data-translate="Edit Candidate">Edit Candidate</h2>
+                <form id="edit-candidate-form">
+                    <input type="hidden" id="edit-candidate-id" value="${candidateId}">
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-name" data-translate="Name">Name:</label>
+                        <input type="text" id="edit-name" class="form-control" value="${(candidate.name || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" required>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-department" data-translate="Department">Department:</label>
+                        <select id="edit-department" class="form-control" required onchange="updateEditPositionOptions()">
+                            ${Object.keys(departmentPositions).map(dept => 
+                                `<option value="${dept}" ${candidate.department === dept ? 'selected' : ''}>${dept}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-position" data-translate="Position">Position:</label>
+                        <select id="edit-position" class="form-control" required>
+                            ${currentPositions.map(pos => 
+                                `<option value="${pos}" ${candidate.position === pos ? 'selected' : ''}>${pos}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-source" data-translate="Source">Source:</label>
+                        <select id="edit-source" class="form-control" required>
+                            ${sourceOptions.map(src => 
+                                `<option value="${src}" ${candidate.source === src ? 'selected' : ''}>${src}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-date-obtained" data-translate="Date Obtained">Date Obtained:</label>
+                        <input type="date" id="edit-date-obtained" class="form-control" value="${dateObtainedValue}" required>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-interviewer" data-translate="Interviewer">Interviewer:</label>
+                        <input type="text" id="edit-interviewer" class="form-control" value="${(candidate.interviewer || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" placeholder="">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-status" data-translate="Status">Status:</label>
+                        <select id="edit-status" class="form-control" required>
+                            ${allStatuses.map(status => 
+                                `<option value="${status}" ${candidate.status === status ? 'selected' : ''}>${window.uiManager.translate(status)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="edit-notes" data-translate="Notes">Notes:</label>
+                        <textarea id="edit-notes" class="form-control" rows="4" style="width: 100%; resize: vertical;">${(candidate.notes || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button type="button" onclick="closeEditCandidateModal()" class="btn btn-secondary" data-translate="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-translate="Save Changes">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        window.uiManager.translatePage();
+        
+        // Store current candidate data for position update
+        window.currentEditCandidate = candidate;
+        
+        // Handle form submission
+        document.getElementById('edit-candidate-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveCandidateChanges(candidateId);
+        });
+    } catch (error) {
+        console.error('Error loading candidate for edit:', error);
+        window.utils.showMessage('Error loading candidate data: ' + error.message, 'error');
+    }
+}
+
+function updateEditPositionOptions() {
+    const departmentSelect = document.getElementById('edit-department');
+    const positionSelect = document.getElementById('edit-position');
+    
+    if (!departmentSelect || !positionSelect) return;
+    
+    const selectedDepartment = departmentSelect.value;
+    const positions = departmentPositions[selectedDepartment] || [];
+    
+    // Clear and populate position dropdown
+    positionSelect.innerHTML = positions.map(pos => 
+        `<option value="${pos}">${pos}</option>`
+    ).join('');
+    
+    // If we have a current candidate and the position exists in new department, select it
+    if (window.currentEditCandidate && positions.includes(window.currentEditCandidate.position)) {
+        positionSelect.value = window.currentEditCandidate.position;
+    } else if (positions.length > 0) {
+        positionSelect.value = positions[0];
+    }
+}
+
+function closeEditCandidateModal() {
+    const modal = document.getElementById('edit-candidate-modal');
+    if (modal) {
+        modal.remove();
+    }
+    window.currentEditCandidate = null;
+}
+
+async function saveCandidateChanges(candidateId) {
+    try {
+        const name = document.getElementById('edit-name').value.trim();
+        const department = document.getElementById('edit-department').value;
+        const position = document.getElementById('edit-position').value;
+        const source = document.getElementById('edit-source').value;
+        const dateObtained = document.getElementById('edit-date-obtained').value;
+        const interviewer = document.getElementById('edit-interviewer').value.trim();
+        const status = document.getElementById('edit-status').value;
+        const notes = document.getElementById('edit-notes').value.trim();
+        
+        if (!name || !department || !position || !source || !dateObtained) {
+            window.utils.showMessage(window.uiManager.translate('Please fill in all required fields'), 'error');
+            return;
+        }
+        
+        window.uiManager.showLoading('Saving changes...');
+        
+        // Prepare update data from form
+        const updateData = {
+            name: name,
+            department: department,
+            position: position,
+            source: source,
+            date_obtained: dateObtained,
+            interviewer: interviewer || null,
+            status: status,
+            notes: notes || null
+        };
+        
+        // Update candidate
+        await window.candidatesManager.updateCandidate(candidateId, updateData);
+        
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Candidate updated successfully!', 'success');
+        
+        // Close modal
+        closeEditCandidateModal();
+        
+        // Refresh candidate details view
+        await showCandidateDetails(candidateId);
+        
+        // Refresh candidates list if we're on that view
+        const app = document.getElementById('app');
+        if (app && app.querySelector('.candidates-view')) {
+            showCandidates();
+        }
+    } catch (error) {
+        console.error('Error saving candidate changes:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Error saving changes: ' + error.message, 'error');
     }
 }
 
@@ -2711,25 +3198,31 @@ function updateNavIndicator(navId, orangeCount, redCount) {
     const navElement = document.getElementById(navId);
     if (!navElement) return;
     
-    // Remove existing indicators
-    const existingIndicator = navElement.querySelector('.nav-indicator');
-    if (existingIndicator) {
-        existingIndicator.remove();
+    // Find or create badge element (should be sibling of nav link)
+    const navLi = navElement.parentElement;
+    let badge = navLi.querySelector('.nav-badge');
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'nav-badge';
+        navLi.appendChild(badge);
     }
     
-    // Add new indicator if needed
-    if (redCount > 0) {
-        const indicator = document.createElement('span');
-        indicator.className = 'nav-indicator red';
-        indicator.innerHTML = `🚨 ${redCount}`;
-        indicator.title = `${redCount} kandidátov bez zmeny viac ako 2 týždne`;
-        navElement.appendChild(indicator);
-    } else if (orangeCount > 0) {
-        const indicator = document.createElement('span');
-        indicator.className = 'nav-indicator orange';
-        indicator.innerHTML = `⚠️ ${orangeCount}`;
-        indicator.title = `${orangeCount} kandidátov bez zmeny viac ako týždeň`;
-        navElement.appendChild(indicator);
+    // Update badge based on counts
+    const totalCount = redCount + orangeCount;
+    if (totalCount > 0) {
+        badge.textContent = totalCount > 99 ? '99+' : totalCount;
+        badge.style.display = 'inline-flex';
+        badge.classList.remove('nav-badge--warning', 'nav-badge--critical');
+        if (redCount > 0) {
+            badge.classList.add('nav-badge--critical');
+            badge.title = `${redCount} kandidátov bez zmeny viac ako 2 týždne`;
+        } else {
+            badge.classList.add('nav-badge--warning');
+            badge.title = `${orangeCount} kandidátov bez zmeny viac ako týždeň`;
+        }
+    } else {
+        badge.style.display = 'none';
+        badge.classList.remove('nav-badge--warning', 'nav-badge--critical');
     }
 }
 
@@ -2918,16 +3411,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const navCandidates = document.getElementById('nav-candidates');
     const navRequests = document.getElementById('nav-requests');
     const navGMApproval = document.getElementById('nav-gm-approval');
+    const navManageSlots = document.getElementById('nav-manage-slots');
+    const navAgencyView = document.getElementById('nav-agency-view');
     const navLogout = document.getElementById('nav-logout');
     const navStatistics = document.getElementById('nav-statistics');
     const navReports = document.getElementById('nav-reports');
 
-    if (navDashboard) navDashboard.addEventListener('click', showDashboard);
-    if (navCandidates) navCandidates.addEventListener('click', showCandidates);
-    if (navRequests) navRequests.addEventListener('click', showRequests);
-    if (navGMApproval) navGMApproval.addEventListener('click', showGMApproval);
-    if (navStatistics) navStatistics.addEventListener('click', showStatistics);
-    if (navReports) navReports.addEventListener('click', () => {
+    // Helper function to set active nav
+    function setActiveNav(activeId) {
+        const allNavLinks = document.querySelectorAll('nav a');
+        allNavLinks.forEach(link => link.classList.remove('active'));
+        const activeLink = document.getElementById(activeId);
+        if (activeLink) activeLink.classList.add('active');
+    }
+
+    if (navDashboard) navDashboard.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-dashboard'); showDashboard(); });
+    if (navCandidates) navCandidates.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-candidates'); showCandidates(); });
+    if (navRequests) navRequests.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-requests'); showRequests(); });
+    if (navGMApproval) navGMApproval.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-gm-approval'); showGMApproval(); });
+    if (navManageSlots) navManageSlots.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-manage-slots'); showManageSlots(); });
+    if (navAgencyView) navAgencyView.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-agency-view'); showAgencyView(); });
+    if (navStatistics) navStatistics.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-statistics'); showStatistics(); });
+    if (navReports) navReports.addEventListener('click', (e) => {
+        e.preventDefault();
+        setActiveNav('nav-reports');
         // TODO: Implement reports functionality
         window.utils.showMessage('Reports functionality coming soon!', 'info');
     });
@@ -2944,5 +3451,1192 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the application
     initializeModules();
 });
+
+// ============================================
+// INTERVIEW SLOTS MANAGEMENT (RECRUITER)
+// ============================================
+
+/**
+ * Show interface for recruiter to manage interview slots
+ */
+async function showManageSlots() {
+    try {
+        window.uiManager.showLoading('Loading approved requests...');
+        
+        // Get approved requests
+        const result = await window.requestsManager.getRequests({
+            status: 'Approved',
+            page: 1,
+            pageSize: 100
+        });
+
+        window.uiManager.hideLoading();
+
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="manage-slots-header">
+                <h2 data-translate="Manage Interview Slots">Manage Interview Slots</h2>
+                <p class="manage-slots-subtitle" data-translate="Create and manage interview time slots for approved positions">Create and manage interview time slots for approved positions</p>
+            </div>
+            <div class="slots-management">
+                <div class="requests-list">
+                    <h3 class="section-title" data-translate="Approved Positions">Approved Positions</h3>
+                    <div id="approved-requests-list" class="approved-requests-grid"></div>
+                </div>
+            </div>
+        `;
+
+        // Get slot counts for each request
+        const slotCounts = {};
+        for (const request of result.requests) {
+            try {
+                const firstRoundSlots = await window.interviewSlotsManager.getSlotsForRequest(request.id, 'first');
+                const secondRoundSlots = await window.interviewSlotsManager.getSlotsForRequest(request.id, 'second');
+                const firstAvailable = firstRoundSlots.filter(s => !s.candidate_id).length;
+                const secondAvailable = secondRoundSlots.filter(s => !s.candidate_id).length;
+                slotCounts[request.id] = {
+                    first: { total: firstRoundSlots.length, available: firstAvailable },
+                    second: { total: secondRoundSlots.length, available: secondAvailable }
+                };
+            } catch (error) {
+                console.warn(`Error loading slots for request ${request.id}:`, error);
+                slotCounts[request.id] = { first: { total: 0, available: 0 }, second: { total: 0, available: 0 } };
+            }
+        }
+
+        // Render approved requests
+        const container = document.getElementById('approved-requests-list');
+        if (result.requests.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+                    <h3 data-translate="No approved requests">No approved requests</h3>
+                    <p data-translate="No approved requests available">No approved requests available</p>
+                </div>
+            `;
+        } else {
+            result.requests.forEach(request => {
+                const slots = slotCounts[request.id] || { first: { total: 0, available: 0 }, second: { total: 0, available: 0 } };
+                
+                const requestCard = document.createElement('div');
+                requestCard.className = 'manage-slots-card';
+                requestCard.innerHTML = `
+                    <div class="slots-card-header">
+                        <div class="slots-card-title-group">
+                            <h4 class="slots-card-title">${request.position}</h4>
+                            <span class="slots-card-department">${request.department}</span>
+                        </div>
+                    </div>
+                    <div class="slots-card-stats">
+                        <div class="slot-stat-item">
+                            <span class="stat-icon">1️⃣</span>
+                            <div class="stat-info">
+                                <span class="stat-label" data-translate="First Round">First Round</span>
+                                <span class="stat-value">${slots.first.total} ${slots.first.total === 1 ? window.uiManager.translate('slot') : window.uiManager.translate('slots')}</span>
+                                <span class="stat-available">${slots.first.available} ${window.uiManager.translate('available')}</span>
+                            </div>
+                        </div>
+                        <div class="slot-stat-item">
+                            <span class="stat-icon">2️⃣</span>
+                            <div class="stat-info">
+                                <span class="stat-label" data-translate="Second Round">Second Round</span>
+                                <span class="stat-value">${slots.second.total} ${slots.second.total === 1 ? window.uiManager.translate('slot') : window.uiManager.translate('slots')}</span>
+                                <span class="stat-available">${slots.second.available} ${window.uiManager.translate('available')}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slots-card-actions">
+                        <button onclick="showAddSlotsModal(${request.id}, 'first')" class="btn btn-primary btn-slot-action" title="${window.uiManager.translate('Add First Round Slots') || 'Add First Round Slots'}">
+                            <span class="btn-icon">➕</span>
+                            <span class="btn-text">1</span>
+                        </button>
+                        <button onclick="showAddSlotsModal(${request.id}, 'second')" class="btn btn-primary btn-slot-action" title="${window.uiManager.translate('Add Second Round Slots') || 'Add Second Round Slots'}">
+                            <span class="btn-icon">➕</span>
+                            <span class="btn-text">2</span>
+                        </button>
+                        <button onclick="showSlotsForRequest(${request.id})" class="btn btn-secondary btn-slot-action" title="${window.uiManager.translate('View Slots') || 'View Slots'}">
+                            <span class="btn-icon">👁️</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(requestCard);
+            });
+        }
+
+        window.uiManager.translatePage();
+    } catch (error) {
+        console.error('Error loading slots management:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Error loading slots management: ' + error.message, 'error');
+    }
+}
+
+/**
+ * Show modal to add interview slots
+ */
+async function showAddSlotsModal(requestId, round) {
+    const roundText = round === 'first' ? window.uiManager.translate('First Round') : window.uiManager.translate('Second Round');
+    
+    // Get request details for header
+    let request;
+    try {
+        request = await window.requestsManager.getRequestById(requestId);
+    } catch (error) {
+        console.error('Error loading request:', error);
+        request = { position: '', department: '' };
+    }
+    
+    const modal = document.createElement('div');
+    modal.id = 'add-slots-modal';
+    modal.className = 'modal add-slots-modal';
+    
+    modal.innerHTML = `
+        <div class="add-slots-modal-content">
+            <div class="add-slots-modal-header">
+                <div class="modal-header-info">
+                    <h2 class="modal-title" data-translate="Add Interview Slots">Add Interview Slots</h2>
+                    <p class="modal-subtitle">${roundText} • ${request.position} - ${request.department}</p>
+                    <p class="modal-hint" data-translate="Time slots are set in 15-minute intervals, each slot lasts 30 minutes">Time slots are set in 15-minute intervals (e.g., 10:00, 10:15, 10:30), each slot lasts 30 minutes</p>
+                </div>
+                <button onclick="closeAddSlotsModal()" class="modal-close-btn" aria-label="Close">&times;</button>
+            </div>
+            <form id="add-slots-form" class="add-slots-form">
+                <input type="hidden" id="slots-request-id" value="${requestId}">
+                <input type="hidden" id="slots-round" value="${round}">
+                <div class="slots-form-content">
+                    <div id="slots-container" class="slots-container"></div>
+                    <button type="button" onclick="addSlotRow()" class="btn btn-secondary btn-add-slot" data-translate="Add Another Slot">
+                        <span class="btn-icon">➕</span>
+                        <span data-translate="Add Another Slot">Add Another Slot</span>
+                    </button>
+                </div>
+                <div class="slots-form-actions">
+                    <button type="button" onclick="closeAddSlotsModal()" class="btn btn-secondary" data-translate="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-translate="Save Slots">
+                        <span data-translate="Save Slots">Save Slots</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    window.uiManager.translatePage();
+    
+    // Add first slot row
+    addSlotRow();
+    
+    // Handle form submission
+    document.getElementById('add-slots-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await saveSlots();
+    });
+}
+
+let slotRowCount = 0;
+
+/**
+ * Round time to nearest 15-minute interval
+ * @param {string} timeString - Time in HH:MM format
+ * @returns {string} Rounded time in HH:MM format
+ */
+function roundTo15Minutes(timeString) {
+    if (!timeString) return '';
+    
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const roundedMinutes = Math.round(minutes / 15) * 15;
+    
+    if (roundedMinutes === 60) {
+        return `${String(hours + 1).padStart(2, '0')}:00`;
+    }
+    
+    return `${String(hours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+}
+
+/**
+ * Generate time options in 15-minute intervals
+ * @returns {string[]} Array of HH:MM strings (00:00..23:45)
+ */
+function get15MinuteTimeOptions() {
+    const options = [];
+    for (let hour = 0; hour < 24; hour++) {
+        for (let minute = 0; minute < 60; minute += 15) {
+            options.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+        }
+    }
+    return options;
+}
+
+/**
+ * Add minutes to a HH:MM time string
+ * @param {string} timeString
+ * @param {number} minutesToAdd
+ * @returns {string}
+ */
+function addMinutesToTime(timeString, minutesToAdd) {
+    const [h, m] = timeString.split(':').map(Number);
+    const total = h * 60 + m + minutesToAdd;
+    const newH = Math.floor(total / 60);
+    const newM = total % 60;
+    return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+}
+
+function addSlotRow() {
+    const container = document.getElementById('slots-container');
+    const row = document.createElement('div');
+    row.className = 'slot-row';
+    row.id = `slot-row-${slotRowCount}`;
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.id = `slot-date-${slotRowCount}`;
+    dateInput.className = 'form-control slot-date-input';
+    dateInput.required = true;
+    dateInput.min = today;
+    
+    const timeOptions = get15MinuteTimeOptions();
+
+    // Duration (default 30, allow 60+)
+    const durationSelect = document.createElement('select');
+    durationSelect.id = `slot-duration-${slotRowCount}`;
+    durationSelect.className = 'form-control slot-time-input';
+    durationSelect.required = true;
+    durationSelect.innerHTML = `
+        <option value="30" selected>30 min</option>
+        <option value="60">60 min</option>
+        <option value="90">90 min</option>
+    `;
+    
+    const timeStartSelect = document.createElement('select');
+    timeStartSelect.id = `slot-time-start-${slotRowCount}`;
+    timeStartSelect.className = 'form-control slot-time-input';
+    timeStartSelect.required = true;
+    timeStartSelect.innerHTML = `<option value="" disabled selected>${window.uiManager.translate('Select') || 'Select'}</option>` +
+        timeOptions.map(t => `<option value="${t}">${t}</option>`).join('');
+    
+    const timeEndSelect = document.createElement('select');
+    timeEndSelect.id = `slot-time-end-${slotRowCount}`;
+    timeEndSelect.className = 'form-control slot-time-input';
+    timeEndSelect.required = true;
+    timeEndSelect.disabled = true; // auto-set based on start time (30 min slots)
+    timeEndSelect.innerHTML = `<option value="" disabled selected>${window.uiManager.translate('Select') || 'Select'}</option>` +
+        timeOptions.map(t => `<option value="${t}">${t}</option>`).join('');
+    
+    const updateEndTime = () => {
+        const startVal = timeStartSelect.value;
+        const durationVal = parseInt(durationSelect.value, 10);
+        
+        if (!startVal || !durationVal || isNaN(durationVal)) {
+            timeEndSelect.value = '';
+            return;
+        }
+
+        // Round start time to 15 minutes if needed
+        const roundedStart = roundTo15Minutes(startVal);
+        if (roundedStart !== startVal) {
+            timeStartSelect.value = roundedStart;
+        }
+
+        // Calculate end time
+        const end = addMinutesToTime(roundedStart, durationVal);
+        
+        // If end goes beyond 23:59, keep end empty (invalid for same-day slots)
+        if (end.startsWith('24:') || end.startsWith('25:')) {
+            timeEndSelect.value = '';
+            timeEndSelect.disabled = true;
+            return;
+        }
+        
+        // Round end time to 15 minutes and set it
+        const roundedEnd = roundTo15Minutes(end);
+        timeEndSelect.disabled = false;
+        timeEndSelect.value = roundedEnd;
+        // Keep disabled (read-only feel) but ensure it renders the selected value
+        timeEndSelect.disabled = true;
+    };
+
+    // Auto-set end time based on start + duration
+    timeStartSelect.addEventListener('change', updateEndTime);
+    durationSelect.addEventListener('change', updateEndTime);
+    
+    // Also trigger on input for better responsiveness
+    timeStartSelect.addEventListener('input', updateEndTime);
+    durationSelect.addEventListener('input', updateEndTime);
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-danger btn-remove-slot';
+    removeBtn.innerHTML = '<span class="remove-icon">🗑️</span>';
+    removeBtn.title = window.uiManager.translate('Remove Slot') || 'Remove Slot';
+    removeBtn.onclick = () => {
+        row.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => row.remove(), 300);
+    };
+    
+    // Create label elements
+    const dateLabel = document.createElement('label');
+    dateLabel.className = 'slot-label';
+    dateLabel.textContent = window.uiManager.translate('Date') || 'Date';
+    dateLabel.setAttribute('for', `slot-date-${slotRowCount}`);
+    
+    const startLabel = document.createElement('label');
+    startLabel.className = 'slot-label';
+    startLabel.textContent = window.uiManager.translate('Start Time') || 'Start Time';
+    startLabel.setAttribute('for', `slot-time-start-${slotRowCount}`);
+
+    const durationLabel = document.createElement('label');
+    durationLabel.className = 'slot-label';
+    durationLabel.textContent = window.uiManager.translate('Duration') || 'Duration';
+    durationLabel.setAttribute('for', `slot-duration-${slotRowCount}`);
+    
+    const endLabel = document.createElement('label');
+    endLabel.className = 'slot-label';
+    endLabel.textContent = window.uiManager.translate('End Time') || 'End Time';
+    endLabel.setAttribute('for', `slot-time-end-${slotRowCount}`);
+    
+    // Create input groups
+    const dateGroup = document.createElement('div');
+    dateGroup.className = 'slot-input-group';
+    dateGroup.appendChild(dateLabel);
+    dateGroup.appendChild(dateInput);
+    
+    const startGroup = document.createElement('div');
+    startGroup.className = 'slot-input-group';
+    startGroup.appendChild(startLabel);
+    startGroup.appendChild(timeStartSelect);
+
+    const durationGroup = document.createElement('div');
+    durationGroup.className = 'slot-input-group';
+    durationGroup.appendChild(durationLabel);
+    durationGroup.appendChild(durationSelect);
+    
+    const endGroup = document.createElement('div');
+    endGroup.className = 'slot-input-group';
+    endGroup.appendChild(endLabel);
+    endGroup.appendChild(timeEndSelect);
+    
+    row.appendChild(dateGroup);
+    row.appendChild(startGroup);
+    row.appendChild(durationGroup);
+    row.appendChild(endGroup);
+    row.appendChild(removeBtn);
+    container.appendChild(row);
+    
+    slotRowCount++;
+}
+
+function closeAddSlotsModal() {
+    const modal = document.getElementById('add-slots-modal');
+    if (modal) {
+        modal.remove();
+    }
+    slotRowCount = 0;
+
+    // Return to positions list (Manage Interview Slots)
+    if (typeof showManageSlots === 'function') {
+        showManageSlots();
+    }
+}
+
+async function saveSlots() {
+    try {
+        const requestId = parseInt(document.getElementById('slots-request-id').value);
+        const round = document.getElementById('slots-round').value;
+        
+        const slots = [];
+        const rows = document.querySelectorAll('.slot-row');
+        
+        rows.forEach(row => {
+            const dateInput = row.querySelector('input[type="date"]');
+            const timeSelects = row.querySelectorAll('select');
+            
+            if (!dateInput || timeSelects.length < 2) {
+                // Skip invalid rows
+                return;
+            }
+            
+            const date = dateInput.value;
+            // We now have: [startSelect, durationSelect, endSelect]
+            const timeStart = timeSelects[0].value;
+            const timeEnd = timeSelects[2] ? timeSelects[2].value : timeSelects[1].value;
+            
+            if (date && timeStart && timeEnd) {
+                // Round times to 15-minute intervals
+                const roundedStart = roundTo15Minutes(timeStart);
+                const roundedEnd = roundTo15Minutes(timeEnd);
+                
+                const startTime = new Date(`${date}T${roundedStart}`);
+                const endTime = new Date(`${date}T${roundedEnd}`);
+                
+                if (endTime <= startTime) {
+                    throw new Error(window.uiManager.translate('End time must be after start time') || 'End time must be after start time');
+                }
+                
+                // Validate that duration is at least 30 minutes
+                const duration = (endTime - startTime) / (1000 * 60); // Duration in minutes
+                if (duration < 30) {
+                    throw new Error(window.uiManager.translate('Minimum slot duration is 30 minutes') || 'Minimum slot duration is 30 minutes');
+                }
+                
+                // Validate that duration is exactly 30 minutes (or multiple of 30)
+                if (duration % 30 !== 0) {
+                    throw new Error(window.uiManager.translate('Slot duration must be a multiple of 30 minutes') || 'Slot duration must be a multiple of 30 minutes');
+                }
+                
+                slots.push({
+                    startTime: startTime.toISOString(),
+                    endTime: endTime.toISOString()
+                });
+            }
+        });
+        
+        if (slots.length === 0) {
+            window.utils.showMessage('Please add at least one slot', 'error');
+            return;
+        }
+        
+        const msgSaving = window.uiManager.translate('Saving slots...') || 'Saving slots...';
+        const msgNotifying = window.uiManager.translate('Notifying agencies...') || 'Notifying agencies...';
+        window.uiManager.showLoading(msgSaving);
+        
+        await window.interviewSlotsManager.createSlots(requestId, round, slots);
+        
+        window.uiManager.showLoading(msgNotifying);
+        
+        const request = await window.requestsManager.getRequestById(requestId);
+        const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
+        const candidatesResult = await window.candidatesManager.getCandidates({
+            page: 1,
+            pageSize: 2000,
+            position: request.position,
+            department: request.department
+        });
+        const candidatesWithStatus = (candidatesResult.candidates || []).filter(c =>
+            c.position === request.position &&
+            c.department === request.department &&
+            allowedStatuses.includes(c.status)
+        );
+        const sourcesWithCandidates = [...new Set(candidatesWithStatus.map(c => c.source).filter(Boolean))];
+        console.log('Slots saved: sources with candidates for', request.position, '=', sourcesWithCandidates);
+
+        if (sourcesWithCandidates.length > 0) {
+            const { data: agencyRows, error: rpcError } = await window.supabase
+                .rpc('get_agency_emails_for_new_slots', { sources: sourcesWithCandidates });
+            if (rpcError) {
+                console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
+            }
+            const uniqueEmails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
+            console.log('Agency emails to notify:', uniqueEmails.length, uniqueEmails);
+
+            for (const email of uniqueEmails) {
+                try {
+                    await window.emailManager.notifyAgencyNewSlots(email, request, round, slots);
+                    console.log('Notified agency:', email);
+                } catch (emailErr) {
+                    console.warn('Failed to notify agency:', email, emailErr);
+                }
+            }
+        }
+        
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Slots created successfully!', 'success');
+        closeAddSlotsModal();
+        showManageSlots();
+    } catch (error) {
+        console.error('Error saving slots:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Error saving slots: ' + error.message, 'error');
+    }
+}
+
+async function showSlotsForRequest(requestId) {
+    try {
+        window.uiManager.showLoading('Loading slots...');
+        
+        const firstRoundSlots = await window.interviewSlotsManager.getSlotsForRequest(requestId, 'first');
+        const secondRoundSlots = await window.interviewSlotsManager.getSlotsForRequest(requestId, 'second');
+        
+        window.uiManager.hideLoading();
+        
+        const modal = document.createElement('div');
+        modal.id = 'view-slots-modal';
+        modal.className = 'modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        const renderSlots = (slots, round) => {
+            if (slots.length === 0) {
+                return `<p data-translate="No slots available">${window.uiManager.translate('No slots available') || 'No slots available'}</p>`;
+            }
+            return slots.map(slot => {
+                const start = new Date(slot.start_time);
+                const end = new Date(slot.end_time);
+                const isBooked = slot.candidate_id !== null;
+                return `
+                    <div style="padding: 10px; margin: 5px 0; background: ${isBooked ? '#ffebee' : '#e8f5e9'}; border-radius: 5px;">
+                        <strong>${start.toLocaleString('sk-SK')} - ${end.toLocaleString('sk-SK')}</strong>
+                        ${isBooked ? `<br>${window.uiManager.translate('Booked by') || 'Booked by'}: ${slot.candidates?.name || 'N/A'} (${slot.agency_source || 'N/A'})` : `<br>${window.uiManager.translate('Available') || 'Available'}`}
+                    </div>
+                `;
+            }).join('');
+        };
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="background: white; padding: 30px; border-radius: 8px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
+                <h2 data-translate="Interview Slots">Interview Slots</h2>
+                <div style="margin-bottom: 20px;">
+                    <h3 data-translate="First Round">First Round</h3>
+                    ${renderSlots(firstRoundSlots, 'first')}
+                </div>
+                <div>
+                    <h3 data-translate="Second Round">Second Round</h3>
+                    ${renderSlots(secondRoundSlots, 'second')}
+                </div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                    <button onclick="closeViewSlotsModal()" class="btn btn-secondary" data-translate="Close">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        window.uiManager.translatePage();
+    } catch (error) {
+        console.error('Error loading slots:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Error loading slots: ' + error.message, 'error');
+    }
+}
+
+function closeViewSlotsModal() {
+    const modal = document.getElementById('view-slots-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// ============================================
+// AGENCY VIEW
+// ============================================
+
+/**
+ * Show interface for agencies to view positions and book slots
+ */
+async function showAgencyView() {
+    try {
+        window.uiManager.showLoading('Loading positions...');
+        
+        // Get user info to determine agency source
+        const userInfo = await window.authManager.getUserInfo();
+        if (userInfo.role !== 'agency') {
+            window.uiManager.hideLoading();
+            throw new Error('Access denied. Agency role required.');
+        }
+        
+        // Get approved requests
+        let result;
+        try {
+            result = await window.requestsManager.getRequests({
+                status: 'Approved',
+                page: 1,
+                pageSize: 100
+            });
+        } catch (error) {
+            console.error('Error loading requests:', error);
+            window.uiManager.hideLoading();
+            window.utils.showMessage('Error loading positions: ' + error.message, 'error');
+            return;
+        }
+        
+        // Get agency source from user email
+        const agencySource = getAgencySource();
+        
+        if (!agencySource) {
+            window.uiManager.hideLoading();
+            window.utils.showMessage('Unable to determine agency source. Please contact administrator.', 'error');
+            return;
+        }
+        
+        // Get candidates for this agency (by source)
+        let candidatesResult;
+        try {
+            candidatesResult = await window.candidatesManager.getCandidates({
+                page: 1,
+                pageSize: 1000,
+                source: agencySource
+            });
+        } catch (error) {
+            console.warn('Error loading candidates (non-critical):', error);
+            candidatesResult = { candidates: [] };
+        }
+        
+        // Filter candidates by agency source and allowed statuses
+        // Only show candidates with status: New, In Process - First Round, or In Process - Second Round
+        const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
+        const agencyCandidates = (candidatesResult.candidates || []).filter(c => 
+            c.source === agencySource && 
+            allowedStatuses.includes(c.status)
+        );
+        
+        console.log('🔍 showAgencyView: Agency candidates (filtered by status):', {
+            total: agencyCandidates.length,
+            byPosition: agencyCandidates.reduce((acc, c) => {
+                const key = `${c.position}|${c.department}`;
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(c);
+                return acc;
+            }, {})
+        });
+        
+        // Group candidates by position and department
+        const candidatesByPosition = {};
+        agencyCandidates.forEach(candidate => {
+            const key = `${candidate.position}|${candidate.department}`;
+            if (!candidatesByPosition[key]) {
+                candidatesByPosition[key] = [];
+            }
+            candidatesByPosition[key].push(candidate);
+        });
+        
+        // Filter requests to show only positions where agency has candidates
+        const relevantRequests = result.requests.filter(request => {
+            const key = `${request.position}|${request.department}`;
+            return candidatesByPosition[key] && candidatesByPosition[key].length > 0;
+        });
+        
+        // Get slot counts for each request
+        const slotCounts = {};
+        for (const request of relevantRequests) {
+            try {
+                const firstRoundSlots = await window.interviewSlotsManager.getAvailableSlots(request.id, 'first');
+                const secondRoundSlots = await window.interviewSlotsManager.getAvailableSlots(request.id, 'second');
+                slotCounts[request.id] = {
+                    first: firstRoundSlots.length,
+                    second: secondRoundSlots.length
+                };
+            } catch (error) {
+                console.warn(`Error loading slots for request ${request.id}:`, error);
+                slotCounts[request.id] = { first: 0, second: 0 };
+            }
+        }
+        
+        window.uiManager.hideLoading();
+        
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="agency-view-header">
+                <h2 data-translate="Available Positions">Available Positions</h2>
+                <p class="agency-view-subtitle" data-translate="Select a position to book interview slots">Select a position to book interview slots</p>
+            </div>
+            <div id="agency-positions-list" class="agency-positions-grid"></div>
+        `;
+        
+        // Render positions
+        const container = document.getElementById('agency-positions-list');
+        if (relevantRequests.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p data-translate="No positions with candidates">No positions available where you have candidates</p>
+                </div>
+            `;
+        } else {
+            relevantRequests.forEach(request => {
+                const key = `${request.position}|${request.department}`;
+                const candidatesForPosition = candidatesByPosition[key] || [];
+                const candidateCount = candidatesForPosition.length;
+                const slots = slotCounts[request.id] || { first: 0, second: 0 };
+                
+                // Get candidate names (limit to 3 for display, show "+X more" if more)
+                const candidateNames = candidatesForPosition.map(c => c.name).slice(0, 3);
+                const moreCount = candidateCount > 3 ? candidateCount - 3 : 0;
+                
+                const positionCard = document.createElement('div');
+                positionCard.className = 'agency-position-card';
+                positionCard.innerHTML = `
+                    <div class="position-card-header">
+                        <h3 class="position-title">${request.position}</h3>
+                        <span class="position-department">${request.department}</span>
+                    </div>
+                    
+                    <div class="position-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">👥</span>
+                            <div class="stat-content">
+                                <span class="stat-label" data-translate="Candidates">Candidates</span>
+                                <span class="stat-value">${candidateCount}</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">📅</span>
+                            <div class="stat-content">
+                                <span class="stat-label" data-translate="First Round">First Round</span>
+                                <span class="stat-value">${slots.first} <span data-translate="slots">slots</span></span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">📅</span>
+                            <div class="stat-content">
+                                <span class="stat-label" data-translate="Second Round">Second Round</span>
+                                <span class="stat-value">${slots.second} <span data-translate="slots">slots</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="candidates-list">
+                        <strong data-translate="Candidate Names">Candidate Names:</strong>
+                        <div class="candidate-names">
+                            ${candidateNames.map(name => `<span class="candidate-name-tag">${name}</span>`).join('')}
+                            ${moreCount > 0 ? `<span class="candidate-name-tag more-tag" data-translate="+{count} more">+${moreCount} more</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="position-actions">
+                        <button onclick="showAgencySlotsCalendar(${request.id}, 'first')" class="btn btn-primary btn-round" data-translate="First Round Slots">
+                            <span class="btn-icon">1️⃣</span>
+                            <span data-translate="First Round">First Round</span>
+                            ${slots.first > 0 ? `<span class="slot-badge">${slots.first}</span>` : ''}
+                        </button>
+                        <button onclick="showAgencySlotsCalendar(${request.id}, 'second')" class="btn btn-primary btn-round" data-translate="Second Round Slots">
+                            <span class="btn-icon">2️⃣</span>
+                            <span data-translate="Second Round">Second Round</span>
+                            ${slots.second > 0 ? `<span class="slot-badge">${slots.second}</span>` : ''}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(positionCard);
+            });
+        }
+        
+        window.uiManager.translatePage();
+        
+        // Setup real-time listener for slot changes
+        window.addEventListener('interviewSlotChanged', (event) => {
+            console.log('Slot changed, refreshing view...');
+            // Refresh the current view if needed
+        });
+    } catch (error) {
+        console.error('Error loading agency view:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Error loading positions: ' + error.message, 'error');
+        
+        // Show error page with retry button
+        const app = document.getElementById('app');
+        if (app) {
+            app.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: #d32f2f;">Error</h2>
+                    <p>${error.message}</p>
+                    <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                        If this problem persists, please check:
+                        <br>1. That RLS policies for agency role are set up correctly
+                        <br>2. That you have the 'agency' role in the users table
+                        <br>3. That there are approved recruiting requests
+                    </p>
+                    <button onclick="showAgencyView()" class="btn btn-primary" style="margin-top: 20px;">Retry</button>
+                </div>
+            `;
+        }
+    }
+}
+
+/**
+ * Show calendar view for booking slots (agency)
+ */
+async function showAgencySlotsCalendar(requestId, round) {
+    try {
+        window.uiManager.showLoading(window.uiManager.translate('Loading available slots...') || 'Loading available slots...');
+        
+        // Get available slots
+        const slots = await window.interviewSlotsManager.getAvailableSlots(requestId, round);
+        
+        // Get agency source
+        const agencySource = getAgencySource();
+        
+        if (!agencySource) {
+            window.uiManager.hideLoading();
+            window.utils.showMessage('Unable to determine agency source. Please contact administrator.', 'error');
+            return;
+        }
+        
+        // Get candidates for this agency (filtered by source)
+        const candidatesResult = await window.candidatesManager.getCandidates({
+            page: 1,
+            pageSize: 1000,
+            source: agencySource
+        });
+        
+        // Filter candidates by agency source and allowed statuses
+        // Only show candidates with status: New, In Process - First Round, or In Process - Second Round
+        const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
+        const agencyCandidates = (candidatesResult.candidates || []).filter(c => 
+            c.source === agencySource && 
+            allowedStatuses.includes(c.status)
+        );
+        
+        window.uiManager.hideLoading();
+        
+        // Group slots by date
+        const slotsByDate = {};
+        slots.forEach(slot => {
+            const date = new Date(slot.start_time).toISOString().split('T')[0];
+            if (!slotsByDate[date]) {
+                slotsByDate[date] = [];
+            }
+            slotsByDate[date].push(slot);
+        });
+        
+        const modal = document.createElement('div');
+        modal.id = 'agency-slots-calendar';
+        modal.className = 'modal agency-slots-modal';
+        
+        const roundText = round === 'first' ? window.uiManager.translate('First Round') : window.uiManager.translate('Second Round');
+        
+        // Get request details for header
+        const request = await window.requestsManager.getRequestById(requestId);
+        
+        const calendarHtml = Object.keys(slotsByDate).sort().map(date => {
+            const dateSlots = slotsByDate[date];
+            const dateObj = new Date(date);
+            const dateStr = dateObj.toLocaleDateString('sk-SK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const isToday = dateObj.getTime() === today.getTime();
+            const isPast = dateObj < today;
+            
+            return `
+                <div class="calendar-date-section ${isToday ? 'today' : ''} ${isPast ? 'past' : ''}">
+                    <div class="calendar-date-header">
+                        <h4 class="calendar-date-title">${dateStr}</h4>
+                        ${isToday ? '<span class="today-badge" data-translate="Today">Today</span>' : ''}
+                        <span class="slots-count">${dateSlots.length} ${dateSlots.length === 1 ? window.uiManager.translate('slot') : window.uiManager.translate('slots')}</span>
+                    </div>
+                    <div class="calendar-slots-grid">
+                        ${dateSlots.map(slot => {
+                            const start = new Date(slot.start_time);
+                            const end = new Date(slot.end_time);
+                            const timeStr = `${start.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+                            const duration = Math.round((end - start) / (1000 * 60)); // Duration in minutes
+                            return `
+                                <div class="calendar-slot-card">
+                                    <div class="slot-time">
+                                        <span class="slot-time-icon">🕐</span>
+                                        <span class="slot-time-text">${timeStr}</span>
+                                    </div>
+                                    <div class="slot-duration">${duration} min</div>
+                                    <button onclick="showBookSlotModal(${slot.id}, ${requestId}, '${round}')" class="btn btn-primary btn-slot" data-translate="Book Slot">
+                                        <span data-translate="Book">Book</span>
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        modal.innerHTML = `
+            <div class="agency-slots-modal-content">
+                <div class="agency-slots-modal-header">
+                    <div class="modal-header-info">
+                        <h2 class="modal-title">${roundText} - ${request.position}</h2>
+                        <p class="modal-subtitle">${request.department} • ${slots.length} ${slots.length === 1 ? window.uiManager.translate('available slot') : window.uiManager.translate('available slots')}</p>
+                    </div>
+                    <button onclick="closeAgencySlotsCalendar()" class="modal-close-btn" aria-label="Close">&times;</button>
+                </div>
+                <div class="agency-slots-calendar-content">
+                    ${slots.length === 0 ? `
+                        <div class="empty-slots-state">
+                            <div class="empty-icon">📅</div>
+                            <h3 data-translate="No slots available">No slots available</h3>
+                            <p data-translate="No available slots for this round">There are no available slots for this round. Please check back later.</p>
+                        </div>
+                    ` : calendarHtml}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        window.uiManager.translatePage();
+    } catch (error) {
+        console.error('Error loading slots calendar:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Error loading slots: ' + error.message, 'error');
+    }
+}
+
+function closeAgencySlotsCalendar() {
+    const modal = document.getElementById('agency-slots-calendar');
+    if (modal) {
+        modal.remove();
+    }
+    // Return to positions list
+    showAgencyView();
+}
+
+/**
+ * Get agency source from user profile (users.source column)
+ * Only uses source from users table - no email mapping
+ * @returns {string|null} Agency source name
+ */
+function getAgencySource() {
+    const userInfo = window.authManager.getUserInfo();
+    if (!userInfo) {
+        console.warn('⚠️ getAgencySource: No userInfo available');
+        return null;
+    }
+    
+    console.log('🔍 getAgencySource: userInfo:', { role: userInfo.role, source: userInfo.source });
+    
+    // Get source directly from users table (users.source column)
+    // This is the only way to determine agency source - no email mapping
+    if (userInfo.role === 'agency' && userInfo.source) {
+        console.log('✅ getAgencySource: Returning source:', userInfo.source);
+        return userInfo.source;
+    }
+    
+    console.warn('⚠️ getAgencySource: No source found for agency user');
+    return null;
+}
+
+async function showBookSlotModal(slotId, requestId, round) {
+    try {
+        // Get user info and determine agency source
+        const userInfo = await window.authManager.getUserInfo();
+        const agencySource = getAgencySource();
+        
+        if (!agencySource) {
+            window.utils.showMessage('Unable to determine agency source. Please contact administrator.', 'error');
+            return;
+        }
+        
+        // Get request details
+        const request = await window.requestsManager.getRequestById(requestId);
+        console.log('🔍 showBookSlotModal: Request details:', {
+            requestId,
+            position: request.position,
+            department: request.department,
+            agencySource
+        });
+        
+        // Get candidates filtered by agency source and position
+        // Note: getCandidates already filters by source for agency role automatically
+        // Allowed statuses for booking slots
+        const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
+        
+        const candidatesResult = await window.candidatesManager.getCandidates({
+            page: 1,
+            pageSize: 1000,
+            position: request.position,
+            department: request.department
+            // Don't pass source here - it's already filtered automatically in candidates.js
+        });
+        
+        console.log('🔍 showBookSlotModal: Candidates result:', {
+            totalCandidates: candidatesResult.candidates.length,
+            candidates: candidatesResult.candidates.map(c => ({
+                id: c.id,
+                name: c.name,
+                position: c.position,
+                department: c.department,
+                source: c.source,
+                status: c.status
+            }))
+        });
+        
+        // Filter candidates: must match position, department, source, and have allowed status
+        const agencyCandidates = candidatesResult.candidates.filter(c => 
+            c.position === request.position && 
+            c.department === request.department &&
+            c.source === agencySource &&
+            allowedStatuses.includes(c.status)
+        );
+        
+        console.log('🔍 showBookSlotModal: Filtered agency candidates:', {
+            count: agencyCandidates.length,
+            candidates: agencyCandidates.map(c => ({
+                id: c.id,
+                name: c.name,
+                position: c.position,
+                department: c.department,
+                source: c.source
+            }))
+        });
+        
+        if (agencyCandidates.length === 0) {
+            window.utils.showMessage(`No candidates available for position ${request.position} from ${agencySource}`, 'error');
+            return;
+        }
+        
+        const modal = document.createElement('div');
+        modal.id = 'book-slot-modal';
+        modal.className = 'modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        `;
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%;">
+                <h2 data-translate="Book Interview Slot">Book Interview Slot</h2>
+                <form id="book-slot-form">
+                    <input type="hidden" id="book-slot-id" value="${slotId}">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="book-candidate" data-translate="Select Candidate">Select Candidate:</label>
+                        <select id="book-candidate" class="form-control" required>
+                            <option value="">-- Select --</option>
+                            ${agencyCandidates.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button type="button" onclick="closeBookSlotModal()" class="btn btn-secondary" data-translate="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-translate="Book Slot">Book Slot</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        window.uiManager.translatePage();
+        
+        // Handle form submission
+        document.getElementById('book-slot-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await bookSlot(slotId, requestId, round);
+        });
+    } catch (error) {
+        console.error('Error showing book slot modal:', error);
+        window.utils.showMessage('Error: ' + error.message, 'error');
+    }
+}
+
+function closeBookSlotModal() {
+    const modal = document.getElementById('book-slot-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+async function bookSlot(slotId, requestId, round) {
+    try {
+        const candidateId = parseInt(document.getElementById('book-candidate').value);
+        
+        if (!candidateId) {
+            window.utils.showMessage('Please select a candidate', 'error');
+            return;
+        }
+        
+        // Get user info to determine agency source
+        const userInfo = await window.authManager.getUserInfo();
+        // Determine agency source - this should be stored in user profile or determined from candidate source
+        const candidate = await window.candidatesManager.getCandidateDetails(candidateId);
+        const agencySource = candidate.source;
+        
+        window.uiManager.showLoading('Booking slot...');
+        
+        // Book the slot
+        const result = await window.interviewSlotsManager.bookSlot(slotId, candidateId, agencySource);
+        
+        if (result.success) {
+            const slotData = result.data;
+            const request = await window.requestsManager.getRequestById(requestId);
+
+            const attachmentUrls = {};
+            const expiresIn = 7 * 24 * 60 * 60;
+            if (candidate.cv_file_path) {
+                const { data: cvSigned } = await window.supabase.storage
+                    .from('candidate-files')
+                    .createSignedUrl(candidate.cv_file_path, expiresIn);
+                const url = cvSigned?.signedUrl || cvSigned?.signedURL;
+                if (url) attachmentUrls.cvUrl = url;
+            }
+            if (candidate.assesment_file_path) {
+                const { data: assessmentSigned } = await window.supabase.storage
+                    .from('candidate-files')
+                    .createSignedUrl(candidate.assesment_file_path, expiresIn);
+                const url = assessmentSigned?.signedUrl || assessmentSigned?.signedURL;
+                if (url) attachmentUrls.assessmentUrl = url;
+            }
+
+            const icsContent = window.generateICS(slotData, candidate, request, attachmentUrls);
+            
+            // Notify only users with role "recruiter"
+            const { data: recruiters } = await window.supabase
+                .from('users')
+                .select('email')
+                .eq('role', 'recruiter')
+                .not('email', 'is', null)
+                .limit(20);
+            
+            const recruiterEmails = (recruiters || []).map(u => u.email).filter(Boolean);
+            
+            if (recruiterEmails.length > 0) {
+                try {
+                    await window.emailManager.notifySlotBooked(
+                        { slot: slotData, candidate, request },
+                        recruiterEmails,
+                        [],
+                        icsContent
+                    );
+                } catch (emailError) {
+                    console.warn('Error sending notification email:', emailError);
+                }
+            }
+            
+            // Download ICS file for user
+            window.downloadICS(icsContent, `interview-${candidate.name}-${Date.now()}.ics`);
+            
+            window.uiManager.hideLoading();
+            window.utils.showMessage('Slot booked successfully! Notifications sent.', 'success');
+            closeBookSlotModal();
+            // Close calendar and return to positions list
+            closeAgencySlotsCalendar();
+        }
+    } catch (error) {
+        console.error('Error booking slot:', error);
+        window.uiManager.hideLoading();
+        const msg = (error.code === '23505' || error.message?.includes('already booked'))
+            ? (window.uiManager.translate?.('Candidate is already booked for another slot in this round') || 'Candidate is already booked for another slot in this round.')
+            : ('Error booking slot: ' + (error.message || error));
+        window.utils.showMessage(msg, 'error');
+    }
+}
+
+// Add getRequestById to RequestsManager if it doesn't exist
+if (window.requestsManager && !window.requestsManager.getRequestById) {
+    window.requestsManager.getRequestById = async function(requestId) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        
+        const { data, error } = await this.supabase
+            .from('recruiting_requests')
+            .select('*')
+            .eq('id', requestId)
+            .single();
+        
+        if (error) throw error;
+        return data;
+    };
+}
 
 

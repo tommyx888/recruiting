@@ -581,10 +581,9 @@ class UIManager {
      * Show login form (hide app content)
      */
     showLogin() {
-        const loginForm = document.getElementById('login-form');
+        const loginScreen = document.getElementById('login-screen');
         const appContent = document.getElementById('app-content');
-        
-        if (loginForm) loginForm.style.display = 'block';
+        if (loginScreen) loginScreen.style.display = 'flex';
         if (appContent) {
             appContent.style.display = 'none';
             appContent.classList.remove('visible');
@@ -595,21 +594,12 @@ class UIManager {
      * Show app content (hide login)
      */
     showApp() {
-        console.log('UIManager.showApp() called');
-        const loginForm = document.getElementById('login-form');
+        const loginScreen = document.getElementById('login-screen');
         const appContent = document.getElementById('app-content');
-        
-        console.log('Login form found:', !!loginForm);
-        console.log('App content found:', !!appContent);
-        
-        if (loginForm) {
-            loginForm.style.display = 'none';
-            console.log('Login form hidden');
-        }
+        if (loginScreen) loginScreen.style.display = 'none';
         if (appContent) {
             appContent.style.display = 'block';
             appContent.classList.add('visible');
-            console.log('App content shown');
         }
     }
 
@@ -623,10 +613,20 @@ class UIManager {
             app.innerHTML = `
                 <div class="loading-container fade-in" style="text-align: center; padding: 50px;">
                     <div class="spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto 20px;"></div>
-                    <p style="color: var(--text-color); font-size: 1.1rem; font-weight: 500;">${message}</p>
+                    <p class="loading-message" style="color: var(--text-color); font-size: 1.1rem; font-weight: 500;">${message}<span class="loading-dots">...</span></p>
                 </div>
             `;
         }
+    }
+
+    /**
+     * Hide loading state (does nothing, loading is hidden by replacing app content)
+     * This method exists for compatibility with code that calls hideLoading()
+     */
+    hideLoading() {
+        // Loading is automatically hidden when app content is replaced
+        // This method exists for API compatibility
+        return;
     }
 
     /**
@@ -811,24 +811,42 @@ class UIManager {
         const userInfo = window.authManager.getUserInfo();
         console.log('User info:', userInfo);
         
+        const navDashboard = document.getElementById('nav-dashboard');
         const navStatistics = document.getElementById('nav-statistics');
         const navReports = document.getElementById('nav-reports');
         const navGMApproval = document.getElementById('nav-gm-approval');
         const navRequests = document.getElementById('nav-requests');
+        const navManageSlots = document.getElementById('nav-manage-slots');
+        const navAgencyView = document.getElementById('nav-agency-view');
 
         console.log('Navigation elements found:', {
+            navDashboard: !!navDashboard,
             navStatistics: !!navStatistics,
             navReports: !!navReports,
             navGMApproval: !!navGMApproval,
-            navRequests: !!navRequests
+            navRequests: !!navRequests,
+            navManageSlots: !!navManageSlots,
+            navAgencyView: !!navAgencyView
         });
 
         if (userInfo.role === 'gm' || userInfo.role === 'recruiter') {
+            if (navDashboard) navDashboard.style.display = 'inline';
             if (navGMApproval) navGMApproval.style.display = 'inline';
             if (navRequests) navRequests.style.display = 'inline';
             if (navStatistics) navStatistics.style.display = 'inline';
             if (navReports) navReports.style.display = 'inline';
+            if (navManageSlots) navManageSlots.style.display = 'inline';
+            if (navAgencyView) navAgencyView.style.display = 'none';
             console.log('GM/Recruiter navigation shown');
+        } else if (userInfo.role === 'agency') {
+            if (navDashboard) navDashboard.style.display = 'none';
+            if (navGMApproval) navGMApproval.style.display = 'none';
+            if (navRequests) navRequests.style.display = 'none';
+            if (navStatistics) navStatistics.style.display = 'none';
+            if (navReports) navReports.style.display = 'none';
+            if (navManageSlots) navManageSlots.style.display = 'none';
+            if (navAgencyView) navAgencyView.style.display = 'inline';
+            console.log('Agency navigation shown (no dashboard)');
         } else if (userInfo.role === 'Manager') {
             // Managers see only Dashboard, Candidates, and Requests (filtered by department/positions)
             if (navGMApproval) navGMApproval.style.display = 'none';

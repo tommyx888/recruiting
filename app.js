@@ -3922,6 +3922,13 @@ async function saveSlots() {
         const sourcesWithCandidates = [...new Set(candidatesWithStatus.map(c => c.source).filter(Boolean))];
         console.log('Slots saved: sources with candidates for', request.position, '=', sourcesWithCandidates);
 
+        let notificationReport = {
+            sources: sourcesWithCandidates,
+            recipients: [],
+            sent: [],
+            failed: []
+        };
+
         if (sourcesWithCandidates.length > 0) {
             const { data: agencyRows, error: rpcError } = await window.supabase
                 .rpc('get_agency_emails_for_new_slots', { sources: sourcesWithCandidates });
@@ -3929,14 +3936,18 @@ async function saveSlots() {
                 console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
             }
             const uniqueEmails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
+            notificationReport.recipients = uniqueEmails;
             console.log('Agency emails to notify:', uniqueEmails.length, uniqueEmails);
 
             for (const email of uniqueEmails) {
-                try {
-                    await window.emailManager.notifyAgencyNewSlots(email, request, round, slots);
-                    console.log('Notified agency:', email);
-                } catch (emailErr) {
-                    console.warn('Failed to notify agency:', email, emailErr);
+                const sendResult = await notifyAgencySlotsWithRetry(email, request, round, slots);
+                if (sendResult.success) {
+                    notificationReport.sent.push(email);
+                    console.log('Notified agency:', email, `(attempt ${sendResult.attempt})`);
+                } else {
+                    const reason = sendResult.error?.message || 'Unknown error';
+                    notificationReport.failed.push({ email, reason });
+                    console.warn('Failed to notify agency:', email, reason);
                 }
             }
         }
@@ -3945,11 +3956,109 @@ async function saveSlots() {
         window.utils.showMessage('Slots created successfully!', 'success');
         closeAddSlotsModal();
         showManageSlots();
+        showAgencyNotificationReport(notificationReport);
     } catch (error) {
         console.error('Error saving slots:', error);
         window.uiManager.hideLoading();
         window.utils.showMessage('Error saving slots: ' + error.message, 'error');
     }
+}
+
+function shouldRetryAgencyEmail(error) {
+    const message = (error?.message || '').toLowerCase();
+    return (
+        message.includes('429') ||
+        message.includes('too many') ||
+        message.includes('rate') ||
+        message.includes('timeout') ||
+        message.includes('503') ||
+        message.includes('network')
+    );
+}
+
+function delayMs(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function notifyAgencySlotsWithRetry(email, request, round, slots, maxAttempts = 3) {
+    let lastError = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            await window.emailManager.notifyAgencyNewSlots(email, request, round, slots);
+            return { success: true, attempt };
+        } catch (error) {
+            lastError = error;
+            if (attempt < maxAttempts && shouldRetryAgencyEmail(error)) {
+                await delayMs(800 * attempt);
+                continue;
+            }
+            break;
+        }
+    }
+    return { success: false, error: lastError };
+}
+
+function showAgencyNotificationReport(report) {
+    if (!report) return;
+
+    const recipients = report.recipients || [];
+    const sent = report.sent || [];
+    const failed = report.failed || [];
+    const sentSet = new Set(sent);
+    const pending = recipients.filter(email => !sentSet.has(email) && !failed.some(f => f.email === email));
+
+    const modal = document.createElement('div');
+    modal.id = 'agency-notification-report-modal';
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+
+    const failedList = failed.length > 0
+        ? failed.map(f => `<li><strong>${f.email}</strong><br><span style="color:#dc2626;font-size:0.85rem;">${f.reason}</span></li>`).join('')
+        : `<li style="color:#64748b;">Žiadne chyby</li>`;
+
+    const sentList = sent.length > 0
+        ? sent.map(email => `<li>${email}</li>`).join('')
+        : `<li style="color:#64748b;">Žiadny email nebol odoslaný</li>`;
+
+    const pendingList = pending.length > 0
+        ? pending.map(email => `<li>${email}</li>`).join('')
+        : `<li style="color:#64748b;">Žiadne nevyhodnotené emaily</li>`;
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 720px;">
+            <h2 style="margin-bottom: 1rem;">Report odoslania agentúram</h2>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px;">
+                <div class="summary-card"><h3>${recipients.length}</h3><p>Celkovo príjemcov</p></div>
+                <div class="summary-card approved"><h3>${sent.length}</h3><p>Úspešne odoslané</p></div>
+                <div class="summary-card rejected"><h3>${failed.length}</h3><p>Zlyhané</p></div>
+            </div>
+            <p style="margin-bottom:8px;color:#475569;"><strong>Zdroje kandidátov:</strong> ${(report.sources || []).join(', ') || 'N/A'}</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                    <h3 style="font-size:1rem;margin-bottom:8px;">Odoslané</h3>
+                    <ul style="margin:0;padding-left:18px;max-height:180px;overflow:auto;">${sentList}</ul>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;margin-bottom:8px;">Zlyhané</h3>
+                    <ul style="margin:0;padding-left:18px;max-height:180px;overflow:auto;">${failedList}</ul>
+                </div>
+            </div>
+            <div style="margin-top:14px;">
+                <h3 style="font-size:1rem;margin-bottom:8px;">Nevyhodnotené</h3>
+                <ul style="margin:0;padding-left:18px;max-height:120px;overflow:auto;">${pendingList}</ul>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+                <button class="btn btn-primary" onclick="closeAgencyNotificationReport()">Zavrieť</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function closeAgencyNotificationReport() {
+    const modal = document.getElementById('agency-notification-report-modal');
+    if (modal) modal.remove();
 }
 
 async function showSlotsForRequest(requestId) {

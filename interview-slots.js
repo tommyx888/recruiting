@@ -52,6 +52,64 @@ class InterviewSlotsManager {
     }
 
     /**
+     * Check if two time ranges overlap (boundaries inclusive for same-time check).
+     * Overlap when: start1 < end2 && start2 < end1
+     */
+    _slotsOverlap(start1, end1, start2, end2) {
+        const s1 = new Date(start1).getTime();
+        const e1 = new Date(end1).getTime();
+        const s2 = new Date(start2).getTime();
+        const e2 = new Date(end2).getTime();
+        return s1 < e2 && s2 < e1;
+    }
+
+    /**
+     * Validate that new slots don't overlap with each other or with any existing slot in the same round (any position).
+     * @throws {Error} with message listing overlapping times if any
+     */
+    async _validateNoOverlappingSlots(requestId, round, newSlots) {
+        const existing = await this.getSlotsByRound(round);
+        const formatSlot = (s) => {
+            const start = (s.startTime || s.start_time);
+            const end = (s.endTime || s.end_time);
+            if (!start || !end) return '';
+            return `${new Date(start).toLocaleString('sk-SK')} – ${new Date(end).toLocaleString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+        };
+        const positionLabel = (ex) => {
+            const req = ex.recruiting_requests;
+            const r = Array.isArray(req) ? req[0] : req;
+            if (r && (r.position || r.department)) {
+                return ` (${[r.position, r.department].filter(Boolean).join(', ')})`;
+            }
+            return '';
+        };
+        const conflicts = [];
+
+        for (let i = 0; i < newSlots.length; i++) {
+            const a = newSlots[i];
+            const aStart = a.startTime;
+            const aEnd = a.endTime;
+
+            for (let j = i + 1; j < newSlots.length; j++) {
+                const b = newSlots[j];
+                if (this._slotsOverlap(aStart, aEnd, b.startTime, b.endTime)) {
+                    conflicts.push(`Nové termíny sa prekrývajú: ${formatSlot(a)} a ${formatSlot(b)}`);
+                }
+            }
+
+            for (const ex of existing) {
+                if (this._slotsOverlap(aStart, aEnd, ex.start_time, ex.end_time)) {
+                    conflicts.push(`Termín sa prekrýva s existujúcim${positionLabel(ex)}: ${formatSlot(a)} vs ${formatSlot(ex)}`);
+                }
+            }
+        }
+
+        if (conflicts.length > 0) {
+            throw new Error(conflicts.slice(0, 5).join('; ') + (conflicts.length > 5 ? '; …' : ''));
+        }
+    }
+
+    /**
      * Create interview slots for a request
      * @param {number} requestId - Request ID
      * @param {string} round - 'first' or 'second'
@@ -68,6 +126,8 @@ class InterviewSlotsManager {
             if (!Array.isArray(slots) || slots.length === 0) {
                 throw new Error('At least one slot is required');
             }
+
+            await this._validateNoOverlappingSlots(requestId, round, slots);
 
             // Get current user ID
             const { data: { user } } = await this.supabase.auth.getUser();
@@ -128,6 +188,36 @@ class InterviewSlotsManager {
             return data || [];
         } catch (error) {
             console.error('Error fetching available slots:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all slots for a given round (all positions) – used to check overlaps across positions.
+     * @param {string} round - 'first' or 'second'
+     * @returns {Promise<Array>}
+     */
+    async getSlotsByRound(round) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        try {
+            const { data, error } = await this.supabase
+                .from('interview_slots')
+                .select(`
+                    *,
+                    recruiting_requests:request_id (
+                        id,
+                        position,
+                        department
+                    )
+                `)
+                .eq('round', round)
+                .order('start_time', { ascending: true });
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching slots by round:', error);
             throw error;
         }
     }

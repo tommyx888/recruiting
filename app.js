@@ -177,6 +177,8 @@ const translations = {
         "Minimum slot duration is 30 minutes": "Minimum slot duration is 30 minutes",
         "Slot duration must be a multiple of 30 minutes": "Slot duration must be a multiple of 30 minutes",
         "Candidate is already booked for another slot in this round": "Candidate is already booked for another slot in this round.",
+        "Slot no longer available": "Slot no longer available",
+        "This slot was already booked by another agency. Please choose a different slot.": "This slot was already booked by another agency. Please choose a different slot.",
         "Create and manage interview time slots for approved positions": "Create and manage interview time slots for approved positions",
         "available": "available",
         "All Departments": "All Departments",
@@ -454,6 +456,8 @@ const translations = {
         "Minimum slot duration is 30 minutes": "Minimálna dĺžka slotu je 30 minút",
         "Slot duration must be a multiple of 30 minutes": "Dĺžka slotu musí byť násobkom 30 minút",
         "Candidate is already booked for another slot in this round": "Kandidát už má rezervovaný iný termín v tomto kole.",
+        "Slot no longer available": "Termín už nie je dostupný",
+        "This slot was already booked by another agency. Please choose a different slot.": "Tento termín už bol rezervovaný inou agentúrou. Vyberte prosím iný termín.",
         "Create and manage interview time slots for approved positions": "Vytvárajte a spravujte termíny na pohovory pre schválené pozície",
         "available": "dostupných",
         "All Departments": "Všetky oddelenia",
@@ -1069,7 +1073,7 @@ function createCandidateTable(candidates, status) {
     const userInfo = window.authManager.getUserInfo();
     const isAgency = userInfo && userInfo.role === 'agency';
     const headers = isAgency
-        ? ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Documents', 'Actions', 'Admin Actions']
+        ? ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Documents']
         : ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Time in Process', 'Documents', 'Notes', 'Actions', 'Admin Actions'];
 
     const headerRow = document.createElement('tr');
@@ -1097,9 +1101,7 @@ function createCandidateTable(candidates, status) {
                 candidate.source || '',
                 candidate.date_obtained || '',
                 candidate.interviewer || '',
-                createDocumentsCell(candidate),
-                createActionButtons(candidate),
-                createAdminActionButtons(candidate)
+                createDocumentsCell(candidate)
             ]
             : [
                 nameWithWarning,
@@ -4723,11 +4725,48 @@ async function bookSlot(slotId, requestId, round) {
     } catch (error) {
         console.error('Error booking slot:', error);
         window.uiManager.hideLoading();
+        const isSlotTakenByOther = (error?.message || '').toLowerCase().includes('not available') || (error?.message || '').includes('Slot is not available');
+        if (isSlotTakenByOther) {
+            showSlotTakenByAgencyModal(requestId, round);
+            return;
+        }
         const msg = (error.code === '23505' || error.message?.includes('already booked'))
             ? (window.uiManager.translate?.('Candidate is already booked for another slot in this round') || 'Candidate is already booked for another slot in this round.')
             : ('Error booking slot: ' + (error.message || error));
         window.utils.showMessage(msg, 'error');
     }
+}
+
+/**
+ * Show popup when agency tried to book a slot that another agency already took.
+ * On OK: close popup + book modal, refresh calendar for same request/round.
+ */
+function showSlotTakenByAgencyModal(requestId, round) {
+    closeBookSlotModal();
+    const title = window.uiManager.translate('Slot no longer available') || 'Slot no longer available';
+    const message = window.uiManager.translate('This slot was already booked by another agency. Please choose a different slot.') || 'This slot was already booked by another agency. Please choose a different slot.';
+    const modal = document.createElement('div');
+    modal.id = 'slot-taken-by-agency-modal';
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 420px;">
+            <h2 style="margin-bottom: 0.5rem;">${title}</h2>
+            <p style="margin: 1rem 0; color: var(--text-secondary);">${message}</p>
+            <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+                <button type="button" class="btn btn-primary" id="slot-taken-ok">OK</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('slot-taken-ok').addEventListener('click', () => {
+        modal.remove();
+        const cal = document.getElementById('agency-slots-calendar');
+        if (cal) cal.remove();
+        showAgencySlotsCalendar(requestId, round);
+    });
 }
 
 // Add getRequestById to RequestsManager if it doesn't exist

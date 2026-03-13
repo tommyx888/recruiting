@@ -31,29 +31,32 @@ function validateEmail(email) {
  */
 function validateFile(file, options = {}) {
     const {
-        maxSize = 10 * 1024 * 1024, // 10MB default
+        maxSize = 6 * 1024 * 1024, // 6MB default (compatible with standard Supabase upload)
         allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
         allowedExtensions = ['.pdf', '.doc', '.docx']
     } = options;
 
     if (!file) {
-        return { isValid: false, message: 'No file selected' };
+        return { isValid: false, message: 'Nebol vybraný žiadny súbor.' };
     }
 
     if (file.size > maxSize) {
-        return { isValid: false, message: `File size exceeds ${maxSize / (1024 * 1024)}MB limit` };
-    }
-
-    if (!allowedTypes.includes(file.type)) {
-        return { isValid: false, message: 'Invalid file type. Only PDF, DOC, and DOCX files are allowed' };
+        return { isValid: false, message: `Maximálna veľkosť súboru je ${maxSize / (1024 * 1024)} MB.` };
     }
 
     const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
     if (!allowedExtensions.includes(fileExtension)) {
-        return { isValid: false, message: 'Invalid file extension' };
+        return { isValid: false, message: 'Neplatná prípona súboru. Povolené sú PDF, DOC a DOCX.' };
     }
 
-    return { isValid: true, message: 'File is valid' };
+    // Some browsers/devices send empty or generic MIME type for DOC/DOCX files.
+    // In that case, rely on the validated extension instead of hard-failing.
+    const hasSpecificMimeType = file.type && file.type !== 'application/octet-stream';
+    if (hasSpecificMimeType && !allowedTypes.includes(file.type)) {
+        return { isValid: false, message: 'Neplatný typ súboru. Povolené sú PDF, DOC a DOCX.' };
+    }
+
+    return { isValid: true, message: 'Súbor je v poriadku.' };
 }
 
 /**

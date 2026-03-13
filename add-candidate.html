@@ -460,7 +460,8 @@
                 
             } catch (error) {
                 console.error('Chyba pri pridávaní kandidáta:', error);
-                alert('Nastala chyba pri pridávaní kandidáta. Skúste to znova.');
+                const message = error?.message ? `\n\nDetail: ${error.message}` : '';
+                alert(`Nastala chyba pri pridávaní kandidáta. Skúste to znova.${message}`);
                 
                 // Reset button
                 const submitBtn = document.querySelector('button[type="submit"]');

@@ -18,6 +18,24 @@ class CandidatesManager {
     }
 
     /**
+     * Remove document paths for agency users (UI + client data); internal booking flow may fetch paths separately.
+     * @param {Object|null} candidate
+     * @returns {Object|null}
+     */
+    _redactCandidateDocumentsIfAgency(candidate) {
+        if (!candidate || typeof candidate !== 'object') return candidate;
+        try {
+            const userInfo = typeof window !== 'undefined' && window.authManager
+                ? window.authManager.getUserInfo()
+                : null;
+            if (userInfo?.role !== 'agency') return candidate;
+            return { ...candidate, cv_file_path: null, assesment_file_path: null };
+        } catch (e) {
+            return candidate;
+        }
+    }
+
+    /**
      * Get candidates with pagination and filtering
      * @param {Object} options - Query options
      * @returns {Promise<Object>}
@@ -33,8 +51,21 @@ class CandidatesManager {
             useCache = true
         } = options;
 
-        const cacheKey = `candidates_${JSON.stringify({ page, pageSize, department, position, source, status })}`;
-        
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        const userInfo = window.authManager.getUserInfo();
+        const cacheKey = `candidates_${JSON.stringify({
+            page,
+            pageSize,
+            department,
+            position,
+            source,
+            status,
+            doc: userInfo?.role === 'agency' ? 'redacted' : 'full'
+        })}`;
+
         // Check cache first
         if (useCache && this.cache.has(cacheKey)) {
             const cached = this.cache.get(cacheKey);
@@ -43,15 +74,10 @@ class CandidatesManager {
             }
         }
 
-        if (!this.supabase) {
-            throw new Error('Supabase client not initialized');
-        }
-
         try {
             let query = this.supabase.from('candidates').select('*');
 
             // Apply filters based on user permissions
-            const userInfo = window.authManager.getUserInfo();
             if (userInfo.role === 'agency') {
                 // Agencies can only see their own candidates (filtered by source from users table)
                 if (userInfo.source) {
@@ -111,8 +137,10 @@ class CandidatesManager {
 
             if (error) throw error;
 
+            const list = (candidates || []).map((c) => this._redactCandidateDocumentsIfAgency(c));
+
             const result = {
-                candidates: candidates || [],
+                candidates: list,
                 pagination: {
                     currentPage: page,
                     totalPages: Math.ceil(count / pageSize),
@@ -309,14 +337,14 @@ class CandidatesManager {
             throw new Error('Supabase client not initialized');
         }
 
-        try {
-            const { data: currentRow } = await this.supabase
-                .from('candidates')
-                .select('status')
-                .eq('id', candidateId)
-                .single();
-            const previousStatus = currentRow?.status;
+        const userInfo = typeof window !== 'undefined' && window.authManager
+            ? window.authManager.getUserInfo()
+            : null;
+        if (userInfo?.role === 'agency' && (candidateData.cvFile || candidateData.assessmentFile)) {
+            throw new Error('Agentúry nemôžu nahrávať dokumenty uchádzačov.');
+        }
 
+        try {
             // Prepare update data
             const updateData = {
                 name: candidateData.name,
@@ -420,15 +448,6 @@ class CandidatesManager {
             // Clear cache
             this.clearCache();
 
-            // Notify agency if status was changed
-            if (candidateData.status != null && candidateData.status !== previousStatus) {
-                try {
-                    await this.notifyRecruiterStatusChange(candidateId, candidateData.status, null);
-                } catch (notifyErr) {
-                    console.warn('Agency status change notification failed:', notifyErr);
-                }
-            }
-
             return { success: true, data: data[0] };
         } catch (error) {
             console.error('Error updating candidate:', error);
@@ -454,7 +473,7 @@ class CandidatesManager {
                 .single();
 
             if (error) throw error;
-            return data;
+            return this._redactCandidateDocumentsIfAgency(data);
         } catch (error) {
             console.error('Error getting candidate details:', error);
             throw error;
@@ -540,6 +559,13 @@ class CandidatesManager {
     async downloadFile(candidateId, fileType) {
         if (!this.supabase) {
             throw new Error('Supabase client not initialized');
+        }
+
+        const userInfo = typeof window !== 'undefined' && window.authManager
+            ? window.authManager.getUserInfo()
+            : null;
+        if (userInfo?.role === 'agency') {
+            throw new Error('Agentúry nemajú prístup k dokumentom uchádzačov.');
         }
 
         try {
@@ -731,38 +757,71 @@ class CandidatesManager {
     }
 
     /**
-     * Notify agency (and optionally recruiter) about candidate status changes.
-     * Sends email to all agency users whose source matches the candidate's source.
+     * Notify agencies about candidate status changes based on candidate source.
+     * Uses the same RPC function as slot notifications to resolve agency emails.
      * @param {number} candidateId - Candidate ID
      * @param {string} status - New status
      * @param {string} notes - Additional notes
      */
     async notifyRecruiterStatusChange(candidateId, status, notes = null) {
-        if (!this.supabase || !window.emailManager) return;
-        try {
-            const candidate = await this.getCandidateDetails(candidateId);
-            if (!candidate || !candidate.source) return;
+        if (!this.supabase) {
+            console.warn('Supabase client not initialized, skipping agency notification');
+            return;
+        }
 
+        try {
+            // Skip initial "New" status to avoid redundant emails
+            if (status === 'New') {
+                return;
+            }
+
+            // Load candidate details to get source and other fields
+            const candidate = await this.getCandidateDetails(candidateId);
+            if (!candidate || !candidate.source) {
+                console.log('No candidate source found, skipping agency notification');
+                return;
+            }
+
+            const sources = [candidate.source];
+
+            // Resolve agency emails for this source
             const { data: agencyRows, error: rpcError } = await this.supabase
-                .rpc('get_agency_emails_for_new_slots', { sources: [candidate.source] });
+                .rpc('get_agency_emails_for_new_slots', { sources });
 
             if (rpcError) {
                 console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
                 return;
             }
-            const emails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
-            if (emails.length === 0) return;
 
-            for (const toEmail of emails) {
+            const emails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
+
+            if (!emails.length) {
+                console.log('No agency emails found for source:', candidate.source);
+                return;
+            }
+
+            console.log('📧 Notifying agencies about status change:', {
+                candidateId,
+                status,
+                source: candidate.source,
+                emails
+            });
+
+            for (const email of emails) {
                 try {
-                    await window.emailManager.notifyRecruiterStatusChange(candidate, status, notes, toEmail);
-                    console.log('Agency status change email sent to:', toEmail);
-                } catch (emailErr) {
-                    console.warn('Failed to send agency status change email to:', toEmail, emailErr);
+                    await window.emailManager.notifyAgencyCandidateStatusChange(
+                        candidate,
+                        status,
+                        notes,
+                        email
+                    );
+                    console.log(`✅ Agency status email sent to ${email}`);
+                } catch (emailError) {
+                    console.warn(`❌ Error sending agency status email to ${email}:`, emailError);
                 }
             }
-        } catch (err) {
-            console.warn('Error in notifyRecruiterStatusChange (agency):', err);
+        } catch (error) {
+            console.warn('Error in notifyRecruiterStatusChange (agency notifications):', error);
         }
     }
 }

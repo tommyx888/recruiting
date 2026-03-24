@@ -112,6 +112,8 @@ const translations = {
         "Apply Filters": "Apply Filters",
         "Documents": "Documents",
         "No documents": "No documents",
+        "Agencies cannot access candidate documents": "Agencies cannot access candidate documents",
+        "Agencies cannot edit candidates": "Agencies cannot edit candidates",
         "Error": "Error",
         "Success": "Success",
         "Cancel": "Cancel",
@@ -361,6 +363,8 @@ const translations = {
         "Download CV": "Stiahnuť životopis",
         "Download Assessment": "Stiahnuť hodnotenie",
         "No documents": "Žiadne dokumenty",
+        "Agencies cannot access candidate documents": "Agentúry nemajú prístup k dokumentom uchádzačov.",
+        "Agencies cannot edit candidates": "Agentúry nemôžu upravovať údaje kandidátov.",
         "No notes": "Žiadne poznámky",
         "Create New Request": "Vytvoriť novú žiadosť",
         "Welcome to the Recruiting Management Dashboard!": "Vitajte v paneli riadenia náboru!",
@@ -1073,7 +1077,7 @@ function createCandidateTable(candidates, status) {
     const userInfo = window.authManager.getUserInfo();
     const isAgency = userInfo && userInfo.role === 'agency';
     const headers = isAgency
-        ? ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Documents']
+        ? ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer']
         : ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Time in Process', 'Documents', 'Notes', 'Actions', 'Admin Actions'];
 
     const headerRow = document.createElement('tr');
@@ -1100,8 +1104,7 @@ function createCandidateTable(candidates, status) {
                 candidate.position || '',
                 candidate.source || '',
                 candidate.date_obtained || '',
-                candidate.interviewer || '',
-                createDocumentsCell(candidate)
+                candidate.interviewer || ''
             ]
             : [
                 nameWithWarning,
@@ -1588,6 +1591,14 @@ async function hiredSourceInformed(id) {
 
 async function downloadFile(candidateId, fileType) {
     try {
+        const userInfo = window.authManager?.getUserInfo();
+        if (userInfo?.role === 'agency') {
+            window.utils.showMessage(
+                window.uiManager?.translate?.('Agencies cannot access candidate documents') || 'Agentúry nemajú prístup k dokumentom uchádzačov.',
+                'error'
+            );
+            return;
+        }
         await window.candidatesManager.downloadFile(candidateId, fileType);
     } catch (error) {
         window.utils.showMessage(`Error downloading ${fileType}: ` + error.message, 'error');
@@ -2499,6 +2510,8 @@ async function showCandidateDetails(id) {
         
         const app = document.getElementById('app');
         if (!app) return;
+
+        const isAgency = (window.authManager.getUserInfo() || {}).role === 'agency';
         
         // Format dates
         const dateObtained = candidate.date_obtained ? new Date(candidate.date_obtained).toLocaleDateString('sk-SK') : 'N/A';
@@ -2551,54 +2564,55 @@ async function showCandidateDetails(id) {
                 </div>
                 ` : ''}
             </div>
-            
+        `;
+
+        if (!isAgency) {
+            detailsHtml += `
             <div class="documents-section" style="margin-top: 20px;">
                 <h3 data-translate="Documents">Documents</h3>
                 <div class="document-actions" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
         `;
-        
-        // CV section
-        if (candidate.cv_file_path) {
-            detailsHtml += `
+            if (candidate.cv_file_path) {
+                detailsHtml += `
                 <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
                     <span><strong data-translate="CV">CV:</strong></span>
                     <button onclick="downloadFile(${candidate.id}, 'cv')" class="btn btn-secondary" data-translate="Download CV">Download CV</button>
                     <button onclick="showReuploadDocument(${candidate.id}, 'cv')" class="btn btn-primary" data-translate="Re-upload CV">Re-upload CV</button>
                 </div>
             `;
-        } else {
-            detailsHtml += `
+            } else {
+                detailsHtml += `
                 <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
                     <span><strong data-translate="CV">CV:</strong> <span data-translate="No CV uploaded">No CV uploaded</span></span>
                     <button onclick="showReuploadDocument(${candidate.id}, 'cv')" class="btn btn-primary" data-translate="Upload CV">Upload CV</button>
                 </div>
             `;
-        }
-        
-        // Assessment section
-        if (candidate.assesment_file_path) {
-            detailsHtml += `
+            }
+            if (candidate.assesment_file_path) {
+                detailsHtml += `
                 <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
                     <span><strong data-translate="Assessment">Assessment:</strong></span>
                     <button onclick="downloadFile(${candidate.id}, 'assessment')" class="btn btn-secondary" data-translate="Download Assessment">Download Assessment</button>
                     <button onclick="showReuploadDocument(${candidate.id}, 'assessment')" class="btn btn-primary" data-translate="Re-upload Assessment">Re-upload Assessment</button>
                 </div>
             `;
-        } else {
-            detailsHtml += `
+            } else {
+                detailsHtml += `
                 <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
                     <span><strong data-translate="Assessment">Assessment:</strong> <span data-translate="No Assessment uploaded">No Assessment uploaded</span></span>
                     <button onclick="showReuploadDocument(${candidate.id}, 'assessment')" class="btn btn-primary" data-translate="Upload Assessment">Upload Assessment</button>
                 </div>
             `;
-        }
-        
-        detailsHtml += `
+            }
+            detailsHtml += `
                 </div>
             </div>
-            
+        `;
+        }
+
+        detailsHtml += `
             <div class="action-buttons" style="margin-top: 20px;">
-                <button onclick="showEditCandidateModal(${candidate.id})" class="btn btn-primary" data-translate="Edit Candidate">Edit Candidate</button>
+                ${!isAgency ? `<button onclick="showEditCandidateModal(${candidate.id})" class="btn btn-primary" data-translate="Edit Candidate">Edit Candidate</button>` : ''}
                 <button onclick="showCandidates()" class="btn btn-secondary" data-translate="Back">Back</button>
             </div>
         `;
@@ -2615,6 +2629,13 @@ async function showCandidateDetails(id) {
 }
 
 function showReuploadDocument(candidateId, documentType) {
+    if ((window.authManager.getUserInfo() || {}).role === 'agency') {
+        window.utils.showMessage(
+            window.uiManager.translate('Agencies cannot access candidate documents'),
+            'error'
+        );
+        return;
+    }
     const documentName = documentType === 'cv' ? window.uiManager.translate('CV') : window.uiManager.translate('Assessment');
     const uploadText = documentType === 'cv' ? window.uiManager.translate('Upload CV') : window.uiManager.translate('Upload Assessment');
     
@@ -2670,6 +2691,13 @@ function closeReuploadModal() {
 
 async function showEditCandidateModal(candidateId) {
     try {
+        if ((window.authManager.getUserInfo() || {}).role === 'agency') {
+            window.utils.showMessage(
+                window.uiManager.translate('Agencies cannot edit candidates'),
+                'error'
+            );
+            return;
+        }
         // Prefer candidate data cached from showCandidateDetails to avoid extra loading state
         let candidate = window.currentCandidateDetails;
         if (!candidate || candidate.id !== candidateId) {
@@ -4671,24 +4699,39 @@ async function bookSlot(slotId, requestId, round) {
             const slotData = result.data;
             const request = await window.requestsManager.getRequestById(requestId);
 
+            // Document paths are redacted for agency in getCandidateDetails; load paths only for recruiter ICS/email.
+            let candidateForAttachments = candidate;
+            if (userInfo.role === 'agency' && window.supabase) {
+                const { data: docRow } = await window.supabase
+                    .from('candidates')
+                    .select('cv_file_path, assesment_file_path')
+                    .eq('id', candidateId)
+                    .maybeSingle();
+                candidateForAttachments = {
+                    ...candidate,
+                    cv_file_path: docRow?.cv_file_path ?? null,
+                    assesment_file_path: docRow?.assesment_file_path ?? null
+                };
+            }
+
             const attachmentUrls = {};
             const expiresIn = 7 * 24 * 60 * 60;
-            if (candidate.cv_file_path) {
+            if (candidateForAttachments.cv_file_path) {
                 const { data: cvSigned } = await window.supabase.storage
                     .from('candidate-files')
-                    .createSignedUrl(candidate.cv_file_path, expiresIn);
+                    .createSignedUrl(candidateForAttachments.cv_file_path, expiresIn);
                 const url = cvSigned?.signedUrl || cvSigned?.signedURL;
                 if (url) attachmentUrls.cvUrl = url;
             }
-            if (candidate.assesment_file_path) {
+            if (candidateForAttachments.assesment_file_path) {
                 const { data: assessmentSigned } = await window.supabase.storage
                     .from('candidate-files')
-                    .createSignedUrl(candidate.assesment_file_path, expiresIn);
+                    .createSignedUrl(candidateForAttachments.assesment_file_path, expiresIn);
                 const url = assessmentSigned?.signedUrl || assessmentSigned?.signedURL;
                 if (url) attachmentUrls.assessmentUrl = url;
             }
 
-            const icsContent = window.generateICS(slotData, candidate, request, attachmentUrls);
+            const icsContent = window.generateICS(slotData, candidateForAttachments, request, attachmentUrls);
             
             // Notify only users with role "recruiter"
             const { data: recruiters } = await window.supabase
@@ -4703,7 +4746,7 @@ async function bookSlot(slotId, requestId, round) {
             if (recruiterEmails.length > 0) {
                 try {
                     await window.emailManager.notifySlotBooked(
-                        { slot: slotData, candidate, request },
+                        { slot: slotData, candidate: candidateForAttachments, request },
                         recruiterEmails,
                         [],
                         icsContent

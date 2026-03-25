@@ -274,7 +274,23 @@ const translations = {
         "Upload Assessment": "Upload Assessment",
         "Re-upload Document": "Re-upload Document",
         "Select File": "Select File",
-        "Upload": "Upload"
+        "Upload": "Upload",
+        "Login": "Login",
+        "Remember me": "Remember me",
+        "Forgot password?": "Forgot password?",
+        "Send reset link": "Send reset link",
+        "Back to login": "Back to login",
+        "Set new password": "Set new password",
+        "Save new password": "Save new password",
+        "Enter your email and we will send you a reset link.": "Enter your email and we will send you a reset link.",
+        "If an account exists for this email, you will receive password reset instructions.": "If an account exists for this email, you will receive password reset instructions.",
+        "Password reset email sent. Check your inbox.": "Password reset email sent. Check your inbox.",
+        "Could not send reset email. Please try again.": "Could not send reset email. Please try again.",
+        "Email is required": "Email is required",
+        "New Password": "New Password",
+        "Confirm New Password": "Confirm New Password",
+        "Reset password": "Reset password",
+        "Invalid or expired reset link. Please request a new reset email from the login page.": "Invalid or expired reset link. Please request a new reset email from the login page."
     },
     sk: {
         // Navigation
@@ -555,7 +571,23 @@ const translations = {
         "Upload Assessment": "Nahrať Assessment",
         "Re-upload Document": "Znovu nahrať dokument",
         "Select File": "Vybrať súbor",
-        "Upload": "Nahrať"
+        "Upload": "Nahrať",
+        "Login": "Prihlásenie",
+        "Remember me": "Zapamätať si ma",
+        "Forgot password?": "Zabudli ste heslo?",
+        "Send reset link": "Odoslať odkaz na obnovenie",
+        "Back to login": "Späť na prihlásenie",
+        "Set new password": "Nastaviť nové heslo",
+        "Save new password": "Uložiť nové heslo",
+        "Enter your email and we will send you a reset link.": "Zadajte e-mail a pošleme vám odkaz na obnovenie hesla.",
+        "If an account exists for this email, you will receive password reset instructions.": "Ak účet s týmto e-mailom existuje, dostanete inštrukcie na obnovenie hesla.",
+        "Password reset email sent. Check your inbox.": "E-mail na obnovenie hesla bol odoslaný. Skontrolujte schránku.",
+        "Could not send reset email. Please try again.": "Odoslanie e-mailu zlyhalo. Skúste to znova.",
+        "Email is required": "E-mail je povinný",
+        "New Password": "Nové heslo",
+        "Confirm New Password": "Potvrďte nové heslo",
+        "Reset password": "Obnovenie hesla",
+        "Invalid or expired reset link. Please request a new reset email from the login page.": "Neplatný alebo expirovaný odkaz. Požiadajte o nový e-mail na obnovenie hesla na prihlasovacej stránke."
     }
 };
 
@@ -594,7 +626,12 @@ function initSupabase() {
                 throw new Error('Supabase configuration not found');
             }
             
-            supabaseInstance = supabase.createClient(config.supabase.url, config.supabase.anonKey);
+            supabaseInstance = supabase.createClient(config.supabase.url, config.supabase.anonKey, {
+                auth: {
+                    flowType: 'implicit',
+                    detectSessionInUrl: true
+                }
+            });
             window.supabase = supabaseInstance; // Make it globally available
             console.log('Supabase client initialized successfully');
         } catch (error) {
@@ -609,11 +646,64 @@ function initSupabase() {
     return supabaseInstance;
 }
 
+function setLoginPane(pane) {
+    const signin = document.getElementById('login-pane-signin');
+    const forgot = document.getElementById('login-pane-forgot');
+    const cardTitle = document.querySelector('#login-form .login-title');
+    if (signin) signin.hidden = pane !== 'signin';
+    if (forgot) forgot.hidden = pane !== 'forgot';
+    if (cardTitle && window.uiManager && typeof window.uiManager.translate === 'function') {
+        if (pane === 'forgot') {
+            cardTitle.setAttribute('data-translate', 'Reset password');
+            cardTitle.textContent = window.uiManager.translate('Reset password');
+        } else {
+            cardTitle.setAttribute('data-translate', 'Login');
+            cardTitle.textContent = window.uiManager.translate('Login');
+        }
+    }
+}
+
+/** Supabase redirects here with #...&type=recovery (implicit) or ?type=recovery / ?code= (PKCE). */
+function isPasswordRecoveryFromLocation() {
+    try {
+        if (typeof window === 'undefined') return false;
+        const hash = (window.location.hash || '').replace(/^#/, '');
+        if (hash) {
+            const fromHash = new URLSearchParams(hash).get('type');
+            if (fromHash === 'recovery') return true;
+        }
+        const search = (window.location.search || '').replace(/^\?/, '');
+        if (search) {
+            const fromSearch = new URLSearchParams(search).get('type');
+            if (fromSearch === 'recovery') return true;
+        }
+    } catch (e) {
+        /* ignore */
+    }
+    return false;
+}
+
 // Initialize all modules
 async function initializeModules() {
     try {
         console.log('Starting module initialization...');
-        
+
+        const recoveryFromUrlCaptured = isPasswordRecoveryFromLocation();
+        if (recoveryFromUrlCaptured && window.authManager && typeof window.authManager.getPasswordResetRedirectUrl === 'function') {
+            const resetTarget = window.authManager.getPasswordResetRedirectUrl();
+            if (resetTarget) {
+                try {
+                    const u = new URL(resetTarget);
+                    u.search = window.location.search || '';
+                    u.hash = window.location.hash || '';
+                    window.location.replace(u.href);
+                    return;
+                } catch (e) {
+                    console.warn('Could not redirect to password reset page', e);
+                }
+            }
+        }
+
         // Initialize Supabase
         const supabase = initSupabase();
         if (!supabase) {
@@ -636,8 +726,7 @@ async function initializeModules() {
         }
         console.log('All modules are available');
 
-        // Initialize modules
-        window.authManager.init(supabase);
+        window.authManager.init(supabase, false);
         window.candidatesManager.init(supabase);
         window.requestsManager.init(supabase);
         if (window.interviewSlotsManager) {
@@ -687,25 +776,33 @@ async function initializeModules() {
     }
 }
 
-// Setup login form
+// Setup login form (once per page load)
 function setupLoginForm() {
+    const loginScreen = document.getElementById('login-screen');
+    if (loginScreen && loginScreen.dataset.loginFormsBound === '1') {
+        return;
+    }
+    if (loginScreen) {
+        loginScreen.dataset.loginFormsBound = '1';
+    }
+
     console.log('Setting up login form...');
     const authForm = document.getElementById('auth-form');
     console.log('Auth form found:', !!authForm);
-    
+
     if (authForm) {
         authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+            e.preventDefault();
             console.log('Login form submitted');
-            
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             console.log('Login attempt for email:', email);
 
             try {
                 const result = await window.authManager.login(email, password);
                 console.log('Login successful:', result);
-                
+
                 window.uiManager.showApp();
                 window.uiManager.updateNavigationVisibility();
                 const userInfo = await window.authManager.getUserInfo();
@@ -723,6 +820,65 @@ function setupLoginForm() {
     } else {
         console.error('Auth form not found!');
     }
+
+    const forgotLink = document.getElementById('forgot-password-link');
+    if (forgotLink) {
+        forgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const mainEmail = document.getElementById('email')?.value?.trim();
+            const forgotInput = document.getElementById('forgot-email');
+            if (forgotInput && mainEmail) {
+                forgotInput.value = mainEmail;
+            }
+            setLoginPane('forgot');
+            window.uiManager.translatePage();
+        });
+    }
+
+    const backFromForgot = document.getElementById('back-to-login-from-forgot');
+    if (backFromForgot) {
+        backFromForgot.addEventListener('click', () => {
+            setLoginPane('signin');
+            window.uiManager.translatePage();
+        });
+    }
+
+    const forgotForm = document.getElementById('forgot-password-form');
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email')?.value?.trim();
+            if (!email) {
+                window.utils.showMessage(window.uiManager.translate('Email is required'), 'error');
+                return;
+            }
+            const btn = document.getElementById('forgot-submit-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = window.uiManager.translate('Updating...');
+            }
+            try {
+                await window.authManager.requestPasswordReset(email);
+                window.utils.showMessage(
+                    window.uiManager.translate('If an account exists for this email, you will receive password reset instructions.'),
+                    'success'
+                );
+                setLoginPane('signin');
+            } catch (error) {
+                console.error('Password reset request failed:', error);
+                window.utils.showMessage(
+                    window.uiManager.translate('Could not send reset email. Please try again.') + (error.message ? ` (${error.message})` : ''),
+                    'error'
+                );
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = window.uiManager.translate('Send reset link');
+                }
+            }
+        });
+    }
+
 }
 
 // Navigation functions
@@ -3472,6 +3628,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             await window.authManager.logout();
             window.uiManager.showLogin();
+            setLoginPane('signin');
             setupLoginForm();
     } catch (error) {
             window.utils.showMessage('Logout failed: ' + error.message, 'error');
@@ -4397,9 +4554,6 @@ async function showAgencySlotsCalendar(requestId, round) {
     try {
         window.uiManager.showLoading(window.uiManager.translate('Loading available slots...') || 'Loading available slots...');
         
-        // Get available slots
-        const slots = await window.interviewSlotsManager.getAvailableSlots(requestId, round);
-        
         // Get agency source
         const agencySource = getAgencySource();
         
@@ -4408,6 +4562,14 @@ async function showAgencySlotsCalendar(requestId, round) {
             window.utils.showMessage('Unable to determine agency source. Please contact administrator.', 'error');
             return;
         }
+
+        // Get available slots and all round slots (for agency booked ones)
+        const slots = await window.interviewSlotsManager.getAvailableSlots(requestId, round);
+        const allRoundSlots = await window.interviewSlotsManager.getSlotsForRequest(requestId, round);
+        const myBookedSlots = (allRoundSlots || []).filter(slot =>
+            slot.candidate_id &&
+            slot.agency_source === agencySource
+        );
         
         // Get candidates for this agency (filtered by source)
         const candidatesResult = await window.candidatesManager.getCandidates({
@@ -4484,6 +4646,30 @@ async function showAgencySlotsCalendar(requestId, round) {
                 </div>
             `;
         }).join('');
+
+        const myBookedHtml = myBookedSlots.length > 0 ? `
+            <div style="margin-bottom: 1.25rem; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 10px; background: #fafafa;">
+                <h3 style="margin-top: 0; margin-bottom: 0.8rem;">Moje potvrdené termíny</h3>
+                <div style="display: grid; gap: 10px;">
+                    ${myBookedSlots.map(slot => {
+                        const start = new Date(slot.start_time);
+                        const end = new Date(slot.end_time);
+                        const dateStr = start.toLocaleDateString('sk-SK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                        const timeStr = `${start.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+                        const candidateName = (slot.candidates?.name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+                        return `
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; background: #fff;">
+                                <div>
+                                    <div style="font-weight: 600;">${candidateName || 'Kandidát'}</div>
+                                    <div style="font-size: 0.92rem; color: #4b5563;">${dateStr}, ${timeStr}</div>
+                                </div>
+                                <button onclick="cancelAgencyBooking(${slot.id}, ${requestId}, '${round}')" class="btn btn-danger">Zrušiť</button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        ` : '';
         
         modal.innerHTML = `
             <div class="agency-slots-modal-content">
@@ -4495,6 +4681,7 @@ async function showAgencySlotsCalendar(requestId, round) {
                     <button onclick="closeAgencySlotsCalendar()" class="modal-close-btn" aria-label="Close">&times;</button>
                 </div>
                 <div class="agency-slots-calendar-content">
+                    ${myBookedHtml}
                     ${slots.length === 0 ? `
                         <div class="empty-slots-state">
                             <div class="empty-icon">📅</div>
@@ -4777,6 +4964,78 @@ async function bookSlot(slotId, requestId, round) {
             ? (window.uiManager.translate?.('Candidate is already booked for another slot in this round') || 'Candidate is already booked for another slot in this round.')
             : ('Error booking slot: ' + (error.message || error));
         window.utils.showMessage(msg, 'error');
+    }
+}
+
+async function cancelAgencyBooking(slotId, requestId, round) {
+    try {
+        const reason = prompt('Zadajte dôvod zrušenia termínu:');
+        if (reason === null) return;
+        const trimmedReason = reason.trim();
+        if (!trimmedReason) {
+            window.utils.showMessage('Dôvod zrušenia je povinný.', 'error');
+            return;
+        }
+
+        const agencySource = getAgencySource();
+        if (!agencySource) {
+            window.utils.showMessage('Unable to determine agency source. Please contact administrator.', 'error');
+            return;
+        }
+
+        const request = await window.requestsManager.getRequestById(requestId);
+        const allSlots = await window.interviewSlotsManager.getSlotsForRequest(requestId, round);
+        const slot = (allSlots || []).find(s => s.id === slotId);
+        if (!slot || !slot.candidate_id) {
+            window.utils.showMessage('Tento termín už nie je rezervovaný.', 'error');
+            await showAgencySlotsCalendar(requestId, round);
+            return;
+        }
+        if (slot.agency_source !== agencySource) {
+            window.utils.showMessage('Môžete zrušiť len vlastné rezervácie.', 'error');
+            return;
+        }
+
+        const candidate = await window.candidatesManager.getCandidateDetails(slot.candidate_id);
+        window.uiManager.showLoading('Cancelling booking...');
+        await window.interviewSlotsManager.cancelBooking(slotId, agencySource);
+
+        const { data: recruiters } = await window.supabase
+            .from('users')
+            .select('email')
+            .eq('role', 'recruiter')
+            .not('email', 'is', null)
+            .limit(20);
+        const recruiterEmails = (recruiters || []).map(u => u.email).filter(Boolean);
+
+        if (recruiterEmails.length > 0 && candidate) {
+            try {
+                await window.emailManager.notifySlotCancelled(
+                    { slot, candidate, request },
+                    recruiterEmails,
+                    trimmedReason
+                );
+            } catch (emailError) {
+                console.warn('Error sending cancellation notification email:', emailError);
+            }
+        }
+
+        try {
+            const noteText = `[Agency cancellation] ${trimmedReason}`;
+            await window.candidatesManager.updateCandidateStatus(candidate.id, candidate.status, noteText);
+        } catch (noteError) {
+            console.warn('Error adding cancellation note to candidate:', noteError);
+        }
+
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Rezervácia bola zrušená a recruiter bol informovaný.', 'success');
+        const existingCalendar = document.getElementById('agency-slots-calendar');
+        if (existingCalendar) existingCalendar.remove();
+        await showAgencySlotsCalendar(requestId, round);
+    } catch (error) {
+        console.error('Error canceling booking:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage('Error canceling booking: ' + (error.message || error), 'error');
     }
 }
 

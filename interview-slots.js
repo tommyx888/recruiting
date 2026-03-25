@@ -303,12 +303,23 @@ class InterviewSlotsManager {
      * @param {number} slotId - Slot ID
      * @returns {Promise<Object>}
      */
-    async cancelBooking(slotId) {
+    async cancelBooking(slotId, agencySource = null) {
         if (!this.supabase) {
             throw new Error('Supabase client not initialized');
         }
 
         try {
+            if (agencySource) {
+                const { data: rows, error: rpcError } = await this.supabase
+                    .rpc('cancel_interview_slot_booking', {
+                        slot_id: slotId,
+                        p_agency_source: agencySource
+                    });
+                if (rpcError) throw rpcError;
+                const data = Array.isArray(rows) && rows.length > 0 ? rows[0] : rows;
+                return { success: true, data };
+            }
+
             const { data, error } = await this.supabase
                 .from('interview_slots')
                 .update({

@@ -23,19 +23,34 @@
             </div>
             <h2 class="login-title" data-translate="Login">Login</h2>
             <p class="login-subtitle" data-translate="Recruiting Management System">Recruiting Management System</p>
-            <form id="auth-form" class="login-form-inner">
-                <div class="input-group">
-                    <input type="email" id="email" placeholder="Email" required autocomplete="email">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
-                </div>
-                <div class="remember-me">
-                    <input type="checkbox" id="remember-me">
-                    <label for="remember-me" data-translate="Remember me">Remember me</label>
-                </div>
-                <button type="submit" class="btn btn-primary btn-login" data-translate="Login">Login</button>
-            </form>
+            <div id="login-pane-signin">
+                <form id="auth-form" class="login-form-inner">
+                    <div class="input-group">
+                        <input type="email" id="email" placeholder="Email" required autocomplete="email">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                    </div>
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember-me">
+                        <label for="remember-me" data-translate="Remember me">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-login" data-translate="Login">Login</button>
+                </form>
+                <p class="login-forgot-wrap">
+                    <a href="#" id="forgot-password-link" class="login-forgot-link" data-translate="Forgot password?">Forgot password?</a>
+                </p>
+            </div>
+            <div id="login-pane-forgot" class="login-pane-alt" hidden>
+                <p class="login-help-text" data-translate="Enter your email and we will send you a reset link.">Enter your email and we will send you a reset link.</p>
+                <form id="forgot-password-form" class="login-form-inner">
+                    <div class="input-group">
+                        <input type="email" id="forgot-email" placeholder="Email" required autocomplete="email">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-login" id="forgot-submit-btn" data-translate="Send reset link">Send reset link</button>
+                </form>
+                <button type="button" class="btn btn-secondary btn-login-secondary" id="back-to-login-from-forgot" data-translate="Back to login">Back to login</button>
+            </div>
         </div>
     </div>
 

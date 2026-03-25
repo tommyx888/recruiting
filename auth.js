@@ -11,11 +11,92 @@ class AuthManager {
     }
 
     /**
-     * Initialize authentication with Supabase
-     * @param {Object} supabaseInstance - Supabase client instance
+     * @param {Object} supabaseInstance
+     * @param {boolean} recoveryHintFromUrl - true if URL already contained type=recovery before client parsed the session (SPA + PKCE sometimes skip PASSWORD_RECOVERY)
      */
-    init(supabaseInstance) {
+    init(supabaseInstance, recoveryHintFromUrl = false) {
         this.supabase = supabaseInstance;
+        this.passwordRecoveryActive = false;
+        this._recoveryHintFromUrl = !!recoveryHintFromUrl;
+        if (this._authSubscription) {
+            this._authSubscription.unsubscribe();
+            this._authSubscription = null;
+        }
+        const { data: { subscription } } = this.supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                this.resetUserData();
+                return;
+            }
+            if (event === 'PASSWORD_RECOVERY') {
+                this.passwordRecoveryActive = true;
+            }
+            if (event === 'INITIAL_SESSION' && session?.user && this._recoveryHintFromUrl) {
+                this.passwordRecoveryActive = true;
+            }
+            if (
+                session?.user &&
+                (event === 'INITIAL_SESSION' ||
+                    event === 'SIGNED_IN' ||
+                    event === 'TOKEN_REFRESHED' ||
+                    event === 'USER_UPDATED' ||
+                    event === 'PASSWORD_RECOVERY')
+            ) {
+                this.currentUser = session.user;
+            }
+        });
+        this._authSubscription = subscription;
+    }
+
+    /**
+     * Full URL for Supabase resetPasswordForEmail redirectTo (dedicated set-password page).
+     */
+    getPasswordResetRedirectUrl() {
+        const explicit = typeof window !== 'undefined' && window.config?.app?.passwordResetRedirectUrl;
+        if (explicit && String(explicit).trim().startsWith('http')) {
+            return String(explicit).trim();
+        }
+        try {
+            const site = typeof window !== 'undefined' && window.config?.app?.siteUrl;
+            if (site && String(site).trim().startsWith('http')) {
+                const u = new URL(String(site).trim());
+                return `${u.origin}/reset-password.html`;
+            }
+        } catch (e) {
+            /* ignore */
+        }
+        if (typeof window !== 'undefined' && window.location?.origin) {
+            return `${window.location.origin}/reset-password.html`;
+        }
+        return '';
+    }
+
+    /**
+     * Send password reset email (login page)
+     */
+    async requestPasswordReset(email) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        const redirectTo = this.getPasswordResetRedirectUrl();
+        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+            redirectTo
+        });
+        if (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Set new password after following email recovery link (no current password)
+     */
+    async setNewPasswordAfterRecovery(newPassword) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        const { error } = await this.supabase.auth.updateUser({ password: newPassword });
+        if (error) {
+            throw error;
+        }
     }
 
     /**
@@ -39,9 +120,14 @@ class AuthManager {
                 throw error;
             }
 
+            this.currentUser = data.user;
+
             // Fetch user role and permissions
             await this.fetchUserPermissions(data.user.id);
-            
+
+            this.passwordRecoveryActive = false;
+            this._recoveryHintFromUrl = false;
+
             return { success: true, user: data.user };
         } catch (error) {
             console.error('Login error:', error);
@@ -152,13 +238,48 @@ class AuthManager {
     }
 
     /**
+     * Resolve Supabase user into currentUser (getUser validates JWT; getSession reads persisted session).
+     * @returns {Promise<Object|null>} Supabase User or null
+     */
+    async resolveAuthUser() {
+        if (!this.supabase) {
+            return null;
+        }
+        if (this.currentUser) {
+            return this.currentUser;
+        }
+        const { data: getData, error: getErr } = await this.supabase.auth.getUser();
+        if (getErr) {
+            console.warn('AuthManager.resolveAuthUser: getUser failed', getErr);
+        }
+        if (getData?.user) {
+            this.currentUser = getData.user;
+            return this.currentUser;
+        }
+        const { data: sessData, error: sessErr } = await this.supabase.auth.getSession();
+        if (sessErr) {
+            console.warn('AuthManager.resolveAuthUser: getSession failed', sessErr);
+        }
+        if (sessData?.session?.user) {
+            this.currentUser = sessData.session.user;
+            return this.currentUser;
+        }
+        return null;
+    }
+
+    /**
      * Update user password
      * @param {string} currentPassword - Current password
      * @param {string} newPassword - New password
      * @returns {Promise<Object>}
      */
     async updatePassword(currentPassword, newPassword) {
-        if (!this.supabase || !this.currentUser) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        const user = await this.resolveAuthUser();
+        if (!user || !user.email) {
             throw new Error('Not authenticated');
         }
 
@@ -197,6 +318,7 @@ class AuthManager {
         this.userDepartment = '';
         this.userAllowedPositions = [];
         this.currentUser = null;
+        this.passwordRecoveryActive = false;
     }
 
     /**

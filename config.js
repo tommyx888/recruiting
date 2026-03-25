@@ -12,7 +12,11 @@ window.config = {
     app: {
         name: 'Recruiting Management System',
         defaultLanguage: 'sk',
-        version: '1.0.0'
+        version: '1.0.0',
+        // Used in Supabase Site URL / general app origin
+        siteUrl: 'https://recruiting.iacslovakia.sk/',
+        // Kam má odkaz z e-mailu „reset hesla“ presmerovať (pridaj presne túto URL do Redirect URLs v Supabase)
+        passwordResetRedirectUrl: 'https://recruiting.iacslovakia.sk/reset-password.html'
     },
     
     // File Upload Configuration

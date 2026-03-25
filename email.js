@@ -153,7 +153,6 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
      * @param {string} managerEmail - Manager email who created the request
      */
     async notifyRequestApproved(requestData, managerEmail) {
-        const category = requestData.position_category || requestData.category || '—';
         const subject = `Žiadosť o nábor schválená - ${requestData.position}`;
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -166,7 +165,7 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                     <p><strong>Pozícia:</strong> ${requestData.position}</p>
                     <p><strong>Oddelenie:</strong> ${requestData.department}</p>
                     <p><strong>Typ:</strong> ${requestData.position_type}</p>
-                    <p><strong>Kategória:</strong> ${category}</p>
+                    <p><strong>Kategória:</strong> ${requestData.category}</p>
                     <p><strong>Počet miest:</strong> ${requestData.headcount}</p>
                 </div>
                 
@@ -196,7 +195,7 @@ Detaily pozície:
 - Pozícia: ${requestData.position}
 - Oddelenie: ${requestData.department}
 - Typ: ${requestData.position_type}
-- Kategória: ${category}
+- Kategória: ${requestData.category}
 - Počet miest: ${requestData.headcount}
 
 Teraz môžete začať s náborom kandidátov pre túto pozíciu.
@@ -296,13 +295,9 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         const statusTranslations = {
             'New': 'Nový',
             'In Process': 'V procese',
-            'In Process - First Round': 'Prvé kolo (v procese)',
-            'In Process - Second Round': 'Druhé kolo (v procese)',
             'Interviewed': 'Pohovorovaný',
             'Rejected': 'Zamietnutý',
-            'Rejected - Inform Source': 'Zamietnutý - informovať zdroj',
             'Hired': 'Prijatý',
-            'Hired - Contact Source': 'Prijatý - kontaktovať zdroj',
             'Withdrawn': 'Odstúpil'
         };
 
@@ -363,6 +358,100 @@ ${notes ? `Poznámky: ${notes}` : ''}
 Prehliadnite si aktualizované informácie o kandidátovi v systéme.
 
 Otvoriť systém: https://recruiting.iacslovakia.sk/
+
+---
+Tento email bol odoslaný automaticky zo systému na nábor.
+        `;
+
+        return await this.sendEmail({
+            to: toEmail,
+            subject: subject,
+            html: html,
+            text: text
+        });
+    }
+
+    /**
+     * Notify Agency about candidate status change
+     * @param {Object} candidate - Candidate data
+     * @param {string} status - New status
+     * @param {string|null} notes - Additional notes
+     * @param {string} toEmail - Agency email
+     * @returns {Promise<Object>}
+     */
+    async notifyAgencyCandidateStatusChange(candidate, status, notes, toEmail) {
+        const subject = `Zmena statusu kandidáta - ${candidate.name}`;
+
+        const statusTranslations = {
+            'New': 'Nový',
+            'In Process': 'V procese',
+            'In Process - First Round': 'V procese - Prvé kolo',
+            'In Process - Second Round': 'V procese - Druhé kolo',
+            'Interviewed': 'Pohovorovaný',
+            'Rejected': 'Zamietnutý',
+            'Rejected - Inform Source': 'Zamietnutý - Informovať zdroj',
+            'Hired': 'Prijatý',
+            'Hired - Contact Source': 'Prijatý - Kontaktovať zdroj',
+            'Withdrawn': 'Odstúpil'
+        };
+
+        const translatedStatus = statusTranslations[status] || status;
+
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                <div style="background-color: #949C58; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; font-size: 24px;">📋 Zmena statusu kandidáta (agentúra)</h1>
+                </div>
+                
+                <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333; margin-top: 0;">Kandidát: ${candidate.name}</h2>
+                    
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <p style="margin: 5px 0;"><strong>Pozícia:</strong> ${candidate.position}</p>
+                        <p style="margin: 5px 0;"><strong>Oddelenie:</strong> ${candidate.department}</p>
+                        <p style="margin: 5px 0;"><strong>Nový status:</strong> <span style="color: #949C58; font-weight: bold;">${translatedStatus}</span></p>
+                        <p style="margin: 5px 0;"><strong>Dátum zmeny:</strong> ${new Date().toLocaleDateString('sk-SK')}</p>
+                    </div>
+                    
+                    ${notes ? `
+                    <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <h3 style="margin-top: 0; color: #856404;">Poznámka od recruitera:</h3>
+                        <p style="margin: 0; color: #856404;">${notes}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="margin-top: 20px; padding: 15px; background-color: #e3f2fd; border-radius: 5px;">
+                        <p style="margin: 0; color: #1976d2;">
+                            <strong>ℹ️ Informácia:</strong> Stav kandidáta, ktorého ste poslali, bol aktualizovaný v systéme. Detailný priebeh si môžete pozrieť po prihlásení.
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť náborový systém</a>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                    <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
+                    <a href="https://recruiting.iacslovakia.sk/" style="color: #949C58;">https://recruiting.iacslovakia.sk/</a></p>
+                </div>
+            </div>
+        `;
+
+        const text = `
+Zmena statusu kandidáta - ${candidate.name}
+
+Kandidát: ${candidate.name}
+Pozícia: ${candidate.position}
+Oddelenie: ${candidate.department}
+Nový status: ${translatedStatus}
+Dátum zmeny: ${new Date().toLocaleDateString('sk-SK')}
+
+${notes ? `Poznámka od recruitera: ${notes}\n` : ''}
+
+Stav kandidáta, ktorého ste poslali, bol aktualizovaný v systéme. Detailný priebeh si môžete pozrieť po prihlásení.
+
+Otvoriť náborový systém: https://recruiting.iacslovakia.sk/
 
 ---
 Tento email bol odoslaný automaticky zo systému na nábor.
@@ -801,6 +890,91 @@ Tento email bol odoslaný automaticky zo systému na nábor.
         }
 
         return { success: true, results, icsContent };
+    }
+
+    /**
+     * Notify recruiter(s) that agency cancelled a previously booked interview slot.
+     * @param {Object} slotData - Slot data with candidate and request info
+     * @param {string|string[]} recruiterEmail - Recruiter email(s)
+     * @param {string} reason - Cancellation reason from agency
+     * @returns {Promise<Object>}
+     */
+    async notifySlotCancelled(slotData, recruiterEmail, reason) {
+        const { slot, candidate, request } = slotData;
+        const roundText = slot.round === 'first' ? 'Prvé kolo' : 'Druhé kolo';
+        const startDate = new Date(slot.start_time);
+        const endDate = new Date(slot.end_time);
+        const dateStr = startDate.toLocaleDateString('sk-SK', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const timeStr = `${startDate.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })} - ${endDate.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+        const safeReason = (reason || '').trim();
+
+        const subject = `Zrušený termín pohovoru - ${candidate.name} (${request.position})`;
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                <div style="background-color: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; font-size: 24px;">Zrušený termín pohovoru</h1>
+                </div>
+                <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333; margin-top: 0;">Kandidát: ${candidate.name}</h2>
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <p style="margin: 5px 0;"><strong>Pozícia:</strong> ${request.position}</p>
+                        <p style="margin: 5px 0;"><strong>Oddelenie:</strong> ${request.department}</p>
+                        <p style="margin: 5px 0;"><strong>Kolo:</strong> ${roundText}</p>
+                        <p style="margin: 5px 0;"><strong>Agentúra:</strong> ${slot.agency_source || candidate.source || '-'}</p>
+                        <p style="margin: 5px 0;"><strong>Pôvodný termín:</strong> ${dateStr}, ${timeStr}</p>
+                    </div>
+                    <div style="background-color: #fff1f2; border: 1px solid #fecdd3; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <h3 style="margin-top: 0; color: #9f1239;">Dôvod zrušenia:</h3>
+                        <p style="margin: 0; color: #9f1239;">${safeReason || 'Neuvedený'}</p>
+                    </div>
+                    <div style="margin-top: 20px; padding: 15px; background-color: #ecfeff; border-radius: 5px;">
+                        <p style="margin: 0; color: #0e7490;">
+                            <strong>Info:</strong> Termín bol uvoľnený a kandidáta je možné naplánovať na iný voľný slot.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const text = `
+Zrušený termín pohovoru - ${candidate.name} (${request.position})
+
+Kandidát: ${candidate.name}
+Pozícia: ${request.position}
+Oddelenie: ${request.department}
+Kolo: ${roundText}
+Agentúra: ${slot.agency_source || candidate.source || '-'}
+Pôvodný termín: ${dateStr}, ${timeStr}
+
+Dôvod zrušenia: ${safeReason || 'Neuvedený'}
+
+Termín bol uvoľnený a kandidáta je možné naplánovať na iný voľný slot.
+Otvoriť systém: https://recruiting.iacslovakia.sk/
+        `;
+
+        const recruiterList = Array.isArray(recruiterEmail) ? recruiterEmail : (recruiterEmail ? [recruiterEmail] : []);
+        const emails = [...new Set(recruiterList.filter(Boolean))];
+        const results = [];
+
+        for (const email of emails) {
+            try {
+                const result = await this.sendEmail({ to: email, subject, html, text });
+                results.push({ email, success: true, result });
+            } catch (error) {
+                console.warn(`Error sending cancellation email to ${email}:`, error);
+                results.push({ email, success: false, error });
+            }
+        }
+
+        return { success: true, results };
     }
 }
 

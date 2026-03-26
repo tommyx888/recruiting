@@ -8,7 +8,7 @@ INSERT INTO users (id, role, department, allowed_positions, email) VALUES
 ('00000000-0000-0000-0000-000000000102', 'Manager', 'HR', ARRAY['Recruiter', 'HR Generalist']::text[], 'hr.recruiter@company.com'),
 
 -- IT Managers  
-('00000000-0000-0000-0000-000000000201', 'Manager', 'IT', ARRAY['Software Developer', 'Senior Software Developer', 'IT Analyst / Administrator', 'Senior IT Specialist']::text[], 'it.manager@company.com'),
+('00000000-0000-0000-0000-000000000201', 'Manager', 'IT', ARRAY['Software Developer', 'Senior Software Developer', 'Junior IT technician', 'IT Analyst / Administrator', 'Senior IT Specialist']::text[], 'it.manager@company.com'),
 ('00000000-0000-0000-0000-000000000202', 'Manager', 'IT', ARRAY['Software Developer', 'Senior Software Developer']::text[], 'it.dev.manager@company.com'),
 
 -- Production Managers

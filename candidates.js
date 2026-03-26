@@ -285,23 +285,30 @@ class CandidatesManager {
         }
 
         try {
-            const updateData = { 
+            let currentRow = null;
+            if (notes || status === 'Hired') {
+                const { data } = await this.supabase
+                    .from('candidates')
+                    .select('notes, hire_date')
+                    .eq('id', candidateId)
+                    .single();
+                currentRow = data;
+            }
+
+            const updateData = {
                 status,
                 last_updated: new Date().toISOString()
             };
 
-            if (notes) {
-                // Get current notes and append new ones
-                const { data: currentData } = await this.supabase
-                    .from('candidates')
-                    .select('notes')
-                    .eq('id', candidateId)
-                    .single();
+            if (status === 'Hired' && !currentRow?.hire_date) {
+                updateData.hire_date = new Date().toISOString();
+            }
 
+            if (notes) {
                 const currentDate = new Date().toISOString().split('T')[0];
                 const newNote = `[${currentDate}] ${notes}`;
-                updateData.notes = currentData?.notes 
-                    ? `${currentData.notes}\n\n${newNote}`
+                updateData.notes = currentRow?.notes
+                    ? `${currentRow.notes}\n\n${newNote}`
                     : newNote;
             }
 
@@ -345,6 +352,16 @@ class CandidatesManager {
         }
 
         try {
+            let existingHireDate = null;
+            if (candidateData.status === 'Hired') {
+                const { data: hireRow } = await this.supabase
+                    .from('candidates')
+                    .select('hire_date')
+                    .eq('id', candidateId)
+                    .single();
+                existingHireDate = hireRow?.hire_date;
+            }
+
             // Prepare update data
             const updateData = {
                 name: candidateData.name,
@@ -357,6 +374,10 @@ class CandidatesManager {
                 notes: candidateData.notes || null,
                 last_updated: new Date().toISOString()
             };
+
+            if (candidateData.status === 'Hired' && !existingHireDate) {
+                updateData.hire_date = new Date().toISOString();
+            }
 
             // Handle CV re-upload if new file is provided
             if (candidateData.cvFile) {
@@ -639,7 +660,7 @@ class CandidatesManager {
         try {
             const { data: candidates, error } = await this.supabase
                 .from('candidates')
-                .select('status, source, date_obtained, last_updated');
+                .select('status, source, date_obtained, last_updated, hire_date');
 
             if (error) throw error;
 
@@ -660,12 +681,17 @@ class CandidatesManager {
                 stats.bySource[candidate.source] = (stats.bySource[candidate.source] || 0) + 1;
             });
 
-            // Calculate average time to hire (using last_updated for hired candidates)
-            const hiredCandidates = candidates.filter(c => c.status === 'Hired' && c.last_updated);
+            // Prijatí: od nahratia (date_obtained) do prijatia (hire_date alebo last_updated)
+            const hiredCandidates = candidates.filter(c => {
+                if (c.status !== 'Hired') return false;
+                const start = c.date_obtained;
+                const end = c.hire_date || c.last_updated;
+                return start && end;
+            });
             if (hiredCandidates.length > 0) {
                 const totalDays = hiredCandidates.reduce((sum, c) => {
                     const start = new Date(c.date_obtained);
-                    const end = new Date(c.last_updated);
+                    const end = new Date(c.hire_date || c.last_updated);
                     return sum + (end - start) / (1000 * 60 * 60 * 24);
                 }, 0);
                 stats.averageTimeToHire = Math.round(totalDays / hiredCandidates.length);

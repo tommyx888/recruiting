@@ -602,7 +602,7 @@ const departmentPositions = {
     'Engineering': ['Senior Process Engineer 1', 'Senior Process Engineer IM', 'Process Engineer 1', 'Senior IM Technologist Coordinator', 'Process Engineer IM', 'Senior Technologist IM', 'Foreman Technologist IM', 'Technologist IM', 'Mold Changer', 'Materialist', 'Senior Process Engineer 2', 'Process Engineer 2', 'Senior Technologist Coordinator', 'Tooling Engineer', 'Product Engineer', 'Change BOM Coordinator', 'Programe Engineer', 'Quality Program Engineer', 'Launch Coordinator', 'Data Analyst', 'Manufacturing Engineer'],
     'Finance': ['Programme Controller', 'Finance Analyst', 'Chief Accountant', 'Financial Specialist Senior', 'Supplier Accountant', 'Services Accountant', 'Financial Assistant', 'Financial Clerk', 'Revenue Accountant', 'Financial Specialist', 'Treasury Analyst', 'Senior Treasury & Financial Analyst'],
     'HR': ['Payroll accountant', 'Senior HR Generalist', 'Recruiter', 'HR Generalist 1', 'Junior Payroll', 'Training Center Trainer', 'HSE Specialist', 'Environment Officer', 'Executive assistant'],
-    'IT': ['IT Analyst / Administrator', 'Senior IT Specialist'],
+    'IT': ['Junior IT technician', 'IT Analyst / Administrator', 'Senior IT Specialist'],
     'Logistics': ['Warehouse/Logistics Leader', 'Senior Logistics Planner', 'Logistics Disponent', 'Logistics Planner', 'Packaging Disponent', 'Logistics Referent', 'Inventory Counter', 'Internal Logistics Coordinator', 'Logistics Shift leader', 'Expedient', 'Supervisor Inventory Control', 'Logistics Planner IM', 'Senior Demand Specialist', 'Logistics operator Expedient', 'Logistics operator receiving'],
     'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetic/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent', 'Technologist 1'],
     'Management': ['Operation Assistant General Manager', 'Financial Manager', 'HR Manager', 'Logistics Manager', 'Quality Manager', 'Production Manager', 'Maintenance Manager', 'Programme Manager', 'Purchasing Manager', 'IT Manager', 'Ext. Programme Manager', 'Business Manager', 'Program Manager'],
@@ -1247,8 +1247,12 @@ function createCandidateTable(candidates, status) {
 
     candidates.forEach(candidate => {
         const row = document.createElement('tr');
-        const timeInProcess = calculateTimeInProcess(candidate.last_updated);
-        const alertClass = !isAgency && timeInProcess.days > 7 ? 'alert-status' : '';
+        const timeInProcess = getTimeInProcessForCandidate(candidate);
+        const skipStaleRowAlert = candidate.status && (
+            candidate.status.includes('Hired') ||
+            candidate.status.includes('Rejected')
+        );
+        const alertClass = !isAgency && !skipStaleRowAlert && timeInProcess.days > 7 ? 'alert-status' : '';
         row.className = alertClass;
 
         const nameWithWarning = createNameWithWarning(candidate);
@@ -1762,6 +1766,31 @@ async function downloadFile(candidateId, fileType) {
 }
 
 // Utility functions
+function diffDaysHoursBetween(startVal, endVal) {
+    const start = new Date(startVal);
+    const end = new Date(endVal);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+        return null;
+    }
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    return { days: diffDays, hours: diffHours };
+}
+
+/** Pre prijatých (Hired): čas od nahratia (dátum získania) do prijatia; inak od poslednej zmeny do teraz. */
+function getTimeInProcessForCandidate(candidate) {
+    if (candidate.status === 'Hired') {
+        const start = candidate.date_obtained || candidate.created_at;
+        const end = candidate.hire_date || candidate.last_updated;
+        if (start && end) {
+            const range = diffDaysHoursBetween(start, end);
+            if (range) return range;
+        }
+    }
+    return calculateTimeInProcess(candidate.last_updated);
+}
+
 function calculateTimeInProcess(lastUpdated) {
     const now = new Date();
     const updated = new Date(lastUpdated);
@@ -2328,6 +2357,7 @@ const extendedDepartmentPositions = {
         'Backend Developer',
         'Full Stack Developer',
         'DevOps Engineer',
+        'Junior IT technician',
         'System Administrator',
         'Database Administrator',
         'QA Engineer',
@@ -2584,7 +2614,7 @@ function updatePositions() {
         'Engineering': ['Senior Process Engineer 1', 'Senior Process Engineer IM', 'Process Engineer 1', 'Senior IM Technologist Coordinator', 'Process Engineer IM', 'Senior Technologist IM', 'Foreman Technologist IM', 'Technologist IM', 'Mold Changer', 'Materialist', 'Senior Process Engineer 2', 'Process Engineer 2', 'Senior Technologist Coordinator', 'Tooling Engineer', 'Product Engineer', 'Change BOM Coordinator', 'Programe Engineer', 'Quality Program Engineer', 'Launch Coordinator', 'Data Analyst', 'Manufacturing Engineer'],
         'Finance': ['Programme Controller', 'Finance Analyst', 'Chief Accountant', 'Financial Specialist Senior', 'Supplier Accountant', 'Services Accountant', 'Financial Assistant', 'Financial Clerk', 'Revenue Accountant', 'Financial Specialist', 'Treasury Analyst', 'Senior Treasury & Financial Analyst'],
         'HR': ['Payroll accountant', 'Senior HR Generalist', 'Recruiter', 'HR Generalist 1', 'Junior Payroll', 'Training Center Trainer', 'HSE Specialist', 'Environment Officer', 'Executive assistant'],
-        'IT': ['IT Analyst / Administrator', 'Senior IT Specialist'],
+        'IT': ['Junior IT technician', 'IT Analyst / Administrator', 'Senior IT Specialist'],
         'Logistics': ['Warehouse/Logistics Leader', 'Senior Logistics Planner', 'Logistics Disponent', 'Logistics Planner', 'Packaging Disponent', 'Logistics Referent', 'Inventory Counter', 'Internal Logistics Coordinator', 'Logistics Shift leader', 'Expedient', 'Supervisor Inventory Control', 'Logistics Planner IM', 'Senior Demand Specialist', 'Logistics operator Expedient', 'Logistics operator receiving'],
         'Maintenance': ['Maintenance leader', 'Technician I', 'Technician II', 'Maintenance Shift Leader', 'Maintainer', 'Maintainer - mechanician', 'Maintainer - electrician', 'Energetic Coordinator', 'Robotist', 'Toolmaker', 'Maintenance Leader IM', 'Electrician IM', 'Mechanician IM', 'Maintainer - Toolmaker', 'Energetik/Facility Coordinator', 'Mechatronik', 'Toolmaker Coordinator and Maintenance Leader IM', 'Warehouse referent', 'Technologist 1'],
         'Management': ['Operation Assistant General Manager', 'Financial Manager', 'HR Manager', 'Logistics Manager', 'Quality Manager', 'Production Manager', 'Maintenance Manager', 'Programme Manager', 'Purchasing Manager', 'IT Manager', 'Ext. Programme Manager', 'Business Manager', 'Program Manager'],

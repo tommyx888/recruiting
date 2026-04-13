@@ -1783,6 +1783,102 @@ body.dark-mode #app-content {
   margin-top: 0.5rem;
 }
 
+.agency-submissions-host {
+  margin-top: 0.25rem;
+}
+
+.agency-submissions-section {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  border: 1px solid var(--border-color);
+  background: var(--card-background);
+  box-shadow: var(--shadow-md);
+  border-left: 4px solid var(--primary-color);
+}
+
+.agency-submissions-section__head {
+  margin: 0;
+  padding: 1.1rem 1.35rem 1.15rem;
+  background: linear-gradient(135deg, rgba(148, 156, 88, 0.22), rgba(33, 57, 79, 0.08));
+  border-bottom: 1px solid rgba(148, 156, 88, 0.28);
+}
+
+.agency-submissions-section__title {
+  margin: 0 0 0.4rem 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.agency-submissions-section__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 52rem;
+}
+
+.agency-submissions-section__body {
+  padding: 1.25rem 1.35rem 1.4rem;
+}
+
+.agency-submissions-section__empty {
+  margin: 0;
+  padding: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.agency-submissions-section .status-group--no-header {
+  margin-top: 0;
+}
+
+.candidates-main-heading {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin: 1rem 0 0.65rem 0;
+  color: var(--text-color);
+}
+
+.agency-vis-toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.agency-vis-toggle input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.requests-table td .agency-vis-toggle {
+  justify-content: center;
+}
+
+.dark-mode .agency-submissions-section {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--card-background);
+  border-left-color: var(--primary-light);
+}
+
+.dark-mode .agency-submissions-section__head {
+  background: linear-gradient(135deg, rgba(148, 156, 88, 0.2), rgba(33, 57, 79, 0.45));
+  border-bottom-color: rgba(148, 156, 88, 0.25);
+}
+
+.dark-mode .agency-submissions-section__title {
+  color: var(--text-color);
+}
+
+.dark-mode .agency-submissions-section__subtitle {
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .stat-card h4 {
   font-size: 2rem;
   margin: 0 0 0.5rem 0;
@@ -2022,33 +2118,99 @@ body.dark-mode #app-content {
   background: var(--hover-bg);
 }
 
+/* Horizontálny scroll namiesto presahu layoutu (žiadosti o nábor) */
+.requests-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 1.25rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--card-background);
+  box-shadow: var(--shadow-sm);
+}
+
 .requests-table {
   width: 100%;
+  min-width: 72rem;
   border-collapse: collapse;
-  margin-top: 1.5rem;
+  margin-top: 0;
   background: var(--card-background);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  border: none;
+  table-layout: auto;
 }
 
 .requests-table th {
   background: var(--background-secondary);
   color: var(--text-color);
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 0.65rem;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .requests-table td {
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 0.65rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--card-background);
   transition: background var(--transition-fast);
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  max-width: 11rem;
+}
+
+.requests-table__cell--desc {
+  max-width: 10.5rem !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.requests-table__cell--actions {
+  max-width: 18rem !important;
+  min-width: 12rem;
+  white-space: normal !important;
+}
+
+.requests-table__cell--actions .btn {
+  display: inline-flex;
+  align-items: center;
+  margin: 0.2rem 0.35rem 0.2rem 0;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.65rem;
+}
+
+/* Úzke stĺpce */
+.requests-table th:nth-child(4),
+.requests-table td:nth-child(4),
+.requests-table th:nth-child(10),
+.requests-table td:nth-child(10),
+.requests-table th:nth-child(11),
+.requests-table td:nth-child(11) {
+  max-width: 5rem;
+  white-space: nowrap;
+}
+
+.requests-table th:nth-child(8),
+.requests-table td:nth-child(8),
+.requests-table th:nth-child(9),
+.requests-table td:nth-child(9) {
+  max-width: 6.5rem;
+  text-align: center;
 }
 
 .request-row:hover td {
@@ -2712,6 +2874,11 @@ body.dark-mode #app-content {
 .dark-mode .summary-card h3,
 .dark-mode .summary-card p {
   color: var(--dark-text-color);
+}
+
+.dark-mode .requests-table-scroll {
+  background: var(--dark-card-bg);
+  border-color: var(--dark-border-color);
 }
 
 .dark-mode .requests-table {

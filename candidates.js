@@ -29,6 +29,10 @@ class CandidatesManager {
                 ? window.authManager.getUserInfo()
                 : null;
             if (userInfo?.role !== 'agency') return candidate;
+            // Vlastné kandidáti podľa zdroja agentúry – dokumenty zostávajú (nahrali ich oni)
+            if (userInfo.source && candidate.source === userInfo.source) {
+                return candidate;
+            }
             return { ...candidate, cv_file_path: null, assesment_file_path: null };
         } catch (e) {
             return candidate;
@@ -94,6 +98,8 @@ class CandidatesManager {
                 } else {
                     query = query.eq('department', userInfo.department);
                 }
+                // Manažéri nevidia podania agentúr, kým ich recruiter nepotvrdí (stav New)
+                query = query.neq('status', 'Pending Recruiter Review');
             }
 
             // Apply additional filters
@@ -118,6 +124,7 @@ class CandidatesManager {
                 } else {
                     countQuery = countQuery.eq('department', userInfo.department);
                 }
+                countQuery = countQuery.neq('status', 'Pending Recruiter Review');
             }
             
             // Apply same additional filters to count query
@@ -270,6 +277,197 @@ class CandidatesManager {
             console.error('Error adding candidate:', error);
             throw error;
         }
+    }
+
+    /**
+     * Agentúra: pridanie kandidáta na schválenú pozíciu (stav Pending Recruiter Review).
+     * @param {Object} data - { name, recruiting_request_id, cvFile, assessmentFile }
+     */
+    async addCandidateAsAgency(data) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        const userInfo = window.authManager.getUserInfo();
+        if (userInfo.role !== 'agency' || !userInfo.source) {
+            throw new Error('Len prihlásená agentúra so zadaným zdrojom môže pridávať kandidátov.');
+        }
+        const name = (data.name || '').trim();
+        const reqId = data.recruiting_request_id;
+        if (!name || !reqId || !data.cvFile || !data.assessmentFile) {
+            throw new Error('Vyplňte meno, vyberte otvorenú pozíciu a nahrajte životopis aj hodnotiaci formulár.');
+        }
+
+        const { data: reqRow, error: reqErr } = await this.supabase
+            .from('recruiting_requests')
+            .select('id, status, department, position, visible_to_agencies')
+            .eq('id', reqId)
+            .single();
+
+        if (reqErr || !reqRow || reqRow.status !== 'Approved') {
+            throw new Error('Vybraná pozícia nie je schválená alebo neexistuje.');
+        }
+        if (reqRow.visible_to_agencies === false) {
+            throw new Error('Táto pozícia nie je pre agentúry sprístupnená. Vyberte inú pozíciu.');
+        }
+
+        const existingCandidates = await this.checkExistingCandidate(name);
+        if (existingCandidates && existingCandidates.length > 0) {
+            const confirmAdd = confirm(
+                `Kandidát s menom "${name}" už existuje. Chcete aj tak pridať tohto kandidáta?\n\nExistujúci:\n${existingCandidates.map(c => c.name).join('\n')}`
+            );
+            if (!confirmAdd) {
+                return { success: false, message: 'Zrušené' };
+            }
+        }
+
+        let cvPath = null;
+        let assessmentPath = null;
+
+        const cvValidation = window.utils.validateFile(data.cvFile);
+        if (!cvValidation.isValid) {
+            throw new Error(`Chyba CV: ${cvValidation.message}`);
+        }
+        const cvExt = data.cvFile.name.substring(data.cvFile.name.lastIndexOf('.'));
+        const cvName = `cv_${Date.now()}${cvExt}`;
+        const { data: cvData, error: cvError } = await this.supabase.storage
+            .from('candidate-files')
+            .upload(cvName, data.cvFile);
+        if (cvError) throw cvError;
+        cvPath = cvData.path;
+
+        const asValidation = window.utils.validateFile(data.assessmentFile);
+        if (!asValidation.isValid) {
+            throw new Error(`Chyba formulára hodnotenia: ${asValidation.message}`);
+        }
+        const asExt = data.assessmentFile.name.substring(data.assessmentFile.name.lastIndexOf('.'));
+        const asName = `assessment_${Date.now()}${asExt}`;
+        const { data: asData, error: asError } = await this.supabase.storage
+            .from('candidate-files')
+            .upload(asName, data.assessmentFile);
+        if (asError) throw asError;
+        assessmentPath = asData.path;
+
+        const today = new Date().toISOString().split('T')[0];
+        const insertPayload = {
+            name,
+            department: reqRow.department,
+            position: reqRow.position,
+            source: userInfo.source,
+            date_obtained: today,
+            interviewer: null,
+            notes: null,
+            status: 'Pending Recruiter Review',
+            recruiting_request_id: reqRow.id,
+            cv_file_path: cvPath,
+            assesment_file_path: assessmentPath
+        };
+
+        const { data: inserted, error: insErr } = await this.supabase
+            .from('candidates')
+            .insert([insertPayload])
+            .select();
+
+        if (insErr) throw insErr;
+
+        this.clearCache();
+
+        try {
+            await this.notifyRecruitersAgencyNewCandidate(inserted[0]);
+        } catch (e) {
+            console.warn('notifyRecruitersAgencyNewCandidate:', e);
+        }
+
+        return { success: true, data: inserted[0] };
+    }
+
+    /**
+     * E-mail len recruiterom o novom podaní od agentúry (nie GM)
+     */
+    async notifyRecruitersAgencyNewCandidate(candidate) {
+        try {
+            const { data: recipients, error } = await this.supabase
+                .from('users')
+                .select('email, role')
+                .eq('role', 'recruiter')
+                .not('email', 'is', null);
+
+            if (error) {
+                console.warn('notifyRecruitersAgencyNewCandidate users error:', error);
+                return;
+            }
+            if (!recipients || recipients.length === 0) return;
+
+            for (const u of recipients) {
+                if (!u.email) continue;
+                try {
+                    await window.emailManager.notifyRecruitersAgencyCandidateSubmission(candidate, u.email);
+                } catch (emailError) {
+                    console.warn(`Agency submission email failed for ${u.email}:`, emailError);
+                }
+            }
+        } catch (e) {
+            console.warn('notifyRecruitersAgencyNewCandidate:', e);
+        }
+    }
+
+    /**
+     * Recruiter/GM: potvrdiť agentúrne podanie → stav New, notifikácia manažérom pozície
+     */
+    async confirmAgencySubmission(candidateId) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        const userInfo = window.authManager.getUserInfo();
+        if (!userInfo || (userInfo.role !== 'recruiter' && userInfo.role !== 'gm')) {
+            throw new Error('Nemáte oprávnenie potvrdiť toto podanie.');
+        }
+
+        const { data, error } = await this.supabase
+            .from('candidates')
+            .update({
+                status: 'New',
+                last_updated: new Date().toISOString()
+            })
+            .eq('id', candidateId)
+            .eq('status', 'Pending Recruiter Review')
+            .select();
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            throw new Error('Kandidát sa nenašiel alebo už bol spracovaný.');
+        }
+
+        this.clearCache();
+
+        try {
+            await this.notifyManagerNewCandidate(data[0]);
+        } catch (e) {
+            console.warn('notifyManagerNewCandidate after confirm:', e);
+        }
+
+        return { success: true, data: data[0] };
+    }
+
+    /**
+     * Recruiter/GM: zamietnuť agentúrne podanie (notifikácia agentúry cez updateCandidateStatus)
+     */
+    async rejectAgencySubmission(candidateId, notes = null) {
+        const userInfo = window.authManager.getUserInfo();
+        if (!userInfo || (userInfo.role !== 'recruiter' && userInfo.role !== 'gm')) {
+            throw new Error('Nemáte oprávnenie zamietnuť toto podanie.');
+        }
+        const { data: row } = await this.supabase
+            .from('candidates')
+            .select('id, status')
+            .eq('id', candidateId)
+            .single();
+        if (!row || row.status !== 'Pending Recruiter Review') {
+            throw new Error('Kandidát sa nenašiel alebo už bol spracovaný.');
+        }
+        const noteText = notes && notes.trim()
+            ? notes.trim()
+            : 'Agentúrne podanie bolo recruiterom zamietnuté.';
+        return this.updateCandidateStatus(candidateId, 'Rejected', noteText);
     }
 
     /**
@@ -585,9 +783,6 @@ class CandidatesManager {
         const userInfo = typeof window !== 'undefined' && window.authManager
             ? window.authManager.getUserInfo()
             : null;
-        if (userInfo?.role === 'agency') {
-            throw new Error('Agentúry nemajú prístup k dokumentom uchádzačov.');
-        }
 
         try {
             const fieldName = fileType === 'cv' ? 'cv_file_path' : 'assesment_file_path';
@@ -595,11 +790,17 @@ class CandidatesManager {
             // Get candidate data including name
             const { data: candidateData, error: candidateError } = await this.supabase
                 .from('candidates')
-                .select(`${fieldName}, name`)
+                .select(`${fieldName}, name, source`)
                 .eq('id', candidateId)
                 .single();
 
             if (candidateError) throw candidateError;
+
+            if (userInfo?.role === 'agency') {
+                if (!userInfo.source || candidateData.source !== userInfo.source) {
+                    throw new Error('Agentúry nemajú prístup k dokumentom tohto uchádzača.');
+                }
+            }
 
             const filePath = candidateData[fieldName];
             if (!filePath) {

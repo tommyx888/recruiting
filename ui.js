@@ -818,6 +818,7 @@ class UIManager {
         const navRequests = document.getElementById('nav-requests');
         const navManageSlots = document.getElementById('nav-manage-slots');
         const navAgencyView = document.getElementById('nav-agency-view');
+        const navAgencySubmissions = document.getElementById('nav-agency-submissions');
 
         console.log('Navigation elements found:', {
             navDashboard: !!navDashboard,
@@ -837,6 +838,7 @@ class UIManager {
             if (navReports) navReports.style.display = 'inline';
             if (navManageSlots) navManageSlots.style.display = 'inline';
             if (navAgencyView) navAgencyView.style.display = 'none';
+            if (navAgencySubmissions) navAgencySubmissions.style.display = 'inline';
             console.log('GM/Recruiter navigation shown');
         } else if (userInfo.role === 'agency') {
             if (navDashboard) navDashboard.style.display = 'none';
@@ -846,6 +848,7 @@ class UIManager {
             if (navReports) navReports.style.display = 'none';
             if (navManageSlots) navManageSlots.style.display = 'none';
             if (navAgencyView) navAgencyView.style.display = 'inline';
+            if (navAgencySubmissions) navAgencySubmissions.style.display = 'none';
             console.log('Agency navigation shown (no dashboard)');
         } else if (userInfo.role === 'Manager') {
             // Managers see only Dashboard, Candidates, and Requests (filtered by department/positions)
@@ -853,11 +856,13 @@ class UIManager {
             if (navRequests) navRequests.style.display = 'inline';
             if (navStatistics) navStatistics.style.display = 'none';
             if (navReports) navReports.style.display = 'none';
+            if (navAgencySubmissions) navAgencySubmissions.style.display = 'none';
             console.log('Manager navigation shown (limited)');
         } else {
             if (navStatistics) navStatistics.style.display = 'none';
             if (navReports) navReports.style.display = 'none';
             if (navGMApproval) navGMApproval.style.display = 'none';
+            if (navAgencySubmissions) navAgencySubmissions.style.display = 'none';
             if (navRequests) {
                 navRequests.style.display = (userInfo.role === 'recruiter' || userInfo.allowedPositions.length === 0) ? 'inline' : 'none';
             }

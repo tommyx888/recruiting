@@ -60,6 +60,29 @@ const translations = {
         "Rejected - Inform Source": "Rejected - Inform Source",
         "Hired": "Hired",
         "Rejected": "Rejected",
+        "Pending Recruiter Review": "Pending recruiter review",
+        "Agency submissions": "Agency submissions",
+        "Review agency submissions": "Review agency submissions",
+        "Select open position": "Select an approved open position",
+        "No open positions": "No approved open positions. Recruiter must approve a request first.",
+        "Agency source": "Agency (source)",
+        "Submit for review": "Submit for recruiter review",
+        "Confirm agency candidate": "Confirm",
+        "Reject agency submission": "Reject submission",
+        "Awaiting recruiter review": "Awaiting recruiter review",
+        "Confirm this agency submission?": "Confirm this candidate? Managers will be notified.",
+        "Agency candidate submitted": "Candidate submitted. Recruiter has been notified.",
+        "Agency submission confirmed": "Candidate confirmed. Managers have been notified.",
+        "Agency submission rejected": "Submission rejected. The agency will be notified.",
+        "Agency submissions subtitle": "Candidates added by agencies — confirm or reject before they appear to department managers.",
+        "Candidates by status heading": "All candidates by status",
+        "No pending agency submissions": "No agency submissions waiting for your review.",
+        "Visible to agencies": "Visible to agencies",
+        "Agency visibility updated": "Agency visibility saved.",
+        "Visible to agencies help": "When approved: agencies see this position when submitting candidates.",
+        "Yes": "Yes",
+        "No": "No",
+        "Rejection reason (optional)": "Rejection reason (optional)",
         "Name": "Name",
         "CV": "CV",
         "Actions": "Actions",
@@ -256,9 +279,12 @@ const translations = {
         "Clear Filters": "Clear Filters",
         "Request Details": "Request Details",
         "Created At": "Created At",
-        "Days Old": "Days Old",
+        "Days Old": "Days",
         "Day": "Day",
         "Days": "Days",
+        "Request days column hint": "Pending: days since request. Approved: days since approval. Filled: days from approval to close.",
+        "Approved at": "Approved at",
+        "Filled at": "Filled at",
         "Candidate Details": "Candidate Details",
         "Not assigned": "Not assigned",
         "No notes": "No notes",
@@ -336,6 +362,29 @@ const translations = {
         "In Process - Second Round": "V procese - Druhé kolo",
         "Hired": "Prijatý",
         "Rejected": "Zamietnutý",
+        "Pending Recruiter Review": "Čaká na schválenie recruiterom",
+        "Agency submissions": "Podania od agentúr",
+        "Review agency submissions": "Skontrolovať podania agentúr",
+        "Select open position": "Vyberte schválenú otvorenú pozíciu",
+        "No open positions": "Žiadna schválená otvorená pozícia. Najprv musí recruiter schváliť žiadosť.",
+        "Agency source": "Agentúra (zdroj)",
+        "Submit for review": "Odoslať na schválenie recruiterovi",
+        "Confirm agency candidate": "Potvrdiť kandidáta",
+        "Reject agency submission": "Zamietnuť podanie",
+        "Awaiting recruiter review": "Čaká na recruitera",
+        "Confirm this agency submission?": "Potvrdiť tohto kandidáta? Manažéri oddelenia dostanú notifikáciu.",
+        "Agency candidate submitted": "Kandidát bol odoslaný. Recruiter bol informovaný e-mailom.",
+        "Agency submission confirmed": "Kandidát bol potvrdený. Manažéri boli informovaní.",
+        "Agency submission rejected": "Podanie bolo zamietnuté. Agentúra bude informovaná.",
+        "Agency submissions subtitle": "Kandidáti pridaní agentúrami — pred zobrazením manažérom ich potvrďte alebo zamietnite.",
+        "Candidates by status heading": "Všetci kandidáti podľa stavu",
+        "No pending agency submissions": "Žiadne podania od agentúr na spracovanie.",
+        "Visible to agencies": "Viditeľné pre agentúry",
+        "Agency visibility updated": "Viditeľnosť pre agentúry bola uložená.",
+        "Visible to agencies help": "Po schválení: agentúra uvidí túto pozíciu pri pridávaní kandidáta.",
+        "Yes": "Áno",
+        "No": "Nie",
+        "Rejection reason (optional)": "Dôvod zamietnutia (voliteľné)",
         "Candidate added successfully!": "Kandidát bol úspešne pridaný!",
         "Error adding candidate: ": "Chyba pri pridávaní kandidáta: ",
         "Please fill in all required fields": "Prosím vyplňte všetky povinné polia",
@@ -553,9 +602,12 @@ const translations = {
         "Clear Filters": "Vymazať filtre",
         "Request Details": "Detaily žiadosti",
         "Created At": "Vytvorené",
-        "Days Old": "Dní čaká",
+        "Days Old": "Dní",
         "Day": "deň",
         "Days": "dní",
+        "Request days column hint": "Čakajúce: dni od podania. Schválené: dni od schválenia. Obsadené: dni od schválenia po uzavretie.",
+        "Approved at": "Dátum schválenia",
+        "Filled at": "Dátum uzavretia",
         "Candidate Details": "Detaily kandidáta",
         "Not assigned": "Nepriradené",
         "No notes": "Žiadne poznámky",
@@ -1039,8 +1091,17 @@ function renderCandidatesView(result) {
     console.log('Total candidates loaded:', candidates.length);
     console.log('Candidates data:', candidates);
 
-    // Group candidates by status
-    const groupedCandidates = candidates.reduce((acc, candidate) => {
+    const filterUser = window.authManager.getUserInfo();
+    const isRecruiterOrGm = filterUser && (filterUser.role === 'recruiter' || filterUser.role === 'gm');
+    const pendingAgencyCandidates = isRecruiterOrGm
+        ? candidates.filter(c => c.status === 'Pending Recruiter Review')
+        : [];
+    const mainCandidates = isRecruiterOrGm
+        ? candidates.filter(c => c.status !== 'Pending Recruiter Review')
+        : candidates;
+
+    // Group candidates by status (main list; recruiter/GM: bez čakajúcich na schválenie)
+    const groupedCandidates = mainCandidates.reduce((acc, candidate) => {
         if (!acc[candidate.status]) {
             acc[candidate.status] = [];
         }
@@ -1050,8 +1111,9 @@ function renderCandidatesView(result) {
 
     console.log('Grouped candidates:', groupedCandidates);
 
-    // Get all unique statuses from candidates
-    const allStatuses = [...new Set(candidates.map(c => c.status).filter(Boolean))].sort();
+    // Get all unique statuses from main list (+ pending v filtri len pre ostatné roly)
+    const allStatuses = [...new Set(mainCandidates.map(c => c.status).filter(Boolean))].sort();
+    const statusFilterOptions = [...allStatuses];
 
     let html = `
     <div class="candidates-layout">
@@ -1079,23 +1141,62 @@ function renderCandidatesView(result) {
                 </select>
                 <select id="status-filter" class="filter-select">
                     <option value="" data-translate="All Statuses">All Statuses</option>
-                    ${allStatuses.map(status => `<option value="${status}">${window.uiManager.translate(status)}</option>`).join('')}
+                    ${statusFilterOptions.map(status => `<option value="${status}">${window.uiManager.translate(status)}</option>`).join('')}
                 </select>
                 <button onclick="applyFilters()" class="btn btn-primary" data-translate="Apply Filters">Apply Filters</button>
                 <button onclick="clearFilters()" class="btn btn-secondary" data-translate="Clear Filters">Clear Filters</button>
             </div>
         </section>
-        <div id="candidates-container" class="candidates-container"></div>
+        <div id="agency-submissions-host" class="agency-submissions-host" hidden></div>
+        <div id="candidates-main-wrap" class="candidates-main-wrap">
+            <h2 id="candidates-main-heading" class="candidates-main-heading" style="display: none;" data-translate="Candidates by status heading">All candidates by status</h2>
+            <div id="candidates-container" class="candidates-container"></div>
+        </div>
     </div>
     `;
 
     app.innerHTML = html;
 
+    const agencyHost = document.getElementById('agency-submissions-host');
+    if (isRecruiterOrGm && agencyHost) {
+        if (candidates.length === 0) {
+            agencyHost.hidden = true;
+        } else {
+            agencyHost.hidden = false;
+            const section = document.createElement('section');
+            section.id = 'agency-submissions-section';
+            section.className = 'agency-submissions-section card';
+            section.innerHTML = `
+            <div class="agency-submissions-section__head">
+                <h3 class="agency-submissions-section__title" data-translate="Agency submissions">Agency submissions</h3>
+                <p class="agency-submissions-section__subtitle" data-translate="Agency submissions subtitle"></p>
+            </div>
+            <div class="agency-submissions-section__body"></div>`;
+            const body = section.querySelector('.agency-submissions-section__body');
+            if (pendingAgencyCandidates.length > 0) {
+                body.appendChild(createCandidateTable(pendingAgencyCandidates, 'Pending Recruiter Review', { omitHeader: true }));
+            } else {
+                const empty = document.createElement('p');
+                empty.className = 'agency-submissions-section__empty';
+                empty.setAttribute('data-translate', 'No pending agency submissions');
+                empty.textContent = window.uiManager.translate('No pending agency submissions');
+                body.appendChild(empty);
+            }
+            agencyHost.appendChild(section);
+        }
+    }
+
     // Render candidate tables
     const container = document.getElementById('candidates-container');
+    const mainHeading = document.getElementById('candidates-main-heading');
+    if (isRecruiterOrGm && mainHeading) {
+        mainHeading.style.display = mainCandidates.length > 0 ? 'block' : 'none';
+    }
     
-    // Define preferred status order
-    const preferredStatusOrder = ['New', 'In Process - First Round', 'In Process - Second Round', 'Hired - Contact Source', 'Rejected - Inform Source', 'Hired', 'Rejected'];
+    // Define preferred status order (bez Pending pre recruiter/GM — ten je v hornej sekcii)
+    const preferredStatusOrder = isRecruiterOrGm
+        ? ['New', 'In Process - First Round', 'In Process - Second Round', 'Hired - Contact Source', 'Rejected - Inform Source', 'Hired', 'Rejected']
+        : ['Pending Recruiter Review', 'New', 'In Process - First Round', 'In Process - Second Round', 'Hired - Contact Source', 'Rejected - Inform Source', 'Hired', 'Rejected'];
     
     // Get all statuses from grouped candidates
     const allStatusesInData = Object.keys(groupedCandidates);
@@ -1212,18 +1313,24 @@ function updatePositionFilterForCandidates() {
         });
 }
 
-function createCandidateTable(candidates, status) {
+function createCandidateTable(candidates, status, options = {}) {
+    const { omitHeader = false } = options;
     const statusGroup = document.createElement('div');
     statusGroup.className = 'status-group';
+    if (omitHeader) {
+        statusGroup.classList.add('status-group--no-header');
+    }
     
     if (status.toLowerCase().includes('rejected')) {
         statusGroup.setAttribute('data-status', 'rejected');
     }
 
-    const header = document.createElement('h3');
-    header.className = 'status-header';
-    header.textContent = window.uiManager.translate(status);
-    statusGroup.appendChild(header);
+    if (!omitHeader) {
+        const header = document.createElement('h3');
+        header.className = 'status-header';
+        header.textContent = window.uiManager.translate(status);
+        statusGroup.appendChild(header);
+    }
 
     const table = document.createElement('table');
     table.className = 'candidates-table';
@@ -1250,7 +1357,8 @@ function createCandidateTable(candidates, status) {
         const timeInProcess = getTimeInProcessForCandidate(candidate);
         const skipStaleRowAlert = candidate.status && (
             candidate.status.includes('Hired') ||
-            candidate.status.includes('Rejected')
+            candidate.status.includes('Rejected') ||
+            candidate.status === 'Pending Recruiter Review'
         );
         const alertClass = !isAgency && !skipStaleRowAlert && timeInProcess.days > 7 ? 'alert-status' : '';
         row.className = alertClass;
@@ -1301,8 +1409,9 @@ function createNameWithWarning(candidate) {
     
     // Skip warnings for hired and rejected candidates
     if (candidate.status && (
-        candidate.status.includes('Hired') || 
-        candidate.status.includes('Rejected')
+        candidate.status.includes('Hired') ||
+        candidate.status.includes('Rejected') ||
+        candidate.status === 'Pending Recruiter Review'
     )) {
         return name; // Return name without warnings
     }
@@ -1392,6 +1501,15 @@ function createActionButtons(candidate) {
                     case 'Hired - Contact Source':
             buttons = `<button onclick="hiredSourceInformed(${candidate.id})" class="btn btn-danger" data-translate="Hired - Source Informed">Hired - Source Informed</button>`;
             break;
+                    case 'Pending Recruiter Review': {
+            const u = window.authManager.getUserInfo();
+            const canReview = u && (u.role === 'recruiter' || u.role === 'gm');
+            buttons = canReview
+                ? `<button onclick="confirmAgencyCandidate(${candidate.id})" class="btn btn-success" data-translate="Confirm agency candidate">Confirm</button>
+                   <button onclick="rejectAgencyCandidate(${candidate.id})" class="btn btn-danger" data-translate="Reject agency submission">Reject</button>`
+                : '<span data-translate="Awaiting recruiter review">Awaiting recruiter review</span>';
+            break;
+                    }
         default:
             buttons = '<span data-translate="No actions">No actions</span>';
                         break;
@@ -1751,14 +1869,6 @@ async function hiredSourceInformed(id) {
 
 async function downloadFile(candidateId, fileType) {
     try {
-        const userInfo = window.authManager?.getUserInfo();
-        if (userInfo?.role === 'agency') {
-            window.utils.showMessage(
-                window.uiManager?.translate?.('Agencies cannot access candidate documents') || 'Agentúry nemajú prístup k dokumentom uchádzačov.',
-                'error'
-            );
-            return;
-        }
         await window.candidatesManager.downloadFile(candidateId, fileType);
     } catch (error) {
         window.utils.showMessage(`Error downloading ${fileType}: ` + error.message, 'error');
@@ -1878,7 +1988,7 @@ function renderRequestsView(result) {
                 <p data-translate="Rejected">Rejected</p>
             </div>
             </div>
-        <div id="requests-container"></div>
+        <div id="requests-container" class="requests-table-scroll"></div>
     `;
 
     app.innerHTML = html;
@@ -1911,22 +2021,51 @@ function createRequestsTable(requests) {
 
     // Create header row
     const headerRow = document.createElement('tr');
-    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Replaced person', 'Category', 'Status', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
+    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Replaced person', 'Category', 'Status', 'Visible to agencies', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = window.uiManager.translate(headerText);
+        if (headerText === 'Days Old') {
+            th.setAttribute('title', window.uiManager.translate('Request days column hint'));
+        }
         headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    // Helper function to calculate days since creation
-    function getDaysOld(createdAt) {
-        if (!createdAt) return 'N/A';
-        const created = new Date(createdAt);
-        const now = new Date();
-        const diffTime = Math.abs(now - created);
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+    /**
+     * Pending: dni od podania. Schválené: dni od schválenia. Obsadené: dni schválenie → uzavretie.
+     */
+    function getRequestDaysMetric(request) {
+        const MS_DAY = 1000 * 60 * 60 * 24;
+        const floorDaysBetween = (a, b) => Math.floor(Math.abs(b - a) / MS_DAY);
+
+        if (!request.created_at) {
+            return { days: 'N/A', highlight: false };
+        }
+
+        const created = new Date(request.created_at).getTime();
+        const now = Date.now();
+
+        if (request.status === 'Filled') {
+            const start = request.approved_at
+                ? new Date(request.approved_at).getTime()
+                : created;
+            const end = request.filled_at ? new Date(request.filled_at).getTime() : null;
+            if (end == null || Number.isNaN(end) || Number.isNaN(start)) {
+                return { days: 'N/A', highlight: false };
+            }
+            return { days: floorDaysBetween(start, end), highlight: false };
+        }
+
+        if (request.status === 'Approved') {
+            const start = request.approved_at
+                ? new Date(request.approved_at).getTime()
+                : created;
+            return { days: floorDaysBetween(start, now), highlight: true };
+        }
+
+        // Pending, Rejected, …
+        return { days: floorDaysBetween(created, now), highlight: true };
     }
 
     // Create data rows
@@ -1934,8 +2073,11 @@ function createRequestsTable(requests) {
         const row = document.createElement('tr');
         row.className = `request-row status-${request.status.toLowerCase()}`;
         
-        const daysOld = getDaysOld(request.created_at);
-        const daysOldDisplay = daysOld === 'N/A' ? 'N/A' : `${daysOld} ${daysOld === 1 ? window.uiManager.translate('Day') : window.uiManager.translate('Days')}`;
+        const daysMetric = getRequestDaysMetric(request);
+        const daysOld = daysMetric.days;
+        const daysOldDisplay = daysOld === 'N/A'
+            ? '—'
+            : `${daysOld} ${daysOld === 1 ? window.uiManager.translate('Day') : window.uiManager.translate('Days')}`;
         
         // Replaced person: show name only when type is replacement
         const replacedPersonDisplay = (request.position_type === 'replacement' && request.replacement_name)
@@ -1952,6 +2094,7 @@ function createRequestsTable(requests) {
             replacedPersonDisplay,
             request.position_category || '',
             createStatusBadge(request.status),
+            createAgencyVisibilityCell(request),
             daysOldDisplay,
             request.id ? `#${request.id}` : '',
             createRequestActionButtons(request)
@@ -1960,14 +2103,23 @@ function createRequestsTable(requests) {
         // Add cells
         cellData.forEach((cellContent, index) => {
             const td = document.createElement('td');
+            if (index === 2) {
+                td.classList.add('requests-table__cell--desc');
+                if (request.description) {
+                    td.title = request.description;
+                }
+            }
+            if (index === 11) {
+                td.classList.add('requests-table__cell--actions');
+            }
             if (typeof cellContent === 'string' && cellContent.includes('<')) {
                 td.innerHTML = cellContent;
             } else {
                 td.textContent = cellContent;
             }
             
-            // Add styling for days old column (index 8) - highlight if > 3 days
-            if (index === 8 && typeof daysOld === 'number' && daysOld > 3) {
+            // Stĺpec dní (index 9): upozornenie len pre čakajúce / otvorené schválené
+            if (index === 9 && daysMetric.highlight && typeof daysOld === 'number' && daysOld > 3) {
                 td.style.color = daysOld >= 7 ? '#dc2626' : '#f59e0b';
                 td.style.fontWeight = 'bold';
             }
@@ -1985,6 +2137,45 @@ function createRequestsTable(requests) {
 function createStatusBadge(status) {
     const badgeClass = `status-badge ${status.toLowerCase()}`;
     return `<span class="${badgeClass}">${status}</span>`;
+}
+
+/** Schválené pozície: recruiter prepínač; GM/Manager len informácia */
+function createAgencyVisibilityCell(request) {
+    const userInfo = window.authManager.getUserInfo();
+    if (request.status !== 'Approved') {
+        return '—';
+    }
+    const vis = request.visible_to_agencies !== false;
+    if (userInfo.role === 'recruiter') {
+        const label = window.uiManager.translate('Visible to agencies');
+        return `<label class="agency-vis-toggle"><input type="checkbox" ${vis ? 'checked' : ''} title="${label}" aria-label="${label}" onchange="toggleRequestAgencyVisibility(${request.id}, this.checked)"></label>`;
+    }
+    if (userInfo.role === 'gm') {
+        return vis ? window.uiManager.translate('Yes') : window.uiManager.translate('No');
+    }
+    return vis ? '✓' : '—';
+}
+
+async function toggleRequestAgencyVisibility(requestId, visible) {
+    try {
+        await window.requestsManager.setRequestVisibleToAgencies(requestId, visible);
+        window.utils.showMessage(window.uiManager.translate('Agency visibility updated'), 'success');
+        await showRequests();
+    } catch (error) {
+        window.utils.showMessage(error.message || String(error), 'error');
+        await showRequests();
+    }
+}
+
+async function toggleRequestAgencyVisibilityFromDetails(requestId, visible) {
+    try {
+        await window.requestsManager.setRequestVisibleToAgencies(requestId, visible);
+        window.utils.showMessage(window.uiManager.translate('Agency visibility updated'), 'success');
+        await showRequestDetails(requestId);
+    } catch (error) {
+        window.utils.showMessage(error.message || String(error), 'error');
+        await showRequestDetails(requestId);
+    }
 }
 
 function createRequestActionButtons(request) {
@@ -2033,7 +2224,7 @@ function renderGMApprovalView(requests) {
     let html = `
         <h2 data-translate="GM/Recruiter Approval">GM/Recruiter Approval</h2>
         <p data-translate="Review and approve pending recruiting requests">Review and approve pending recruiting requests</p>
-        <div id="gm-approval-container"></div>
+        <div id="gm-approval-container" class="requests-table-scroll"></div>
     `;
 
     app.innerHTML = html;
@@ -2163,6 +2354,22 @@ async function showRequestDetails(id) {
                 <p><strong data-translate="Status">Status:</strong> ${createStatusBadge(request.status)}</p>
                 <p><strong data-translate="Confidential">Confidential:</strong> ${request.is_confidential ? window.uiManager.translate('Yes') : window.uiManager.translate('No')}</p>
         `;
+
+        if (request.status === 'Approved') {
+            const vis = request.visible_to_agencies !== false;
+            if (userInfo.role === 'recruiter') {
+                detailsHtml += `
+                <p class="request-detail-agency-vis">
+                    <strong data-translate="Visible to agencies">Visible to agencies</strong>:
+                    <label class="agency-vis-toggle" style="margin-left:8px;">
+                        <input type="checkbox" ${vis ? 'checked' : ''} onchange="toggleRequestAgencyVisibilityFromDetails(${request.id}, this.checked)">
+                    </label>
+                    <span style="display:block;font-size:0.9em;color:var(--text-secondary);margin-top:6px;" data-translate="Visible to agencies help"></span>
+                </p>`;
+            } else {
+                detailsHtml += `<p><strong data-translate="Visible to agencies">Visible to agencies</strong>: ${vis ? window.uiManager.translate('Yes') : window.uiManager.translate('No')}</p>`;
+            }
+        }
         
         if (request.position_type === 'new' && request.new_position_reason) {
             detailsHtml += `<p><strong data-translate="Reason for New Position">Reason for New Position:</strong> ${request.new_position_reason}</p>`;
@@ -2172,6 +2379,12 @@ async function showRequestDetails(id) {
         
         if (request.created_at) {
             detailsHtml += `<p><strong data-translate="Created At">Created At:</strong> ${new Date(request.created_at).toLocaleString()}</p>`;
+        }
+        if (request.approved_at) {
+            detailsHtml += `<p><strong data-translate="Approved at">Approved at:</strong> ${new Date(request.approved_at).toLocaleString()}</p>`;
+        }
+        if (request.filled_at) {
+            detailsHtml += `<p><strong data-translate="Filled at">Filled at:</strong> ${new Date(request.filled_at).toLocaleString()}</p>`;
         }
         
         detailsHtml += `
@@ -2588,8 +2801,167 @@ async function createRequest(e) {
 }
 
 function showAddCandidate() {
+    const userInfo = window.authManager.getUserInfo();
+    if (userInfo && userInfo.role === 'agency') {
+        showAgencyAddCandidate();
+        return;
+    }
     console.log('Redirecting to add candidate page');
     window.location.href = 'add-candidate.html';
+}
+
+/**
+ * Formulár pre agentúru: výber schválenej pozície, meno, CV + assessment, zdroj z účtu.
+ */
+async function showAgencyAddCandidate() {
+    const userInfo = window.authManager.getUserInfo();
+    if (!userInfo || userInfo.role !== 'agency') {
+        window.utils.showMessage('Táto stránka je len pre agentúry.', 'error');
+        return;
+    }
+    if (!userInfo.source) {
+        window.utils.showMessage('Váš účet nemá priradený zdroj agentúry. Kontaktujte administrátora.', 'error');
+        return;
+    }
+
+    try {
+        window.uiManager.showLoading();
+        const res = await window.requestsManager.getRequests({
+            status: 'Approved',
+            page: 1,
+            pageSize: 500
+        });
+        window.uiManager.hideLoading();
+
+        const requests = res.requests || [];
+        const app = document.getElementById('app');
+        const noPos = window.uiManager.translate('No open positions');
+        const selPos = window.uiManager.translate('Select open position');
+        const requestOptions = requests.length === 0
+            ? `<option value="">${noPos}</option>`
+            : `<option value="">${selPos}</option>${requests.map(r =>
+                `<option value="${r.id}">${(r.department || '')} — ${(r.position || '')} (#${r.id})</option>`
+            ).join('')}`;
+
+        app.innerHTML = `
+            <div class="candidates-layout">
+                <section class="candidates-hero">
+                    <div class="candidates-hero-text">
+                        <h2 data-translate="Add New Candidate">Add New Candidate</h2>
+                        <p class="candidates-subtitle" data-translate="Submit for review">Submit for recruiter review</p>
+                    </div>
+                </section>
+                <div class="card" style="max-width: 640px; margin: 0 auto; padding: 1.5rem;">
+                    <form id="agency-add-candidate-form">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="agency-open-position" data-translate="Select open position">Open position</label>
+                            <select id="agency-open-position" class="filter-select" style="width:100%" required>${requestOptions}</select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label data-translate="Full Name">Full name</label>
+                            <input type="text" id="agency-candidate-name" class="filter-select" style="width:100%" required maxlength="200">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label data-translate="Agency source">Agency source</label>
+                            <input type="text" id="agency-candidate-source-display" readonly style="width:100%; padding:8px; background:#f5f5f5; border:1px solid #ddd; border-radius:6px;" value="">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label data-translate="Upload CV">Upload CV</label>
+                            <input type="file" id="agency-candidate-cv" accept=".pdf,.doc,.docx" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label data-translate="Upload Assessment Form">Upload Assessment Form</label>
+                            <input type="file" id="agency-candidate-assessment" accept=".pdf,.doc,.docx" required>
+                        </div>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.25rem;">
+                            <button type="submit" class="btn btn-primary" data-translate="Submit for review" ${requests.length === 0 ? 'disabled' : ''}>Submit</button>
+                            <button type="button" class="btn btn-secondary" onclick="showCandidates()" data-translate="Back">Back</button>
+                        </div>
+                    </form>
+                </div>
+            </div>`;
+
+        document.getElementById('agency-candidate-source-display').value = userInfo.source;
+
+        document.getElementById('agency-add-candidate-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const reqId = parseInt(document.getElementById('agency-open-position').value, 10);
+            if (!reqId || Number.isNaN(reqId)) {
+                window.utils.showMessage(window.uiManager.translate('Select open position'), 'error');
+                return;
+            }
+            const name = document.getElementById('agency-candidate-name').value.trim();
+            const cvFile = document.getElementById('agency-candidate-cv').files[0];
+            const assessmentFile = document.getElementById('agency-candidate-assessment').files[0];
+            try {
+                window.uiManager.showLoading();
+                const result = await window.candidatesManager.addCandidateAsAgency({
+                    name,
+                    recruiting_request_id: reqId,
+                    cvFile,
+                    assessmentFile
+                });
+                window.uiManager.hideLoading();
+                if (result.success) {
+                    window.utils.showMessage(window.uiManager.translate('Agency candidate submitted'), 'success');
+                    await showCandidates();
+                }
+            } catch (err) {
+                window.uiManager.hideLoading();
+                window.utils.showMessage(err.message || String(err), 'error');
+            }
+        });
+
+        window.uiManager.translatePage();
+    } catch (error) {
+        window.uiManager.hideLoading();
+        console.error(error);
+        window.utils.showMessage(error.message || String(error), 'error');
+    }
+}
+
+async function confirmAgencyCandidate(candidateId) {
+    if (!confirm(window.uiManager.translate('Confirm this agency submission?'))) return;
+    try {
+        window.uiManager.showLoading();
+        await window.candidatesManager.confirmAgencySubmission(candidateId);
+        window.uiManager.hideLoading();
+        window.utils.showMessage(window.uiManager.translate('Agency submission confirmed'), 'success');
+        await showCandidates();
+        updateNavigationIndicators();
+    } catch (e) {
+        window.uiManager.hideLoading();
+        window.utils.showMessage(e.message || String(e), 'error');
+    }
+}
+
+async function rejectAgencyCandidate(candidateId) {
+    const reason = prompt(window.uiManager.translate('Rejection reason (optional)'));
+    if (reason === null) return;
+    try {
+        window.uiManager.showLoading();
+        await window.candidatesManager.rejectAgencySubmission(candidateId, reason || null);
+        window.uiManager.hideLoading();
+        window.utils.showMessage(window.uiManager.translate('Agency submission rejected'), 'success');
+        await showCandidates();
+        updateNavigationIndicators();
+    } catch (e) {
+        window.uiManager.hideLoading();
+        window.utils.showMessage(e.message || String(e), 'error');
+    }
+}
+
+async function showAgencySubmissionsReview(e) {
+    if (e) e.preventDefault();
+    clearFilterState();
+    const allNavLinks = document.querySelectorAll('nav a');
+    allNavLinks.forEach(link => link.classList.remove('active'));
+    const nc = document.getElementById('nav-candidates');
+    if (nc) nc.classList.add('active');
+    await showCandidates();
+    requestAnimationFrame(() => {
+        document.getElementById('agency-submissions-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
 }
 
 function updatePositions() {
@@ -3382,8 +3754,9 @@ async function updateNavigationIndicators() {
         candidates.forEach(candidate => {
             // Skip alerts for hired and rejected candidates
             if (candidate.status && (
-                candidate.status.includes('Hired') || 
-                candidate.status.includes('Rejected')
+                candidate.status.includes('Hired') ||
+                candidate.status.includes('Rejected') ||
+                candidate.status === 'Pending Recruiter Review'
             )) {
                 return; // Skip this candidate
             }
@@ -3647,6 +4020,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navGMApproval) navGMApproval.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-gm-approval'); showGMApproval(); });
     if (navManageSlots) navManageSlots.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-manage-slots'); showManageSlots(); });
     if (navAgencyView) navAgencyView.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-agency-view'); showAgencyView(); });
+    const navAgencySubmissions = document.getElementById('nav-agency-submissions');
+    if (navAgencySubmissions) {
+        navAgencySubmissions.addEventListener('click', (e) => {
+            showAgencySubmissionsReview(e);
+        });
+    }
     if (navStatistics) navStatistics.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-statistics'); showStatistics(); });
     if (navReports) navReports.addEventListener('click', (e) => {
         e.preventDefault();

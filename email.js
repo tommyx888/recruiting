@@ -282,6 +282,48 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
     }
 
     /**
+     * Nové podanie kandidáta od agentúry — čaká na potvrdenie recruiterom
+     */
+    async notifyRecruitersAgencyCandidateSubmission(candidate, recruiterEmail) {
+        const subject = `Nové podanie od agentúry – ${candidate.name} (${candidate.position})`;
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #0d47a1;">Nové podanie kandidáta od agentúry</h2>
+                <p>Dobrý deň,</p>
+                <p>Agentúra pridala nového kandidáta na schválenú pozíciu. Je potrebné ho v systéme <strong>potvrdiť</strong> alebo zamietnuť.</p>
+                <div style="background: #e3f2fd; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                    <p style="margin: 6px 0;"><strong>Meno:</strong> ${candidate.name}</p>
+                    <p style="margin: 6px 0;"><strong>Pozícia:</strong> ${candidate.position}</p>
+                    <p style="margin: 6px 0;"><strong>Oddelenie:</strong> ${candidate.department}</p>
+                    <p style="margin: 6px 0;"><strong>Zdroj (agentúra):</strong> ${candidate.source || '—'}</p>
+                </div>
+                <p>V aplikácii otvorte kandidátov a v stave „Čaká na schválenie recruiterom“ použite akciu Potvrdiť.</p>
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #1976d2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                </div>
+            </div>
+        `;
+        const text = `
+Nové podanie kandidáta od agentúry
+
+Meno: ${candidate.name}
+Pozícia: ${candidate.position}
+Oddelenie: ${candidate.department}
+Zdroj: ${candidate.source || '—'}
+
+Potvrďte alebo zamietnite podanie v systéme (stav: čaká na schválenie recruiterom).
+
+https://recruiting.iacslovakia.sk/
+        `;
+        return await this.sendEmail({
+            to: recruiterEmail,
+            subject,
+            html,
+            text
+        });
+    }
+
+    /**
      * Notify Recruiter about candidate status change
      * @param {Object} candidate - Candidate data
      * @param {string} status - New status

@@ -69,7 +69,10 @@ class RequestsManager {
                     }
                 }
             }
-            // Agency can see all approved requests (no additional filtering needed)
+            // Agentúry: len schválené a recruiterom označené ako viditeľné (RLS + istota v aplikácii)
+            if (userInfo.role === 'agency') {
+                query = query.eq('visible_to_agencies', true);
+            }
 
             // Apply additional filters
             Object.entries(allFilters).forEach(([key, value]) => {
@@ -90,6 +93,9 @@ class RequestsManager {
                         countQuery = countQuery.eq('department', userInfo.department);
                     }
                 }
+            }
+            if (userInfo.role === 'agency') {
+                countQuery = countQuery.eq('visible_to_agencies', true);
             }
             Object.entries(allFilters).forEach(([key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
@@ -203,9 +209,27 @@ class RequestsManager {
         }
 
         try {
+            const now = new Date().toISOString();
+            const updatePayload = { status };
+
+            if (status === 'Approved') {
+                updatePayload.approved_at = now;
+            }
+            if (status === 'Filled') {
+                updatePayload.filled_at = now;
+                const { data: prev } = await this.supabase
+                    .from('recruiting_requests')
+                    .select('approved_at, created_at')
+                    .eq('id', requestId)
+                    .single();
+                if (prev && !prev.approved_at && prev.created_at) {
+                    updatePayload.approved_at = prev.created_at;
+                }
+            }
+
             const { data, error } = await this.supabase
                 .from('recruiting_requests')
-                .update({ status })
+                .update(updatePayload)
                 .eq('id', requestId)
                 .select();
 
@@ -309,6 +333,41 @@ class RequestsManager {
             return data || [];
         } catch (error) {
             console.error('Error getting pending requests:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Recruiter: zapnúť/vypnúť zobrazenie schválenej pozície agentúram
+     * @param {number} requestId
+     * @param {boolean} visible
+     */
+    async setRequestVisibleToAgencies(requestId, visible) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+        const userInfo = window.authManager.getUserInfo();
+        if (userInfo.role !== 'recruiter') {
+            throw new Error('Len recruiter môže meniť viditeľnosť pozícií pre agentúry.');
+        }
+
+        try {
+            const { data, error } = await this.supabase
+                .from('recruiting_requests')
+                .update({ visible_to_agencies: !!visible })
+                .eq('id', requestId)
+                .eq('status', 'Approved')
+                .select();
+
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                throw new Error('Žiadosť sa nenašla alebo nie je schválená.');
+            }
+
+            this.clearCache();
+            return { success: true, data: data[0] };
+        } catch (error) {
+            console.error('Error updating agency visibility:', error);
             throw error;
         }
     }

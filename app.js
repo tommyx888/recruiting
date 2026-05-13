@@ -858,6 +858,10 @@ function setupLoginForm() {
                 window.uiManager.showApp();
                 window.uiManager.updateNavigationVisibility();
                 const userInfo = await window.authManager.getUserInfo();
+                if (userInfo) {
+                    userRole = userInfo.role || '';
+                    userDepartment = userInfo.department || '';
+                }
                 if (userInfo && userInfo.role === 'agency') {
                     showAgencyView();
                 } else {
@@ -2433,14 +2437,18 @@ function showNewRequest() {
     const app = document.getElementById('app');
     if (!app) return;
 
+    const currentUserInfo = window.authManager ? window.authManager.getUserInfo() : null;
+    const currentUserRole = currentUserInfo?.role || userRole;
+    const currentUserDepartment = currentUserInfo?.department || userDepartment;
+
     // Get department options based on user role
     let departmentOptions = '';
-    if (userRole === 'gm' || userRole === 'recruiter') {
+    if (currentUserRole === 'gm' || currentUserRole === 'recruiter') {
         departmentOptions = Object.keys(departmentPositions).map(dept =>
             `<option value="${dept}">${dept}</option>`
         ).join('');
-    } else {
-        departmentOptions = `<option value="${userDepartment}">${userDepartment}</option>`;
+    } else if (currentUserDepartment) {
+        departmentOptions = `<option value="${currentUserDepartment}">${currentUserDepartment}</option>`;
     }
 
     const html = `
@@ -2449,7 +2457,7 @@ function showNewRequest() {
         <form id="new-request-form">
             <div class="form-group">
                     <label for="department" data-translate="Department">Oddelenie:</label>
-                    <select id="department" name="department" required ${userRole !== 'gm' && userRole !== 'recruiter' ? 'disabled' : ''} onchange="updatePositionOptions()">
+                    <select id="department" name="department" required ${currentUserRole !== 'gm' && currentUserRole !== 'recruiter' ? 'disabled' : ''} onchange="updatePositionOptions()">
                         <option value="" data-translate="Select Department">Vyberte oddelenie</option>
                     ${departmentOptions}
                 </select>
@@ -2538,14 +2546,10 @@ function showNewRequest() {
     }
 
     // Auto-load positions for managers (non-GM and non-recruiter users)
-    if (userRole !== 'gm' && userRole !== 'recruiter') {
-        // Get current user info
-        const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
-        const currentUserDepartment = userInfo ? userInfo.department : userDepartment;
-        
+    if (currentUserRole !== 'gm' && currentUserRole !== 'recruiter') {
         // Set department value and load positions
         const departmentSelect = document.getElementById('department');
-        if (departmentSelect) {
+        if (departmentSelect && currentUserDepartment) {
             departmentSelect.value = currentUserDepartment;
             updatePositionOptions();
         }

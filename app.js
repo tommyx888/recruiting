@@ -145,7 +145,8 @@ const translations = {
         "Reload Page": "Reload Page",
         "All Statuses": "All Statuses",
         "Pending": "Pending",
-        "Approved": "Approved",
+        "Approved": "Open",
+        "Paused": "Paused",
         "Rejected": "Rejected",
         "Filled": "Filled",
         "Manage Slots": "Manage Slots",
@@ -233,7 +234,7 @@ const translations = {
         "Dashboard Overview": "Dashboard Overview",
         "Quick Actions": "Quick Actions",
         "Open Requests": "Open Requests",
-        "Approved Requests": "Approved Requests",
+        "Approved Requests": "Open Requests",
         "Pending Requests": "Pending Requests",
         "View Candidates": "View Candidates",
         "View Requests": "View Requests",
@@ -242,11 +243,24 @@ const translations = {
         "Request approved successfully!": "Request approved successfully!",
         "Request rejected successfully!": "Request rejected successfully!",
         "Position marked as filled!": "Position marked as filled!",
+        "Request paused successfully!": "Request paused successfully!",
+        "Request resumed successfully!": "Request resumed successfully!",
+        "Request deleted successfully!": "Request deleted successfully!",
+        "Error pausing request:": "Error pausing request:",
+        "Error resuming request:": "Error resuming request:",
+        "Error deleting request:": "Error deleting request:",
+        "Pause": "Pause",
+        "Resume": "Resume",
+        "Delete Request": "Delete",
+        "Sections": "Sections",
+        "All Requests": "All Requests",
+        "No requests found in this section.": "No requests found in this section.",
+        "Are you sure you want to delete this request?": "Are you sure you want to delete this request?",
         "Download Excel": "Download Excel",
         "Export Options": "Export Options",
         "Select what to export": "Select what to export",
-        "Only Approved": "Only Approved",
-        "Approved and Pending": "Approved and Pending",
+        "Only Approved": "Only Open",
+        "Approved and Pending": "Open and Pending",
         "Export": "Export",
         "Exporting...": "Exporting...",
         "Export completed successfully": "Export completed successfully",
@@ -468,7 +482,8 @@ const translations = {
         "Reload Page": "Obnoviť stránku",
         "All Statuses": "Všetky stavy",
         "Pending": "Čakajúce",
-        "Approved": "Schválené",
+        "Approved": "Otvorené",
+        "Paused": "Pozastavené",
         "Rejected": "Zamietnuté",
         "Filled": "Obsadené",
         "Manage Slots": "Spravovať termíny",
@@ -556,7 +571,7 @@ const translations = {
         "Dashboard Overview": "Prehľad nástenky",
         "Quick Actions": "Rýchle akcie",
         "Open Requests": "Otvorené žiadosti",
-        "Approved Requests": "Schválené žiadosti",
+        "Approved Requests": "Otvorené žiadosti",
         "Pending Requests": "Čakajúce žiadosti",
         "View Candidates": "Zobraziť kandidátov",
         "View Requests": "Zobraziť žiadosti",
@@ -565,11 +580,24 @@ const translations = {
         "Request approved successfully!": "Žiadosť bola úspešne schválená!",
         "Request rejected successfully!": "Žiadosť bola úspešne zamietnutá!",
         "Position marked as filled!": "Pozícia bola označená ako obsadená!",
+        "Request paused successfully!": "Žiadosť bola úspešne pozastavená!",
+        "Request resumed successfully!": "Žiadosť bola úspešne obnovená!",
+        "Request deleted successfully!": "Žiadosť bola úspešne vymazaná!",
+        "Error pausing request:": "Chyba pri pozastavení žiadosti:",
+        "Error resuming request:": "Chyba pri obnovení žiadosti:",
+        "Error deleting request:": "Chyba pri mazaní žiadosti:",
+        "Pause": "Pozastaviť",
+        "Resume": "Obnoviť",
+        "Delete Request": "Vymazať",
+        "Sections": "Sekcie",
+        "All Requests": "Všetky žiadosti",
+        "No requests found in this section.": "V tejto sekcii sa nenašli žiadne žiadosti.",
+        "Are you sure you want to delete this request?": "Naozaj chcete túto žiadosť vymazať?",
         "Download Excel": "Stiahnuť Excel",
         "Export Options": "Možnosti exportu",
         "Select what to export": "Vyberte, čo exportovať",
-        "Only Approved": "Len schválené",
-        "Approved and Pending": "Schválené a čakajúce",
+        "Only Approved": "Len otvorené",
+        "Approved and Pending": "Otvorené a čakajúce",
         "Export": "Exportovať",
         "Exporting...": "Exportujem...",
         "Export completed successfully": "Export úspešne dokončený",
@@ -646,6 +674,8 @@ const translations = {
 // Global variables
 let supabaseInstance;
 let currentLanguage = 'sk';
+let currentRequestsSection = 'all';
+let currentRequestsCache = [];
 
 // Department-Position mapping
 const departmentPositions = {
@@ -1941,13 +1971,13 @@ async function showRequests() {
 
 function renderRequestsView(result) {
     const app = document.getElementById('app');
-    const { requests, pagination } = result;
+    const { requests } = result;
 
-    // Sort requests: Pending first, then Approved, then Filled, then Rejected
+    // Sort requests: Pending first, then Approved/Open, then Paused, then Filled, then Rejected
     const sortedRequests = [...requests].sort((a, b) => {
-        const statusOrder = { 'Pending': 1, 'Approved': 2, 'Filled': 3, 'Rejected': 4 };
-        const aOrder = statusOrder[a.status] || 5;
-        const bOrder = statusOrder[b.status] || 5;
+        const statusOrder = { 'Pending': 1, 'Approved': 2, 'Paused': 3, 'Filled': 4, 'Rejected': 5 };
+        const aOrder = statusOrder[a.status] || 6;
+        const bOrder = statusOrder[b.status] || 6;
         
         if (aOrder !== bOrder) {
             return aOrder - bOrder;
@@ -1956,6 +1986,15 @@ function renderRequestsView(result) {
         // If same status, sort by ID descending (newest first)
         return b.id - a.id;
     });
+    currentRequestsCache = sortedRequests;
+
+    const counts = {
+        pending: sortedRequests.filter(r => r.status === 'Pending').length,
+        approved: sortedRequests.filter(r => r.status === 'Approved').length,
+        paused: sortedRequests.filter(r => r.status === 'Paused').length,
+        filled: sortedRequests.filter(r => r.status === 'Filled').length,
+        rejected: sortedRequests.filter(r => r.status === 'Rejected').length
+    };
 
     let html = `
         <h2 data-translate="Recruiting Requests">Recruiting Requests</h2>
@@ -1963,35 +2002,28 @@ function renderRequestsView(result) {
         <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
             <button onclick="showExportModal()" class="btn btn-secondary" data-translate="Download Excel">Download Excel</button>
         </div>
-        <div class="filters">
-            <select id="status-filter">
-                <option value="" data-translate="All Statuses">All Statuses</option>
-                <option value="Pending" data-translate="Pending">Pending</option>
-                <option value="Approved" data-translate="Approved">Approved</option>
-                <option value="Rejected" data-translate="Rejected">Rejected</option>
-                <option value="Filled" data-translate="Filled">Filled</option>
-                </select>
-            <button onclick="applyRequestFilters()" class="btn btn-secondary" data-translate="Apply Filters">Apply Filters</button>
-            <button onclick="clearRequestFilters()" class="btn btn-outline" data-translate="Clear Filters">Clear Filters</button>
-            </div>
         <div class="requests-summary">
-            <div class="summary-card pending">
-                <h3>${sortedRequests.filter(r => r.status === 'Pending').length}</h3>
+            <div class="summary-card pending summary-card--clickable" data-section="pending" onclick="setRequestSection('pending')">
+                <h3>${counts.pending}</h3>
                 <p data-translate="Pending">Pending</p>
             </div>
-            <div class="summary-card approved">
-                <h3>${sortedRequests.filter(r => r.status === 'Approved').length}</h3>
+            <div class="summary-card approved summary-card--clickable" data-section="approved" onclick="setRequestSection('approved')">
+                <h3>${counts.approved}</h3>
                 <p data-translate="Approved">Approved</p>
             </div>
-            <div class="summary-card filled">
-                <h3>${sortedRequests.filter(r => r.status === 'Filled').length}</h3>
+            <div class="summary-card paused summary-card--clickable" data-section="paused" onclick="setRequestSection('paused')">
+                <h3>${counts.paused}</h3>
+                <p data-translate="Paused">Paused</p>
+            </div>
+            <div class="summary-card filled summary-card--clickable" data-section="filled" onclick="setRequestSection('filled')">
+                <h3>${counts.filled}</h3>
                 <p data-translate="Filled">Filled</p>
             </div>
-            <div class="summary-card rejected">
-                <h3>${sortedRequests.filter(r => r.status === 'Rejected').length}</h3>
+            <div class="summary-card rejected summary-card--clickable" data-section="rejected" onclick="setRequestSection('rejected')">
+                <h3>${counts.rejected}</h3>
                 <p data-translate="Rejected">Rejected</p>
             </div>
-            </div>
+        </div>
         <div id="requests-container" class="requests-table-scroll"></div>
     `;
 
@@ -2000,21 +2032,64 @@ function renderRequestsView(result) {
     // Add fade-in animation
     app.classList.add('fade-in');
 
-    // Render requests table
-    const container = document.getElementById('requests-container');
-    const table = createRequestsTable(sortedRequests);
-    container.appendChild(table);
-    
-    // Add slide-in animation to table
-    table.classList.add('slide-in');
+    // Keep selected section valid and render the active one
+    const allowedSections = ['all', 'pending', 'approved', 'paused', 'filled', 'rejected'];
+    if (!allowedSections.includes(currentRequestsSection)) {
+        currentRequestsSection = 'all';
+    }
+    renderCurrentRequestSection();
+    updateRequestSummaryCards();
+    window.uiManager.translatePage();
+}
 
-    // Setup filter event listener
-    const statusFilter = document.getElementById('status-filter');
-    if (statusFilter) {
-        statusFilter.addEventListener('change', applyRequestFilters);
+function getRequestsForSection(requests, section) {
+    switch (section) {
+        case 'pending':
+            return requests.filter(r => r.status === 'Pending');
+        case 'approved':
+            return requests.filter(r => r.status === 'Approved');
+        case 'paused':
+            return requests.filter(r => r.status === 'Paused');
+        case 'filled':
+            return requests.filter(r => r.status === 'Filled');
+        case 'rejected':
+            return requests.filter(r => r.status === 'Rejected');
+        case 'all':
+        default:
+            return requests;
+    }
+}
+
+function renderCurrentRequestSection() {
+    const container = document.getElementById('requests-container');
+    if (!container) return;
+
+    const sectionRequests = getRequestsForSection(currentRequestsCache, currentRequestsSection);
+    container.innerHTML = '';
+
+    if (sectionRequests.length === 0) {
+        container.innerHTML = `<div class="requests-empty-state" data-translate="No requests found in this section.">No requests found in this section.</div>`;
+        window.uiManager.translatePage();
+        return;
     }
 
-    window.uiManager.translatePage();
+    const table = createRequestsTable(sectionRequests);
+    container.appendChild(table);
+    table.classList.add('slide-in');
+}
+
+function setRequestSection(section) {
+    // Click on active card toggles back to "all"
+    currentRequestsSection = currentRequestsSection === section ? 'all' : section;
+    renderCurrentRequestSection();
+    updateRequestSummaryCards();
+}
+
+function updateRequestSummaryCards() {
+    document.querySelectorAll('.requests-summary .summary-card--clickable').forEach(card => {
+        const cardSection = card.dataset.section;
+        card.classList.toggle('active', currentRequestsSection === cardSection);
+    });
 }
 
 function createRequestsTable(requests) {
@@ -2140,7 +2215,8 @@ function createRequestsTable(requests) {
 
 function createStatusBadge(status) {
     const badgeClass = `status-badge ${status.toLowerCase()}`;
-    return `<span class="${badgeClass}">${status}</span>`;
+    const statusLabel = window.uiManager.translate(status);
+    return `<span class="${badgeClass}">${statusLabel}</span>`;
 }
 
 /** Schválené pozície: recruiter prepínač; GM/Manager len informácia */
@@ -2185,6 +2261,7 @@ async function toggleRequestAgencyVisibilityFromDetails(requestId, visible) {
 function createRequestActionButtons(request) {
     let buttons = '';
     const userInfo = window.authManager.getUserInfo();
+    const canManage = ['gm', 'recruiter', 'manager'].includes(userInfo.role);
     
     if ((userInfo.role === 'gm' || userInfo.role === 'recruiter') && request.status === 'Pending') {
         buttons = `
@@ -2193,8 +2270,17 @@ function createRequestActionButtons(request) {
         `;
     }
     
-    if (request.status === 'Approved') {
+    if (canManage && request.status === 'Approved') {
         buttons += `<button onclick="fillPosition(${request.id})" class="btn btn-primary" data-translate="Fill Position">Fill Position</button>`;
+        buttons += `<button onclick="pauseRequest(${request.id})" class="btn btn-warning" data-translate="Pause">Pause</button>`;
+    }
+
+    if (canManage && request.status === 'Paused') {
+        buttons += `<button onclick="resumeRequest(${request.id})" class="btn btn-success" data-translate="Resume">Resume</button>`;
+    }
+
+    if (canManage) {
+        buttons += `<button onclick="deleteRequest(${request.id})" class="btn btn-danger" data-translate="Delete Request">Delete</button>`;
     }
     
     buttons += `<button onclick="showRequestDetails(${request.id})" class="btn btn-info" data-translate="View Details">View Details</button>`;
@@ -2335,6 +2421,41 @@ async function fillPosition(id) {
     }
 }
 
+async function pauseRequest(id) {
+    try {
+        await window.requestsManager.pauseRequest(id);
+        window.utils.showMessage('Request paused successfully!', 'success');
+        showRequests();
+    } catch (error) {
+        window.utils.showMessage('Error pausing request: ' + error.message, 'error');
+    }
+}
+
+async function resumeRequest(id) {
+    try {
+        await window.requestsManager.resumeRequest(id);
+        window.utils.showMessage('Request resumed successfully!', 'success');
+        showRequests();
+    } catch (error) {
+        window.utils.showMessage('Error resuming request: ' + error.message, 'error');
+    }
+}
+
+async function deleteRequest(id) {
+    const confirmed = confirm(window.uiManager.translate('Are you sure you want to delete this request?'));
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        await window.requestsManager.deleteRequest(id);
+        window.utils.showMessage('Request deleted successfully!', 'success');
+        showRequests();
+    } catch (error) {
+        window.utils.showMessage('Error deleting request: ' + error.message, 'error');
+    }
+}
+
 async function showRequestDetails(id) {
     try {
         window.uiManager.showLoading('Loading request details...');
@@ -2404,9 +2525,22 @@ async function showRequestDetails(id) {
             `;
         }
         
-        if (request.status === 'Approved') {
+        if (['gm', 'recruiter', 'manager'].includes(userInfo.role) && request.status === 'Approved') {
             detailsHtml += `
                 <button onclick="fillPosition(${request.id})" class="btn btn-primary" data-translate="Fill Position">Fill Position</button>
+                <button onclick="pauseRequest(${request.id})" class="btn btn-warning" data-translate="Pause">Pause</button>
+            `;
+        }
+
+        if (['gm', 'recruiter', 'manager'].includes(userInfo.role) && request.status === 'Paused') {
+            detailsHtml += `
+                <button onclick="resumeRequest(${request.id})" class="btn btn-success" data-translate="Resume">Resume</button>
+            `;
+        }
+
+        if (['gm', 'recruiter', 'manager'].includes(userInfo.role)) {
+            detailsHtml += `
+                <button onclick="deleteRequest(${request.id})" class="btn btn-danger" data-translate="Delete Request">Delete</button>
             `;
         }
         

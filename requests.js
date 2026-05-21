@@ -400,6 +400,24 @@ class RequestsManager {
     }
 
     /**
+     * Pause an approved/open request
+     * @param {number} requestId - Request ID
+     * @returns {Promise<Object>}
+     */
+    async pauseRequest(requestId) {
+        return this.updateRequestStatus(requestId, 'Paused');
+    }
+
+    /**
+     * Resume paused request back to approved/open state
+     * @param {number} requestId - Request ID
+     * @returns {Promise<Object>}
+     */
+    async resumeRequest(requestId) {
+        return this.updateRequestStatus(requestId, 'Approved');
+    }
+
+    /**
      * Notify GMs about new request
      * @param {Object} request - Request data
      * @returns {Promise<void>}

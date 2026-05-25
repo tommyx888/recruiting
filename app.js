@@ -43,6 +43,7 @@ const translations = {
         "Position Type": "Position Type",
         "New Position": "New Position",
         "Replacement": "Replacement",
+        "Interim": "Interim",
         "Reason for New Position": "Reason for New Position",
         "Name of Person Being Replaced": "Name of Person Being Replaced",
         "Replaced person": "Replaced person",
@@ -357,6 +358,7 @@ const translations = {
         "Position Type": "Typ pozície",
         "New Position": "Nová pozícia",
         "Replacement": "Náhrada",
+        "Interim": "Interim",
         "Reason for New Position": "Dôvod novej pozície",
         "Name of Person Being Replaced": "Meno nahradzovanej osoby",
         "Replaced person": "Nahradzovaná osoba",
@@ -2625,6 +2627,10 @@ function showNewRequest() {
                         <input type="radio" id="replacement" name="position-type" value="replacement" required onchange="togglePositionTypeFields()">
                             <span data-translate="Replacement">Náhrada</span>
                     </label>
+                        <label class="radio-label">
+                        <input type="radio" id="interim-position" name="position-type" value="interim" required onchange="togglePositionTypeFields()">
+                            <span data-translate="Interim">Interim</span>
+                    </label>
                 </div>
             </div>
                 
@@ -2847,9 +2853,12 @@ function togglePositionTypeFields() {
     if (positionType === 'new') {
         newPositionFields.classList.remove('hidden');
         replacementFields.classList.add('hidden');
-    } else {
+    } else if (positionType === 'replacement') {
         newPositionFields.classList.add('hidden');
         replacementFields.classList.remove('hidden');
+    } else {
+        newPositionFields.classList.add('hidden');
+        replacementFields.classList.add('hidden');
     }
 }
 

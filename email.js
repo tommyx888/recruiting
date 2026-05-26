@@ -282,6 +282,56 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
     }
 
     /**
+     * Notify internal stakeholders about a new internal candidate note.
+     * @param {Object} candidate - Candidate row
+     * @param {Object} note - Internal note row
+     * @param {string} toEmail - Recipient email
+     * @returns {Promise<Object>}
+     */
+    async notifyInternalCandidateNote(candidate, note, toEmail) {
+        const author = note?.created_by_email || note?.created_by_role || 'Internal user';
+        const noteText = (note?.note_text || '').trim();
+        const subject = `Nová interná poznámka - ${candidate.name} (${candidate.position})`;
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #1d4ed8;">Nová interná poznámka ku kandidátovi</h2>
+                <p>Dobrý deň,</p>
+                <p>Ku kandidátovi bola pridaná nová interná poznámka.</p>
+                <div style="background: #eff6ff; padding: 16px; border-radius: 8px; border-left: 4px solid #1d4ed8; margin: 16px 0;">
+                    <p style="margin: 6px 0;"><strong>Kandidát:</strong> ${candidate.name}</p>
+                    <p style="margin: 6px 0;"><strong>Pozícia:</strong> ${candidate.position}</p>
+                    <p style="margin: 6px 0;"><strong>Oddelenie:</strong> ${candidate.department}</p>
+                    <p style="margin: 6px 0;"><strong>Autor poznámky:</strong> ${author}</p>
+                </div>
+                <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #dbeafe;">
+                    <p style="margin: 0; white-space: pre-wrap; color: #0f172a;">${noteText}</p>
+                </div>
+                <div style="text-align: center; margin: 24px 0 8px;">
+                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #1d4ed8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 700;">Otvoriť systém</a>
+                </div>
+            </div>
+        `;
+        const text = `Nová interná poznámka ku kandidátovi
+
+Kandidát: ${candidate.name}
+Pozícia: ${candidate.position}
+Oddelenie: ${candidate.department}
+Autor poznámky: ${author}
+
+Poznámka:
+${noteText}
+
+Otvoriť systém: https://recruiting.iacslovakia.sk/`;
+
+        return await this.sendEmail({
+            to: toEmail,
+            subject,
+            html,
+            text
+        });
+    }
+
+    /**
      * Nové podanie kandidáta od agentúry — čaká na potvrdenie recruiterom
      */
     async notifyRecruitersAgencyCandidateSubmission(candidate, recruiterEmail) {

@@ -17,6 +17,34 @@ class CandidatesManager {
         this.supabase = supabaseInstance;
     }
 
+    _isAgencyRole(role) {
+        return role === 'agency' || role === 'agency-interim';
+    }
+
+    _isInternalRole(role) {
+        return role === 'gm' || role === 'recruiter' || role === 'Manager' || role === 'manager';
+    }
+
+    _normalizeInternalNotesError(error, operation) {
+        const message = error?.message || error?.details || '';
+        const hint = error?.hint || '';
+        const combined = `${message} ${hint}`;
+        const missingTable = error?.status === 404
+            || error?.code === 'PGRST205'
+            || combined.toLowerCase().includes('candidate_internal_notes');
+
+        if (missingTable) {
+            return new Error(
+                'Interné poznámky ešte nie sú nasadené v databáze. Spustite migrácie vrátane 20260526141000_add_candidate_internal_notes.sql a obnovte stránku.'
+            );
+        }
+
+        if (message) {
+            return new Error(message);
+        }
+        return new Error(`Nastala chyba pri ${operation}.`);
+    }
+
     /**
      * Remove document paths for agency users (UI + client data); internal booking flow may fetch paths separately.
      * @param {Object|null} candidate
@@ -28,7 +56,7 @@ class CandidatesManager {
             const userInfo = typeof window !== 'undefined' && window.authManager
                 ? window.authManager.getUserInfo()
                 : null;
-            if (userInfo?.role !== 'agency') return candidate;
+            if (!this._isAgencyRole(userInfo?.role)) return candidate;
             // Vlastné kandidáti podľa zdroja agentúry – dokumenty zostávajú (nahrali ich oni)
             if (userInfo.source && candidate.source === userInfo.source) {
                 return candidate;
@@ -67,7 +95,7 @@ class CandidatesManager {
             position,
             source,
             status,
-            doc: userInfo?.role === 'agency' ? 'redacted' : 'full'
+            doc: this._isAgencyRole(userInfo?.role) ? 'redacted' : 'full'
         })}`;
 
         // Check cache first
@@ -79,10 +107,12 @@ class CandidatesManager {
         }
 
         try {
-            let query = this.supabase.from('candidates').select('*');
+            let query = this.supabase
+                .from('candidates')
+                .select('*, recruiting_request:recruiting_requests(contract_type, position_type)');
 
             // Apply filters based on user permissions
-            if (userInfo.role === 'agency') {
+            if (this._isAgencyRole(userInfo.role)) {
                 // Agencies can only see their own candidates (filtered by source from users table)
                 if (userInfo.source) {
                     console.log('🔍 Agency filter: Filtering candidates by source:', userInfo.source);
@@ -93,7 +123,12 @@ class CandidatesManager {
                     query = query.eq('source', '__NO_SOURCE__'); // This will return no results
                 }
             } else if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
-                if (userInfo.allowedPositions.length > 0) {
+                const isManagerRole = userInfo.role === 'Manager' || userInfo.role === 'manager';
+                if (isManagerRole && userInfo.department) {
+                    // Managers should see all candidates in their department
+                    // (both permanent and interim), not just allowed positions.
+                    query = query.eq('department', userInfo.department);
+                } else if (userInfo.allowedPositions.length > 0) {
                     query = query.in('position', userInfo.allowedPositions);
                 } else {
                     query = query.eq('department', userInfo.department);
@@ -112,14 +147,17 @@ class CandidatesManager {
             let countQuery = this.supabase.from('candidates').select('*', { count: 'exact', head: true });
             
             // Apply same permission filters to count query
-            if (userInfo.role === 'agency') {
+            if (this._isAgencyRole(userInfo.role)) {
                 if (userInfo.source) {
                     countQuery = countQuery.eq('source', userInfo.source);
                 } else {
                     countQuery = countQuery.eq('source', '__NO_SOURCE__');
                 }
             } else if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter') {
-                if (userInfo.allowedPositions.length > 0) {
+                const isManagerRole = userInfo.role === 'Manager' || userInfo.role === 'manager';
+                if (isManagerRole && userInfo.department) {
+                    countQuery = countQuery.eq('department', userInfo.department);
+                } else if (userInfo.allowedPositions.length > 0) {
                     countQuery = countQuery.in('position', userInfo.allowedPositions);
                 } else {
                     countQuery = countQuery.eq('department', userInfo.department);
@@ -288,7 +326,7 @@ class CandidatesManager {
             throw new Error('Supabase client not initialized');
         }
         const userInfo = window.authManager.getUserInfo();
-        if (userInfo.role !== 'agency' || !userInfo.source) {
+        if (!this._isAgencyRole(userInfo.role) || !userInfo.source) {
             throw new Error('Len prihlásená agentúra so zadaným zdrojom môže pridávať kandidátov.');
         }
         const name = (data.name || '').trim();
@@ -532,6 +570,98 @@ class CandidatesManager {
     }
 
     /**
+     * Assign candidate to talent pool target
+     * @param {number} candidateId - Candidate ID
+     * @param {Object} poolData - Talent pool assignment
+     * @returns {Promise<Object>}
+     */
+    async setTalentPoolEntry(candidateId, poolData) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        const userInfo = window.authManager.getUserInfo();
+        if (!userInfo || (userInfo.role !== 'recruiter' && userInfo.role !== 'gm')) {
+            throw new Error('Nemáte oprávnenie spravovať Talent Pool.');
+        }
+
+        const targetType = poolData?.type;
+        const targetValue = poolData?.value ? String(poolData.value).trim() : '';
+        if (!['department', 'position'].includes(targetType)) {
+            throw new Error('Neplatný typ Talent Pool cieľa.');
+        }
+        if (!targetValue) {
+            throw new Error('Cieľ Talent Pool je povinný.');
+        }
+
+        try {
+            const updateData = {
+                in_talent_pool: true,
+                talent_pool_target_type: targetType,
+                talent_pool_target_value: targetValue,
+                talent_pool_added_at: new Date().toISOString(),
+                talent_pool_added_by: userInfo.id || null,
+                last_updated: new Date().toISOString()
+            };
+
+            const { data, error } = await this.supabase
+                .from('candidates')
+                .update(updateData)
+                .eq('id', candidateId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            this.clearCache();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error setting talent pool entry:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Remove candidate from talent pool
+     * @param {number} candidateId - Candidate ID
+     * @returns {Promise<Object>}
+     */
+    async removeTalentPoolEntry(candidateId) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        const userInfo = window.authManager.getUserInfo();
+        if (!userInfo || (userInfo.role !== 'recruiter' && userInfo.role !== 'gm')) {
+            throw new Error('Nemáte oprávnenie spravovať Talent Pool.');
+        }
+
+        try {
+            const updateData = {
+                in_talent_pool: false,
+                talent_pool_target_type: null,
+                talent_pool_target_value: null,
+                talent_pool_added_at: null,
+                talent_pool_added_by: null,
+                last_updated: new Date().toISOString()
+            };
+
+            const { data, error } = await this.supabase
+                .from('candidates')
+                .update(updateData)
+                .eq('id', candidateId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            this.clearCache();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error removing talent pool entry:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Update candidate with optional file re-upload
      * @param {number} candidateId - Candidate ID
      * @param {Object} candidateData - Updated candidate data
@@ -545,7 +675,7 @@ class CandidatesManager {
         const userInfo = typeof window !== 'undefined' && window.authManager
             ? window.authManager.getUserInfo()
             : null;
-        if (userInfo?.role === 'agency' && (candidateData.cvFile || candidateData.assessmentFile)) {
+        if (this._isAgencyRole(userInfo?.role) && (candidateData.cvFile || candidateData.assessmentFile)) {
             throw new Error('Agentúry nemôžu nahrávať dokumenty uchádzačov.');
         }
 
@@ -700,6 +830,120 @@ class CandidatesManager {
     }
 
     /**
+     * Get internal notes for candidate (recruiter/manager communication).
+     * @param {number} candidateId
+     * @returns {Promise<Array>}
+     */
+    async getCandidateInternalNotes(candidateId) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        const userInfo = window.authManager?.getUserInfo?.();
+        if (!this._isInternalRole(userInfo?.role)) {
+            return [];
+        }
+
+        const { data, error } = await this.supabase
+            .from('candidate_internal_notes')
+            .select('id, candidate_id, note_text, created_by, created_by_role, created_by_email, created_at')
+            .eq('candidate_id', candidateId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw this._normalizeInternalNotesError(error, 'načítaní interných poznámok');
+        return data || [];
+    }
+
+    /**
+     * Add internal note and notify relevant internal users by email.
+     * @param {number} candidateId
+     * @param {string} noteText
+     * @returns {Promise<Object>}
+     */
+    async addCandidateInternalNote(candidateId, noteText) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        const text = (noteText || '').trim();
+        if (!text) {
+            throw new Error('Text poznámky je povinný.');
+        }
+
+        const userInfo = window.authManager?.getUserInfo?.();
+        if (!this._isInternalRole(userInfo?.role)) {
+            throw new Error('Nemáte oprávnenie pridávať interné poznámky.');
+        }
+
+        const authUser = await window.authManager.resolveAuthUser();
+        if (!authUser?.id) {
+            throw new Error('Používateľ nie je prihlásený.');
+        }
+
+        const { data: inserted, error: insertError } = await this.supabase
+            .from('candidate_internal_notes')
+            .insert([{
+                candidate_id: candidateId,
+                note_text: text,
+                created_by: authUser.id,
+                created_by_role: userInfo.role,
+                created_by_email: authUser.email || null
+            }])
+            .select('id, candidate_id, note_text, created_by, created_by_role, created_by_email, created_at')
+            .single();
+
+        if (insertError) throw this._normalizeInternalNotesError(insertError, 'uložení internej poznámky');
+
+        try {
+            const candidate = await this.getCandidateDetails(candidateId);
+            await this.notifyInternalCandidateNoteAdded(candidate, inserted);
+        } catch (notifyErr) {
+            console.warn('notifyInternalCandidateNoteAdded failed:', notifyErr);
+        }
+
+        return { success: true, data: inserted };
+    }
+
+    /**
+     * Send internal note email notification only to recruiters.
+     * @param {Object} candidate
+     * @param {Object} note
+     */
+    async notifyInternalCandidateNoteAdded(candidate, note) {
+        if (!candidate || !note) return;
+        if (!window.emailManager?.notifyInternalCandidateNote) return;
+
+        const { data: users, error } = await this.supabase
+            .from('users')
+            .select('id, email, role, department, allowed_positions')
+            .eq('role', 'recruiter')
+            .not('email', 'is', null);
+
+        if (error) {
+            console.warn('notifyInternalCandidateNoteAdded users error:', error);
+            return;
+        }
+
+        const recipients = (users || []).filter((u) => {
+            if (!u?.email) return false;
+            if (u.id === note.created_by) return false;
+            if (Array.isArray(u.allowed_positions) && u.allowed_positions.length > 0) {
+                return u.allowed_positions.includes(candidate.position);
+            }
+            return true;
+        });
+
+        const uniqueEmails = [...new Set(recipients.map((u) => String(u.email).trim()).filter(Boolean))];
+        for (const email of uniqueEmails) {
+            try {
+                await window.emailManager.notifyInternalCandidateNote(candidate, note, email);
+            } catch (emailError) {
+                console.warn(`Internal note email failed for ${email}:`, emailError);
+            }
+        }
+    }
+
+    /**
      * Delete candidate
      * @param {number} candidateId - Candidate ID
      * @returns {Promise<Object>}
@@ -796,7 +1040,7 @@ class CandidatesManager {
 
             if (candidateError) throw candidateError;
 
-            if (userInfo?.role === 'agency') {
+            if (this._isAgencyRole(userInfo?.role)) {
                 if (!userInfo.source || candidateData.source !== userInfo.source) {
                     throw new Error('Agentúry nemajú prístup k dokumentom tohto uchádzača.');
                 }

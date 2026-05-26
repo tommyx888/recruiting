@@ -17,6 +17,10 @@ class RequestsManager {
         this.supabase = supabaseInstance;
     }
 
+    _isAgencyRole(role) {
+        return role === 'agency' || role === 'agency-interim';
+    }
+
     /**
      * Get recruiting requests with pagination and filtering
      * @param {Object} options - Query options
@@ -58,20 +62,19 @@ class RequestsManager {
 
             // Apply filters based on user permissions
             const userInfo = window.authManager.getUserInfo();
-            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && userInfo.role !== 'agency') {
-                if (userInfo.role === 'Manager') {
-                    // If manager has allowed_positions, filter by those positions
-                    if (userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) && userInfo.allowedPositions.length > 0) {
-                        query = query.in('position', userInfo.allowedPositions);
-                    } else if (userInfo.department) {
-                        // Otherwise, filter by department
+            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && !this._isAgencyRole(userInfo.role)) {
+                if (userInfo.role === 'Manager' || userInfo.role === 'manager') {
+                    // Managers should always see all requests in their department
+                    // (both permanent and interim), regardless of allowed positions.
+                    if (userInfo.department) {
                         query = query.eq('department', userInfo.department);
                     }
                 }
             }
             // Agentúry: len schválené a recruiterom označené ako viditeľné (RLS + istota v aplikácii)
-            if (userInfo.role === 'agency') {
+            if (this._isAgencyRole(userInfo.role)) {
                 query = query.eq('visible_to_agencies', true);
+                query = query.eq('contract_type', userInfo.role === 'agency-interim' ? 'interim' : 'permanent');
             }
 
             // Apply additional filters
@@ -85,17 +88,16 @@ class RequestsManager {
 
             // Get total count with the SAME filters (so pagination matches filtered results)
             let countQuery = this.supabase.from('recruiting_requests').select('*', { count: 'exact', head: true });
-            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && userInfo.role !== 'agency') {
-                if (userInfo.role === 'Manager') {
-                    if (userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) && userInfo.allowedPositions.length > 0) {
-                        countQuery = countQuery.in('position', userInfo.allowedPositions);
-                    } else if (userInfo.department) {
+            if (userInfo.role !== 'gm' && userInfo.role !== 'recruiter' && !this._isAgencyRole(userInfo.role)) {
+                if (userInfo.role === 'Manager' || userInfo.role === 'manager') {
+                    if (userInfo.department) {
                         countQuery = countQuery.eq('department', userInfo.department);
                     }
                 }
             }
-            if (userInfo.role === 'agency') {
+            if (this._isAgencyRole(userInfo.role)) {
                 countQuery = countQuery.eq('visible_to_agencies', true);
+                countQuery = countQuery.eq('contract_type', userInfo.role === 'agency-interim' ? 'interim' : 'permanent');
             }
             Object.entries(allFilters).forEach(([key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
@@ -151,7 +153,7 @@ class RequestsManager {
 
         try {
             // Validate required fields
-            const requiredFields = ['position', 'department', 'description', 'headcount', 'position_type', 'position_category'];
+            const requiredFields = ['position', 'department', 'description', 'headcount', 'position_type', 'contract_type', 'position_category'];
             const validation = window.utils.validateRequiredFields(requestData, requiredFields);
             
             if (!validation.isValid) {
@@ -166,6 +168,7 @@ class RequestsManager {
                 headcount: parseInt(requestData.headcount, 10),
                 status: 'Pending',
                 position_type: requestData.position_type,
+                contract_type: requestData.contract_type,
                 position_category: requestData.position_category,
                 is_confidential: requestData.is_confidential || false,
                 new_position_reason: requestData.new_position_reason || null,
@@ -597,7 +600,7 @@ class RequestsManager {
         try {
             const { data: requests, error } = await this.supabase
                 .from('recruiting_requests')
-                .select('status, department, position_type');
+                .select('status, department, position_type, contract_type');
 
             if (error) throw error;
 

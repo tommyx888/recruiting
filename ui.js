@@ -815,6 +815,7 @@ class UIManager {
         const navStatistics = document.getElementById('nav-statistics');
         const navReports = document.getElementById('nav-reports');
         const navGMApproval = document.getElementById('nav-gm-approval');
+        const navTalentPool = document.getElementById('nav-talent-pool');
         const navRequests = document.getElementById('nav-requests');
         const navManageSlots = document.getElementById('nav-manage-slots');
         const navAgencyView = document.getElementById('nav-agency-view');
@@ -825,6 +826,7 @@ class UIManager {
             navStatistics: !!navStatistics,
             navReports: !!navReports,
             navGMApproval: !!navGMApproval,
+            navTalentPool: !!navTalentPool,
             navRequests: !!navRequests,
             navManageSlots: !!navManageSlots,
             navAgencyView: !!navAgencyView
@@ -833,6 +835,7 @@ class UIManager {
         if (userInfo.role === 'gm' || userInfo.role === 'recruiter') {
             if (navDashboard) navDashboard.style.display = 'inline';
             if (navGMApproval) navGMApproval.style.display = 'inline';
+            if (navTalentPool) navTalentPool.style.display = 'inline';
             if (navRequests) navRequests.style.display = 'inline';
             if (navStatistics) navStatistics.style.display = 'inline';
             if (navReports) navReports.style.display = 'inline';
@@ -840,9 +843,10 @@ class UIManager {
             if (navAgencyView) navAgencyView.style.display = 'none';
             if (navAgencySubmissions) navAgencySubmissions.style.display = 'inline';
             console.log('GM/Recruiter navigation shown');
-        } else if (userInfo.role === 'agency') {
+        } else if (userInfo.role === 'agency' || userInfo.role === 'agency-interim') {
             if (navDashboard) navDashboard.style.display = 'none';
             if (navGMApproval) navGMApproval.style.display = 'none';
+            if (navTalentPool) navTalentPool.style.display = 'none';
             if (navRequests) navRequests.style.display = 'none';
             if (navStatistics) navStatistics.style.display = 'none';
             if (navReports) navReports.style.display = 'none';
@@ -853,6 +857,7 @@ class UIManager {
         } else if (userInfo.role === 'Manager') {
             // Managers see only Dashboard, Candidates, and Requests (filtered by department/positions)
             if (navGMApproval) navGMApproval.style.display = 'none';
+            if (navTalentPool) navTalentPool.style.display = 'none';
             if (navRequests) navRequests.style.display = 'inline';
             if (navStatistics) navStatistics.style.display = 'none';
             if (navReports) navReports.style.display = 'none';
@@ -862,6 +867,7 @@ class UIManager {
             if (navStatistics) navStatistics.style.display = 'none';
             if (navReports) navReports.style.display = 'none';
             if (navGMApproval) navGMApproval.style.display = 'none';
+            if (navTalentPool) navTalentPool.style.display = 'none';
             if (navAgencySubmissions) navAgencySubmissions.style.display = 'none';
             if (navRequests) {
                 navRequests.style.display = (userInfo.role === 'recruiter' || userInfo.allowedPositions.length === 0) ? 'inline' : 'none';

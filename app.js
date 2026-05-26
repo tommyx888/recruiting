@@ -6,6 +6,11 @@ const translations = {
         // Navigation
         "Dashboard": "Dashboard",
         "Candidates": "Candidates",
+        "Permanent Candidates": "Permanent Candidates",
+        "Interim Candidates": "Interim Candidates",
+        "Switch candidate mode": "Switch candidate mode",
+        "Switch request mode": "Switch request mode",
+        "Current Request Type": "Current request type",
         "View and manage candidates by status": "View and manage candidates by status",
         "Recruiting Requests": "Recruiting Requests",
         "GM Approval": "GM Approval",
@@ -30,6 +35,9 @@ const translations = {
         "Full Name": "Full Name",
         "Department": "Department",
         "Position": "Position",
+        "Position not in list": "Position not in list",
+        "Enter custom position": "Enter custom position",
+        "Custom position is required.": "Custom position is required.",
         "Source": "Source",
         "Date Obtained": "Date Obtained",
         "Upload CV": "Upload CV",
@@ -39,11 +47,21 @@ const translations = {
         "Notes": "Notes",
         "Create New Recruiting Request": "Create New Recruiting Request",
         "Job Description": "Job Description",
+        "Job Description Document": "Job Description Document",
+        "Upload Job Description Document": "Upload Job Description Document (PDF/DOC/DOCX)",
+        "Download Job Description Document": "Download Job Description Document",
+        "No Job Description Document": "No Job Description Document",
+        "Add Final Interview Participant": "Add participant for final interview",
+        "Final Interview Participant Name": "Final interview participant name",
+        "Final Interview Participant Note": "Final interview participant note",
+        "Final interview participant name is required.": "Final interview participant name is required.",
         "Headcount": "Headcount",
         "Position Type": "Position Type",
         "New Position": "New Position",
         "Replacement": "Replacement",
         "Interim": "Interim",
+        "Contract Type": "Contract Type",
+        "Permanent": "Permanent",
         "Reason for New Position": "Reason for New Position",
         "Name of Person Being Replaced": "Name of Person Being Replaced",
         "Replaced person": "Replaced person",
@@ -78,6 +96,21 @@ const translations = {
         "Agency submissions subtitle": "Candidates added by agencies — confirm or reject before they appear to department managers.",
         "Candidates by status heading": "All candidates by status",
         "No pending agency submissions": "No agency submissions waiting for your review.",
+        "Talent Pool": "Talent Pool",
+        "Talent Pool subtitle": "Rejected candidates moved to a reusable pool for future openings.",
+        "Talent Pool Access denied": "Access denied. Only GM and Recruiter can view Talent Pool.",
+        "Move to Talent Pool": "Move to Talent Pool",
+        "Update Talent Pool": "Update Talent Pool",
+        "Remove from Talent Pool": "Remove from Talent Pool",
+        "Add to Talent Pool": "Add to Talent Pool",
+        "Talent Pool target type": "Talent Pool target type",
+        "Talent Pool target": "Talent Pool target",
+        "By Department": "By Department",
+        "By Position": "By Position",
+        "Select target type first": "Select target type first",
+        "No talent pool candidates": "No candidates in Talent Pool yet.",
+        "Candidate moved to Talent Pool": "Candidate was moved to Talent Pool.",
+        "Candidate removed from Talent Pool": "Candidate was removed from Talent Pool.",
         "Visible to agencies": "Visible to agencies",
         "Agency visibility updated": "Agency visibility saved.",
         "Visible to agencies help": "When approved: agencies see this position when submitting candidates.",
@@ -178,6 +211,11 @@ const translations = {
         "Second Round Slots": "Second Round Slots",
         "No positions with candidates": "No positions with candidates",
         "Candidates": "Candidates",
+        "Permanent Candidates": "Permanent Candidates",
+        "Interim Candidates": "Interim Candidates",
+        "Switch candidate mode": "Switch candidate mode",
+        "Switch request mode": "Switch request mode",
+        "Current Request Type": "Current request type",
         "Candidate Names": "Candidate Names",
         "First Round": "First Round",
         "Second Round": "Second Round",
@@ -303,6 +341,15 @@ const translations = {
         "Candidate Details": "Candidate Details",
         "Not assigned": "Not assigned",
         "No notes": "No notes",
+        "Internal Notes": "Internal Notes",
+        "No internal notes": "No internal notes yet",
+        "Add internal note": "Add internal note",
+        "Internal note placeholder": "Write a private note for recruiter / manager...",
+        "Save internal note": "Save internal note",
+        "Saving note...": "Saving note...",
+        "Internal note added": "Internal note added.",
+        "Error adding internal note": "Error adding internal note:",
+        "Added by": "Added by",
         "Last Updated": "Last Updated",
         "Documents": "Documents",
         "CV": "CV",
@@ -337,6 +384,11 @@ const translations = {
         // Navigation
         "Dashboard": "Nástenka",
         "Candidates": "Kandidáti",
+        "Permanent Candidates": "Perm. kandidáti",
+        "Interim Candidates": "Interim kandidáti",
+        "Switch candidate mode": "Prepínač typu kandidátov",
+        "Switch request mode": "Prepínač typu žiadostí",
+        "Current Request Type": "Aktuálny typ žiadostí",
         "View and manage candidates by status": "Zobraziť a spravovať kandidátov podľa stavu",
         "Recruiting Requests": "Žiadosti o nábor",
         "GM Approval": "Schválenie GM",
@@ -345,6 +397,9 @@ const translations = {
         "Full Name": "Celé meno",
         "Department": "Oddelenie",
         "Position": "Pozícia",
+        "Position not in list": "Pozícia nie je v zozname",
+        "Enter custom position": "Zadajte názov pozície",
+        "Custom position is required.": "Vlastný názov pozície je povinný.",
         "Source": "Zdroj",
         "Date Obtained": "Dátum získania",
         "Upload CV": "Nahrať životopis",
@@ -354,11 +409,21 @@ const translations = {
         "Notes": "Poznámky",
         "Create New Recruiting Request": "Vytvoriť novú žiadosť o nábor",
         "Job Description": "Popis práce",
+        "Job Description Document": "Dokument popisu práce",
+        "Upload Job Description Document": "Nahrať dokument popisu práce (PDF/DOC/DOCX)",
+        "Download Job Description Document": "Stiahnuť dokument popisu práce",
+        "No Job Description Document": "Dokument popisu práce nebol nahraný",
+        "Add Final Interview Participant": "Pridať osobu, ktorá sa zúčastní finálneho interview",
+        "Final Interview Participant Name": "Meno osoby pre finálne interview",
+        "Final Interview Participant Note": "Popis k osobe pre finálne interview",
+        "Final interview participant name is required.": "Meno osoby pre finálne interview je povinné.",
         "Headcount": "Počet pracovníkov",
         "Position Type": "Typ pozície",
         "New Position": "Nová pozícia",
         "Replacement": "Náhrada",
         "Interim": "Interim",
+        "Contract Type": "Typ zmluvy",
+        "Permanent": "Trvalý",
         "Reason for New Position": "Dôvod novej pozície",
         "Name of Person Being Replaced": "Meno nahradzovanej osoby",
         "Replaced person": "Nahradzovaná osoba",
@@ -395,6 +460,21 @@ const translations = {
         "Agency submissions subtitle": "Kandidáti pridaní agentúrami — pred zobrazením manažérom ich potvrďte alebo zamietnite.",
         "Candidates by status heading": "Všetci kandidáti podľa stavu",
         "No pending agency submissions": "Žiadne podania od agentúr na spracovanie.",
+        "Talent Pool": "Talent Pool",
+        "Talent Pool subtitle": "Zamietnutí kandidáti presunutí do znovu použiteľného poolu pre budúce pozície.",
+        "Talent Pool Access denied": "Prístup zamietnutý. Talent Pool môžu zobraziť iba GM a Recruiter.",
+        "Move to Talent Pool": "Presunúť do Talent Pool",
+        "Update Talent Pool": "Upraviť Talent Pool",
+        "Remove from Talent Pool": "Odobrať z Talent Pool",
+        "Add to Talent Pool": "Pridať do Talent Pool",
+        "Talent Pool target type": "Typ cieľa v Talent Pool",
+        "Talent Pool target": "Cieľ v Talent Pool",
+        "By Department": "Podľa oddelenia",
+        "By Position": "Podľa pozície",
+        "Select target type first": "Najprv vyberte typ cieľa",
+        "No talent pool candidates": "V Talent Poole zatiaľ nie sú žiadni kandidáti.",
+        "Candidate moved to Talent Pool": "Kandidát bol presunutý do Talent Pool.",
+        "Candidate removed from Talent Pool": "Kandidát bol odobratý z Talent Pool.",
         "Visible to agencies": "Viditeľné pre agentúry",
         "Agency visibility updated": "Viditeľnosť pre agentúry bola uložená.",
         "Visible to agencies help": "Po schválení: agentúra uvidí túto pozíciu pri pridávaní kandidáta.",
@@ -516,6 +596,11 @@ const translations = {
         "Second Round Slots": "Termíny - Druhé kolo",
         "No positions with candidates": "Žiadne pozície, pre ktoré máte kandidátov",
         "Candidates": "Kandidáti",
+        "Permanent Candidates": "Perm. kandidáti",
+        "Interim Candidates": "Interim kandidáti",
+        "Switch candidate mode": "Prepínač typu kandidátov",
+        "Switch request mode": "Prepínač typu žiadostí",
+        "Current Request Type": "Aktuálny typ žiadostí",
         "Candidate Names": "Menná kandidátov",
         "First Round": "Prvé kolo",
         "Second Round": "Druhé kolo",
@@ -641,6 +726,15 @@ const translations = {
         "Candidate Details": "Detaily kandidáta",
         "Not assigned": "Nepriradené",
         "No notes": "Žiadne poznámky",
+        "Internal Notes": "Interné poznámky",
+        "No internal notes": "Zatiaľ žiadne interné poznámky",
+        "Add internal note": "Pridať internú poznámku",
+        "Internal note placeholder": "Sem napíšte internú poznámku pre recruitera / manažéra...",
+        "Save internal note": "Uložiť internú poznámku",
+        "Saving note...": "Ukladám poznámku...",
+        "Internal note added": "Interná poznámka bola pridaná.",
+        "Error adding internal note": "Chyba pri pridávaní internej poznámky:",
+        "Added by": "Pridal",
         "Last Updated": "Posledná aktualizácia",
         "Documents": "Dokumenty",
         "CV": "CV",
@@ -678,6 +772,69 @@ let supabaseInstance;
 let currentLanguage = 'sk';
 let currentRequestsSection = 'all';
 let currentRequestsCache = [];
+let currentRequestsBaseCache = [];
+let currentRequestContractMode = 'permanent';
+let currentCandidateViewMode = 'permanent';
+let candidateBaseListCache = [];
+let candidatePaginationCache = null;
+let interimPositionsCache = new Set();
+
+function isAgencyRole(userOrRole) {
+    const role = typeof userOrRole === 'string' ? userOrRole : userOrRole?.role;
+    return role === 'agency' || role === 'agency-interim';
+}
+
+function canAccessInternalCandidateNotes(userInfo) {
+    const role = userInfo?.role;
+    return role === 'gm' || role === 'recruiter' || role === 'Manager' || role === 'manager';
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatInternalNoteTimestamp(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('sk-SK');
+}
+
+function getErrorMessage(error, fallback = 'Unknown error') {
+    if (!error) return fallback;
+    if (typeof error === 'string') return error;
+    if (error.message) return error.message;
+    if (error.details) return error.details;
+    try {
+        return JSON.stringify(error);
+    } catch (jsonError) {
+        return fallback;
+    }
+}
+
+function renderInternalCandidateNotes(notes = []) {
+    if (!Array.isArray(notes) || notes.length === 0) {
+        return `<p class="internal-notes-empty" data-translate="No internal notes">${window.uiManager.translate('No internal notes')}</p>`;
+    }
+
+    return notes.map((note) => {
+        const author = note.created_by_email || note.created_by_role || window.uiManager.translate('Not assigned');
+        const createdAt = formatInternalNoteTimestamp(note.created_at);
+        return `
+            <article class="internal-note-item">
+                <header class="internal-note-meta">
+                    <span class="internal-note-author">${window.uiManager.translate('Added by')}: ${escapeHtml(author)}</span>
+                    <time class="internal-note-time" datetime="${escapeHtml(note.created_at || '')}">${escapeHtml(createdAt)}</time>
+                </header>
+                <p class="internal-note-text">${escapeHtml(note.note_text || '')}</p>
+            </article>
+        `;
+    }).join('');
+}
 
 // Department-Position mapping
 const departmentPositions = {
@@ -836,7 +993,7 @@ async function initializeModules() {
             console.log('User is authenticated, showing app');
             window.uiManager.showApp();
             window.uiManager.updateNavigationVisibility();
-            if (userInfo && userInfo.role === 'agency') {
+            if (isAgencyRole(userInfo)) {
                 showAgencyView();
             } else {
                 showDashboard();
@@ -894,7 +1051,7 @@ function setupLoginForm() {
                     userRole = userInfo.role || '';
                     userDepartment = userInfo.department || '';
                 }
-                if (userInfo && userInfo.role === 'agency') {
+                if (isAgencyRole(userInfo)) {
                     showAgencyView();
                 } else {
                     showDashboard();
@@ -1065,6 +1222,10 @@ async function showDashboard() {
 async function showCandidates() {
     try {
         window.uiManager.showLoading('Loading candidates...');
+        const savedMode = sessionStorage.getItem('candidateViewMode');
+        if (savedMode === 'permanent' || savedMode === 'interim') {
+            currentCandidateViewMode = savedMode;
+        }
         
         // Check if there's a saved filter state
         const savedState = sessionStorage.getItem('candidateFilterState');
@@ -1112,17 +1273,213 @@ async function showCandidates() {
             pageSize: 1000  // Load all candidates for display
         });
         }
-
-        renderCandidatesView(result);
+        const interimPositions = await fetchInterimPositions();
+        candidateBaseListCache = (result.candidates || []).filter(c => c.in_talent_pool !== true);
+        candidatePaginationCache = result.pagination || null;
+        interimPositionsCache = interimPositions;
+        renderCurrentCandidateMode();
     } catch (error) {
         console.error('Error loading candidates:', error);
         window.utils.showMessage('Error loading candidates: ' + error.message, 'error');
     }
 }
 
+async function showTalentPool() {
+    try {
+        const userInfo = window.authManager.getUserInfo();
+        const canViewTalentPool = userInfo && (userInfo.role === 'recruiter' || userInfo.role === 'gm');
+        if (!canViewTalentPool) {
+            window.utils.showMessage(window.uiManager.translate('Talent Pool Access denied'), 'error');
+            return;
+        }
+
+        window.uiManager.showLoading('Loading candidates...');
+        const savedMode = sessionStorage.getItem('candidateViewMode');
+        if (savedMode === 'permanent' || savedMode === 'interim') {
+            currentCandidateViewMode = savedMode;
+        }
+
+        const result = await window.candidatesManager.getCandidates({
+            page: 1,
+            pageSize: 1000
+        });
+
+        const talentPoolCandidates = (result.candidates || []).filter(c => c.in_talent_pool === true);
+        const interimPositions = await fetchInterimPositions();
+        const { permanentCandidates, interimCandidates } = splitCandidatesByMode(talentPoolCandidates, interimPositions);
+        const currentModeCandidates = currentCandidateViewMode === 'interim' ? interimCandidates : permanentCandidates;
+        const groupedPool = getTalentPoolGroups(currentModeCandidates);
+
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="candidates-layout mode-${currentCandidateViewMode}">
+                <section class="talent-pool-section card">
+                    <div class="talent-pool-section__head">
+                        <h2 data-translate="Talent Pool">${window.uiManager.translate('Talent Pool')}</h2>
+                        <p class="talent-pool-section__subtitle" data-translate="Talent Pool subtitle"></p>
+                        <div class="candidate-mode-switcher" role="group" aria-label="${window.uiManager.translate('Switch candidate mode')}">
+                            <button
+                                type="button"
+                                class="candidate-mode-btn candidate-mode-btn--permanent ${currentCandidateViewMode === 'permanent' ? 'active' : ''}"
+                                onclick="setTalentPoolViewMode('permanent')"
+                                data-translate="Permanent Candidates"
+                            >
+                                ${window.uiManager.translate('Permanent Candidates')} (${permanentCandidates.length})
+                            </button>
+                            <button
+                                type="button"
+                                class="candidate-mode-btn candidate-mode-btn--interim ${currentCandidateViewMode === 'interim' ? 'active' : ''}"
+                                onclick="setTalentPoolViewMode('interim')"
+                                data-translate="Interim Candidates"
+                            >
+                                ${window.uiManager.translate('Interim Candidates')} (${interimCandidates.length})
+                            </button>
+                        </div>
+                    </div>
+                    <div id="talent-pool-only-body" class="talent-pool-section__body"></div>
+                </section>
+            </div>
+        `;
+
+        const body = document.getElementById('talent-pool-only-body');
+        if (body) {
+            const keys = Object.keys(groupedPool);
+            if (keys.length > 0) {
+                keys.forEach(groupKey => {
+                    const groupCandidates = groupedPool[groupKey] || [];
+                    if (groupCandidates.length > 0) {
+                        const label = getTalentPoolLabel(groupCandidates[0]);
+                        body.appendChild(createCandidateTable(groupCandidates, label));
+                    }
+                });
+            } else {
+                const empty = document.createElement('p');
+                empty.className = 'talent-pool-section__empty';
+                empty.setAttribute('data-translate', 'No talent pool candidates');
+                empty.textContent = window.uiManager.translate('No talent pool candidates');
+                body.appendChild(empty);
+            }
+        }
+
+        window.uiManager.translatePage();
+    } catch (error) {
+        console.error('Error loading talent pool:', error);
+        window.utils.showMessage('Error loading talent pool: ' + error.message, 'error');
+    }
+}
+
+async function fetchInterimPositions() {
+    try {
+        const userInfo = window.authManager.getUserInfo();
+        const isManagerRole = userInfo && (userInfo.role === 'Manager' || userInfo.role === 'manager');
+        let requests = [];
+
+        if (isManagerRole && userInfo.department) {
+            // For managers, determine interim positions from the whole department
+            // so they can see both permanent and interim candidates in that department.
+            const { data, error } = await window.supabase
+                .from('recruiting_requests')
+                .select('position, contract_type, position_type, department')
+                .eq('department', userInfo.department)
+                .limit(1000);
+            if (error) throw error;
+            requests = data || [];
+        } else {
+            const requestResult = await window.requestsManager.getRequests({
+                page: 1,
+                pageSize: 1000
+            });
+            requests = requestResult?.requests || [];
+        }
+
+        return new Set(
+            requests
+                .filter(r => (r.contract_type === 'interim' || r.position_type === 'interim') && r.position)
+                .map(r => r.position)
+        );
+    } catch (error) {
+        console.warn('Could not load interim positions for candidate switcher:', error);
+        return new Set();
+    }
+}
+
+function splitCandidatesByMode(candidates, interimPositions) {
+    const interimPositionSet = new Set(
+        Array.from(interimPositions || []).map((p) => String(p || '').trim().toLowerCase())
+    );
+    const isInterimByLinkedRequest = (candidate) => {
+        const request = candidate?.recruiting_request;
+        if (!request || typeof request !== 'object') return false;
+        return request.contract_type === 'interim' || request.position_type === 'interim';
+    };
+    const isInterimPosition = (position) => interimPositionSet.has(String(position || '').trim().toLowerCase());
+    const isInterimCandidate = (candidate) =>
+        isInterimByLinkedRequest(candidate) || isInterimPosition(candidate?.position);
+    const interimCandidates = candidates.filter(c => isInterimCandidate(c));
+    const permanentCandidates = candidates.filter(c => !isInterimCandidate(c));
+    return { permanentCandidates, interimCandidates };
+}
+
+function getTalentPoolLabel(candidate) {
+    const targetType = candidate?.talent_pool_target_type;
+    const targetValue = candidate?.talent_pool_target_value || '';
+    if (!targetValue) {
+        return window.uiManager.translate('Talent Pool');
+    }
+    const typeLabel = targetType === 'position'
+        ? window.uiManager.translate('By Position')
+        : window.uiManager.translate('By Department');
+    return `${window.uiManager.translate('Talent Pool')} - ${typeLabel}: ${targetValue}`;
+}
+
+function getTalentPoolGroups(candidates) {
+    return candidates.reduce((acc, candidate) => {
+        const type = candidate.talent_pool_target_type === 'position' ? 'position' : 'department';
+        const value = (candidate.talent_pool_target_value || '').trim() || window.uiManager.translate('Not assigned');
+        const key = `${type}:${value}`;
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(candidate);
+        return acc;
+    }, {});
+}
+
+function renderCurrentCandidateMode() {
+    const { permanentCandidates, interimCandidates } = splitCandidatesByMode(candidateBaseListCache, interimPositionsCache);
+    const modeCandidates = currentCandidateViewMode === 'interim' ? interimCandidates : permanentCandidates;
+    renderCandidatesView({
+        candidates: modeCandidates,
+        pagination: candidatePaginationCache,
+        modeMeta: {
+            permanentCount: permanentCandidates.length,
+            interimCount: interimCandidates.length
+        }
+    });
+}
+
+function setCandidateViewMode(mode) {
+    if (mode !== 'permanent' && mode !== 'interim') {
+        return;
+    }
+    currentCandidateViewMode = mode;
+    sessionStorage.setItem('candidateViewMode', mode);
+    renderCurrentCandidateMode();
+}
+
+function setTalentPoolViewMode(mode) {
+    if (mode !== 'permanent' && mode !== 'interim') {
+        return;
+    }
+    currentCandidateViewMode = mode;
+    sessionStorage.setItem('candidateViewMode', mode);
+    showTalentPool();
+}
+
 function renderCandidatesView(result) {
     const app = document.getElementById('app');
-    const { candidates, pagination } = result;
+    const { candidates, pagination, modeMeta } = result;
+    const candidateMainTitleKey = currentCandidateViewMode === 'interim' ? 'Interim Candidates' : 'Permanent Candidates';
 
     console.log('Total candidates loaded:', candidates.length);
     console.log('Candidates data:', candidates);
@@ -1132,9 +1489,10 @@ function renderCandidatesView(result) {
     const pendingAgencyCandidates = isRecruiterOrGm
         ? candidates.filter(c => c.status === 'Pending Recruiter Review')
         : [];
+    const baseCandidates = candidates.filter(c => c.in_talent_pool !== true);
     const mainCandidates = isRecruiterOrGm
-        ? candidates.filter(c => c.status !== 'Pending Recruiter Review')
-        : candidates;
+        ? baseCandidates.filter(c => c.status !== 'Pending Recruiter Review')
+        : baseCandidates;
 
     // Group candidates by status (main list; recruiter/GM: bez čakajúcich na schválenie)
     const groupedCandidates = mainCandidates.reduce((acc, candidate) => {
@@ -1152,11 +1510,29 @@ function renderCandidatesView(result) {
     const statusFilterOptions = [...allStatuses];
 
     let html = `
-    <div class="candidates-layout">
+    <div class="candidates-layout mode-${currentCandidateViewMode}">
         <section class="candidates-hero">
             <div class="candidates-hero-text">
-                <h2 data-translate="Candidates">Candidates</h2>
+                <h2 data-translate="${candidateMainTitleKey}">${window.uiManager.translate(candidateMainTitleKey)}</h2>
                 <p class="candidates-subtitle" data-translate="View and manage candidates by status">View and manage candidates by status</p>
+                <div class="candidate-mode-switcher" role="group" aria-label="${window.uiManager.translate('Switch candidate mode')}">
+                    <button
+                        type="button"
+                        class="candidate-mode-btn candidate-mode-btn--permanent ${currentCandidateViewMode === 'permanent' ? 'active' : ''}"
+                        onclick="setCandidateViewMode('permanent')"
+                        data-translate="Permanent Candidates"
+                    >
+                        ${window.uiManager.translate('Permanent Candidates')} (${modeMeta?.permanentCount ?? 0})
+                    </button>
+                    <button
+                        type="button"
+                        class="candidate-mode-btn candidate-mode-btn--interim ${currentCandidateViewMode === 'interim' ? 'active' : ''}"
+                        onclick="setCandidateViewMode('interim')"
+                        data-translate="Interim Candidates"
+                    >
+                        ${window.uiManager.translate('Interim Candidates')} (${modeMeta?.interimCount ?? 0})
+                    </button>
+                </div>
             </div>
             <div class="candidates-hero-actions">
                 <button onclick="showAddCandidate()" class="btn btn-primary" data-translate="Add New Candidate">Add New Candidate</button>
@@ -1244,7 +1620,7 @@ function renderCandidatesView(result) {
     ];
 
     const userInfo = window.authManager.getUserInfo();
-    const isAgency = userInfo && userInfo.role === 'agency';
+    const isAgency = isAgencyRole(userInfo);
     const statusesToShow = isAgency
         ? statusOrder.filter(s => s !== 'Rejected')
         : statusOrder;
@@ -1309,6 +1685,7 @@ function updatePositionFilterForCandidates() {
     // Get user info to check allowed positions
     const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
     const isGMOrRecruiter = userInfo && (userInfo.role === 'gm' || userInfo.role === 'recruiter');
+    const isManagerRole = userInfo && (userInfo.role === 'Manager' || userInfo.role === 'manager');
     const userAllowedPositions = userInfo && userInfo.allowedPositions && Array.isArray(userInfo.allowedPositions) ? userInfo.allowedPositions : [];
     
     // Get all displayed candidates from the DOM
@@ -1336,7 +1713,7 @@ function updatePositionFilterForCandidates() {
     }
     
     // Filter by user's allowed positions if not GM/Recruiter and has allowed positions
-    if (!isGMOrRecruiter && userAllowedPositions.length > 0) {
+    if (!isGMOrRecruiter && !isManagerRole && userAllowedPositions.length > 0) {
         positionsToShow = positionsToShow.filter(position => userAllowedPositions.includes(position));
     }
     
@@ -1374,7 +1751,7 @@ function createCandidateTable(candidates, status, options = {}) {
     const tbody = document.createElement('tbody');
 
     const userInfo = window.authManager.getUserInfo();
-    const isAgency = userInfo && userInfo.role === 'agency';
+    const isAgency = isAgencyRole(userInfo);
     const headers = isAgency
         ? ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer']
         : ['Name', 'Department', 'Position', 'Source', 'Date Obtained', 'Interviewer', 'Time in Process', 'Documents', 'Notes', 'Actions', 'Admin Actions'];
@@ -1511,6 +1888,8 @@ function createNotesCell(candidate) {
 
 function createActionButtons(candidate) {
     let buttons = '';
+    const userInfo = window.authManager ? window.authManager.getUserInfo() : null;
+    const canManageTalentPool = userInfo && (userInfo.role === 'recruiter' || userInfo.role === 'gm');
                 switch (candidate.status) {
                     case 'New':
             buttons = `
@@ -1549,6 +1928,18 @@ function createActionButtons(candidate) {
         default:
             buttons = '<span data-translate="No actions">No actions</span>';
                         break;
+    }
+    if (canManageTalentPool && candidate.status && candidate.status.includes('Rejected')) {
+        const moveButtonLabel = candidate.in_talent_pool
+            ? window.uiManager.translate('Update Talent Pool')
+            : window.uiManager.translate('Move to Talent Pool');
+        const removeButton = candidate.in_talent_pool
+            ? ` <button onclick="removeFromTalentPool(${candidate.id})" class="btn btn-danger" data-translate="Remove from Talent Pool">Remove from Talent Pool</button>`
+            : '';
+        const moveButton = `<button onclick="showTalentPoolModal(${candidate.id})" class="btn btn-info" data-translate="${candidate.in_talent_pool ? 'Update Talent Pool' : 'Move to Talent Pool'}">${moveButtonLabel}</button>`;
+        buttons = buttons && !buttons.includes('No actions')
+            ? `${buttons} ${moveButton}${removeButton}`
+            : `${moveButton}${removeButton}`;
     }
     return buttons;
 }
@@ -1903,11 +2294,191 @@ async function hiredSourceInformed(id) {
     }
 }
 
+async function showTalentPoolModal(candidateId) {
+    try {
+        const candidate = await window.candidatesManager.getCandidateDetails(candidateId);
+        if (!candidate) {
+            window.utils.showMessage('Candidate not found.', 'error');
+            return;
+        }
+
+        const modal = document.createElement('div');
+        modal.id = 'talent-pool-modal';
+        modal.className = 'modal';
+        modal.style.display = 'block';
+
+        const currentType = candidate.in_talent_pool
+            ? (candidate.talent_pool_target_type === 'position' ? 'position' : 'department')
+            : 'department';
+        const currentValue = candidate.in_talent_pool
+            ? (candidate.talent_pool_target_value || '')
+            : '';
+        const positionOptions = Object.values(departmentPositions)
+            .flat()
+            .filter(Boolean)
+            .filter((value, idx, arr) => arr.indexOf(value) === idx)
+            .sort();
+
+        const renderTargetOptions = (type, selectedValue = '') => {
+            const options = type === 'position'
+                ? positionOptions
+                : Object.keys(departmentPositions).sort();
+            return options
+                .map(item => `<option value="${item}" ${selectedValue === item ? 'selected' : ''}>${item}</option>`)
+                .join('');
+        };
+
+        modal.innerHTML = `
+            <div class="modal-content talent-pool-modal">
+                <div class="modal-header">
+                    <h2 data-translate="${candidate.in_talent_pool ? 'Update Talent Pool' : 'Add to Talent Pool'}"></h2>
+                    <span class="close" onclick="closeTalentPoolModal()">&times;</span>
+                </div>
+                <div class="talent-pool-modal-content">
+                    <p class="talent-pool-modal-candidate"><strong>${candidate.name || '-'}</strong> - ${candidate.position || '-'}</p>
+                    <div class="form-group">
+                        <label for="talent-pool-target-type" data-translate="Talent Pool target type"></label>
+                        <select id="talent-pool-target-type">
+                            <option value="department" ${currentType === 'department' ? 'selected' : ''} data-translate="By Department">${window.uiManager.translate('By Department')}</option>
+                            <option value="position" ${currentType === 'position' ? 'selected' : ''} data-translate="By Position">${window.uiManager.translate('By Position')}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="talent-pool-target-value" data-translate="Talent Pool target"></label>
+                        <select id="talent-pool-target-value">
+                            ${renderTargetOptions(currentType, currentValue)}
+                        </select>
+                    </div>
+                    <div class="talent-pool-modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeTalentPoolModal()" data-translate="Cancel">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveTalentPoolSelection(${candidateId})" data-translate="${candidate.in_talent_pool ? 'Update Talent Pool' : 'Add to Talent Pool'}"></button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const typeSelect = document.getElementById('talent-pool-target-type');
+        const valueSelect = document.getElementById('talent-pool-target-value');
+        if (typeSelect && valueSelect) {
+            typeSelect.addEventListener('change', () => {
+                const selectedType = typeSelect.value;
+                valueSelect.innerHTML = renderTargetOptions(selectedType, '');
+            });
+        }
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeTalentPoolModal();
+            }
+        });
+        window.uiManager.translatePage();
+    } catch (error) {
+        window.utils.showMessage('Error opening Talent Pool form: ' + error.message, 'error');
+    }
+}
+
+function closeTalentPoolModal() {
+    const modal = document.getElementById('talent-pool-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+async function saveTalentPoolSelection(candidateId) {
+    try {
+        const typeSelect = document.getElementById('talent-pool-target-type');
+        const valueSelect = document.getElementById('talent-pool-target-value');
+        if (!typeSelect || !valueSelect) {
+            return;
+        }
+
+        const targetType = typeSelect.value;
+        const targetValue = valueSelect.value;
+        if (!targetType) {
+            window.utils.showMessage(window.uiManager.translate('Select target type first'), 'warning');
+            return;
+        }
+        if (!targetValue) {
+            window.utils.showMessage(window.uiManager.translate('Talent Pool target') + ' is required.', 'warning');
+            return;
+        }
+
+        await window.candidatesManager.setTalentPoolEntry(candidateId, {
+            type: targetType,
+            value: targetValue
+        });
+
+        closeTalentPoolModal();
+        window.utils.showMessage(window.uiManager.translate('Candidate moved to Talent Pool'), 'success');
+        showCandidates();
+    } catch (error) {
+        window.utils.showMessage('Error updating Talent Pool: ' + error.message, 'error');
+    }
+}
+
+async function removeFromTalentPool(candidateId) {
+    try {
+        const confirmed = confirm(window.uiManager.translate('Remove from Talent Pool') + '?');
+        if (!confirmed) {
+            return;
+        }
+        await window.candidatesManager.removeTalentPoolEntry(candidateId);
+        window.utils.showMessage(window.uiManager.translate('Candidate removed from Talent Pool'), 'success');
+        showCandidates();
+    } catch (error) {
+        window.utils.showMessage('Error removing from Talent Pool: ' + error.message, 'error');
+    }
+}
+
 async function downloadFile(candidateId, fileType) {
     try {
         await window.candidatesManager.downloadFile(candidateId, fileType);
     } catch (error) {
         window.utils.showMessage(`Error downloading ${fileType}: ` + error.message, 'error');
+    }
+}
+
+async function downloadRequestDocument(requestId) {
+    try {
+        const supabase = getSupabase();
+        if (!supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        const { data: request, error: requestError } = await supabase
+            .from('recruiting_requests')
+            .select('job_description_file_path')
+            .eq('id', requestId)
+            .single();
+
+        if (requestError) throw requestError;
+
+        const filePath = request?.job_description_file_path;
+        if (!filePath) {
+            window.utils.showMessage(window.uiManager.translate('No Job Description Document'), 'info');
+            return;
+        }
+
+        const { data: fileData, error: downloadError } = await supabase.storage
+            .from('candidate-files')
+            .download(filePath);
+
+        if (downloadError) throw downloadError;
+
+        const fileExt = filePath.includes('.') ? filePath.substring(filePath.lastIndexOf('.')) : '';
+        const url = URL.createObjectURL(fileData);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `job_description_request_${requestId}${fileExt}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading job description document:', error);
+        window.utils.showMessage('Error downloading document: ' + error.message, 'error');
     }
 }
 
@@ -1958,6 +2529,10 @@ function formatTimeInProcess(time) {
 async function showRequests() {
     try {
         window.uiManager.showLoading('Loading recruiting requests...');
+        const savedMode = sessionStorage.getItem('requestContractMode');
+        if (savedMode === 'permanent' || savedMode === 'interim') {
+            currentRequestContractMode = savedMode;
+        }
         
         const result = await window.requestsManager.getRequests({
             page: 1,
@@ -1969,6 +2544,14 @@ async function showRequests() {
         console.error('Error loading requests:', error);
         window.utils.showMessage('Error loading requests: ' + error.message, 'error');
     }
+}
+
+function resolveRequestContractType(request) {
+    if (request?.contract_type === 'interim' || request?.contract_type === 'permanent') {
+        return request.contract_type;
+    }
+    // Backward compatibility for legacy data before contract_type existed.
+    return request?.position_type === 'interim' ? 'interim' : 'permanent';
 }
 
 function renderRequestsView(result) {
@@ -1988,21 +2571,57 @@ function renderRequestsView(result) {
         // If same status, sort by ID descending (newest first)
         return b.id - a.id;
     });
-    currentRequestsCache = sortedRequests;
+    currentRequestsBaseCache = sortedRequests;
+
+    const requestModeCounts = {
+        permanent: sortedRequests.filter(r => resolveRequestContractType(r) === 'permanent').length,
+        interim: sortedRequests.filter(r => resolveRequestContractType(r) === 'interim').length
+    };
+    const modeRequests = sortedRequests.filter(r => resolveRequestContractType(r) === currentRequestContractMode);
+    currentRequestsCache = modeRequests;
 
     const counts = {
-        pending: sortedRequests.filter(r => r.status === 'Pending').length,
-        approved: sortedRequests.filter(r => r.status === 'Approved').length,
-        paused: sortedRequests.filter(r => r.status === 'Paused').length,
-        filled: sortedRequests.filter(r => r.status === 'Filled').length,
-        rejected: sortedRequests.filter(r => r.status === 'Rejected').length
+        pending: modeRequests.filter(r => r.status === 'Pending').length,
+        approved: modeRequests.filter(r => r.status === 'Approved').length,
+        paused: modeRequests.filter(r => r.status === 'Paused').length,
+        filled: modeRequests.filter(r => r.status === 'Filled').length,
+        rejected: modeRequests.filter(r => r.status === 'Rejected').length
     };
 
+    const requestTypeLabel = window.uiManager.translate(currentRequestContractMode === 'interim' ? 'Interim' : 'Permanent');
+
     let html = `
-        <h2 data-translate="Recruiting Requests">Recruiting Requests</h2>
+        <div class="requests-layout mode-${currentRequestContractMode}">
+        <div class="requests-header">
+            <div class="requests-header__text">
+                <h2 data-translate="Recruiting Requests">Recruiting Requests</h2>
+                <p class="requests-subtitle"><span data-translate="Current Request Type">Current request type</span>: ${requestTypeLabel}</p>
+            </div>
+            <div class="requests-type-pill requests-type-pill--${currentRequestContractMode}">
+                ${requestTypeLabel}
+            </div>
+        </div>
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
         <button onclick="showNewRequest()" class="btn btn-primary" data-translate="Create New Request">Create New Request</button>
             <button onclick="showExportModal()" class="btn btn-secondary" data-translate="Download Excel">Download Excel</button>
+        </div>
+        <div class="requests-mode-switcher" role="group" aria-label="${window.uiManager.translate('Switch request mode')}">
+            <button
+                type="button"
+                class="requests-mode-btn requests-mode-btn--permanent ${currentRequestContractMode === 'permanent' ? 'active' : ''}"
+                onclick="setRequestViewMode('permanent')"
+                data-translate="Permanent"
+            >
+                ${window.uiManager.translate('Permanent')} (${requestModeCounts.permanent})
+            </button>
+            <button
+                type="button"
+                class="requests-mode-btn requests-mode-btn--interim ${currentRequestContractMode === 'interim' ? 'active' : ''}"
+                onclick="setRequestViewMode('interim')"
+                data-translate="Interim"
+            >
+                ${window.uiManager.translate('Interim')} (${requestModeCounts.interim})
+            </button>
         </div>
         <div class="requests-summary">
             <div class="summary-card pending summary-card--clickable" data-section="pending" onclick="setRequestSection('pending')">
@@ -2027,6 +2646,7 @@ function renderRequestsView(result) {
             </div>
         </div>
         <div id="requests-container" class="requests-table-scroll"></div>
+        </div>
     `;
 
     app.innerHTML = html;
@@ -2042,6 +2662,15 @@ function renderRequestsView(result) {
     renderCurrentRequestSection();
     updateRequestSummaryCards();
     window.uiManager.translatePage();
+}
+
+function setRequestViewMode(mode) {
+    if (mode !== 'permanent' && mode !== 'interim') {
+        return;
+    }
+    currentRequestContractMode = mode;
+    sessionStorage.setItem('requestContractMode', mode);
+    renderRequestsView({ requests: currentRequestsBaseCache });
 }
 
 function getRequestsForSection(requests, section) {
@@ -2476,7 +3105,13 @@ async function showRequestDetails(id) {
                 <p><strong data-translate="Department">Department:</strong> ${request.department || 'N/A'}</p>
                 <p><strong data-translate="Headcount">Headcount:</strong> ${request.headcount || 'N/A'}</p>
                 <p><strong data-translate="Job Description">Job Description:</strong> ${request.description || 'N/A'}</p>
+                <p><strong data-translate="Job Description Document">Job Description Document:</strong> ${
+                    request.job_description_file_path
+                        ? `<button onclick="downloadRequestDocument(${request.id})" class="btn btn-secondary" data-translate="Download Job Description Document">Download Job Description Document</button>`
+                        : `<span data-translate="No Job Description Document">No Job Description Document</span>`
+                }</p>
                 <p><strong data-translate="Position Type">Position Type:</strong> ${request.position_type || 'N/A'}</p>
+                <p><strong data-translate="Contract Type">Contract Type:</strong> ${request.contract_type ? window.uiManager.translate(request.contract_type === 'interim' ? 'Interim' : 'Permanent') : 'N/A'}</p>
                 <p><strong data-translate="Position Category">Position Category:</strong> ${request.position_category || 'N/A'}</p>
                 <p><strong data-translate="Status">Status:</strong> ${createStatusBadge(request.status)}</p>
                 <p><strong data-translate="Confidential">Confidential:</strong> ${request.is_confidential ? window.uiManager.translate('Yes') : window.uiManager.translate('No')}</p>
@@ -2502,6 +3137,13 @@ async function showRequestDetails(id) {
             detailsHtml += `<p><strong data-translate="Reason for New Position">Reason for New Position:</strong> ${request.new_position_reason}</p>`;
         } else if (request.position_type === 'replacement' && request.replacement_name) {
             detailsHtml += `<p><strong data-translate="Name of Person Being Replaced">Name of Person Being Replaced:</strong> ${request.replacement_name}</p>`;
+        }
+
+        if (request.has_final_interview_participant) {
+            detailsHtml += `<p><strong data-translate="Final Interview Participant Name">Final interview participant name:</strong> ${request.final_interview_participant_name || '—'}</p>`;
+            if (request.final_interview_participant_note) {
+                detailsHtml += `<p><strong data-translate="Final Interview Participant Note">Final interview participant note:</strong> ${request.final_interview_participant_note}</p>`;
+            }
         }
         
         if (request.created_at) {
@@ -2601,14 +3243,26 @@ function showNewRequest() {
                 
             <div class="form-group">
                     <label for="position" data-translate="Position">Pozícia:</label>
-                    <select id="position" name="position" required>
+                    <select id="position" name="position" required onchange="toggleCustomPositionField()">
                         <option value="" data-translate="Select Position">Najprv vyberte oddelenie</option>
                 </select>
+            </div>
+
+            <div id="custom-position-fields" class="hidden">
+                <div class="form-group">
+                        <label for="custom-position" data-translate="Enter custom position">Zadajte názov pozície:</label>
+                        <input type="text" id="custom-position" name="custom_position">
+                </div>
             </div>
                 
             <div class="form-group">
                     <label for="description" data-translate="Job Description">Popis práce:</label>
                     <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+                
+            <div class="form-group">
+                    <label for="job-description-file" data-translate="Upload Job Description Document">Upload Job Description Document (PDF/DOC/DOCX):</label>
+                    <input type="file" id="job-description-file" name="job_description_file" accept=".pdf,.doc,.docx">
             </div>
                 
             <div class="form-group">
@@ -2627,8 +3281,18 @@ function showNewRequest() {
                         <input type="radio" id="replacement" name="position-type" value="replacement" required onchange="togglePositionTypeFields()">
                             <span data-translate="Replacement">Náhrada</span>
                     </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                    <label data-translate="Contract Type">Typ zmluvy:</label>
+                    <div class="radio-group">
                         <label class="radio-label">
-                        <input type="radio" id="interim-position" name="position-type" value="interim" required onchange="togglePositionTypeFields()">
+                        <input type="radio" id="contract-permanent" name="contract-type" value="permanent" required>
+                            <span data-translate="Permanent">Trvalý</span>
+                    </label>
+                        <label class="radio-label">
+                        <input type="radio" id="contract-interim" name="contract-type" value="interim" required>
                             <span data-translate="Interim">Interim</span>
                     </label>
                 </div>
@@ -2667,6 +3331,24 @@ function showNewRequest() {
                         <input type="checkbox" id="confidential-request" name="is_confidential">
                         <span data-translate="Confidential Request">Dôverná žiadosť</span>
                 </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+                        <input type="checkbox" id="add-final-interview-participant" name="add_final_interview_participant" onchange="toggleFinalInterviewParticipantFields()">
+                        <span data-translate="Add Final Interview Participant">Pridať osobu, ktorá sa zúčastní finálneho interview</span>
+                </label>
+            </div>
+
+            <div id="final-interview-participant-fields" class="hidden">
+                <div class="form-group">
+                        <label for="final-interview-participant-name" data-translate="Final Interview Participant Name">Meno osoby pre finálne interview:</label>
+                        <input type="text" id="final-interview-participant-name" name="final_interview_participant_name">
+                </div>
+                <div class="form-group">
+                        <label for="final-interview-participant-note" data-translate="Final Interview Participant Note">Popis k osobe pre finálne interview:</label>
+                        <textarea id="final-interview-participant-note" name="final_interview_participant_note" rows="3"></textarea>
+                </div>
             </div>
                 
                 <div class="form-actions">
@@ -2843,6 +3525,26 @@ function updatePositionOptions() {
         option.textContent = position;
         positionSelect.appendChild(option);
     });
+
+    const customOption = document.createElement('option');
+    customOption.value = '__custom__';
+    customOption.textContent = window.uiManager ? window.uiManager.translate('Position not in list') : 'Position not in list';
+    positionSelect.appendChild(customOption);
+
+    toggleCustomPositionField();
+}
+
+function toggleCustomPositionField() {
+    const positionSelect = document.getElementById('position');
+    const customPositionFields = document.getElementById('custom-position-fields');
+    const customPositionInput = document.getElementById('custom-position');
+    if (!positionSelect || !customPositionFields) return;
+
+    const isCustom = positionSelect.value === '__custom__';
+    customPositionFields.classList.toggle('hidden', !isCustom);
+    if (!isCustom && customPositionInput) {
+        customPositionInput.value = '';
+    }
 }
 
 function togglePositionTypeFields() {
@@ -2862,6 +3564,18 @@ function togglePositionTypeFields() {
     }
 }
 
+function toggleFinalInterviewParticipantFields() {
+    const finalParticipantFields = document.getElementById('final-interview-participant-fields');
+    const isEnabled = document.getElementById('add-final-interview-participant')?.checked;
+    if (!finalParticipantFields) return;
+
+    if (isEnabled) {
+        finalParticipantFields.classList.remove('hidden');
+    } else {
+        finalParticipantFields.classList.add('hidden');
+    }
+}
+
 async function createRequest(e) {
     e.preventDefault();
     const supabase = getSupabase();
@@ -2872,15 +3586,23 @@ async function createRequest(e) {
     }
 
     const department = document.getElementById('department').value;
-    const position = document.getElementById('position').value;
+    const selectedPosition = document.getElementById('position').value;
+    const customPosition = document.getElementById('custom-position')?.value?.trim() || '';
+    const position = selectedPosition === '__custom__' ? customPosition : selectedPosition;
     const description = document.getElementById('description').value;
     const headcount = parseInt(document.getElementById('headcount').value, 10);
     const positionType = document.querySelector('input[name="position-type"]:checked')?.value;
+    const contractType = document.querySelector('input[name="contract-type"]:checked')?.value;
     const positionCategory = document.querySelector('input[name="position-category"]:checked')?.value;
     const isConfidential = document.getElementById('confidential-request').checked;
+    const jobDescriptionFile = document.getElementById('job-description-file')?.files?.[0];
+    const addFinalInterviewParticipant = document.getElementById('add-final-interview-participant')?.checked;
+    const finalInterviewParticipantName = document.getElementById('final-interview-participant-name')?.value?.trim() || null;
+    const finalInterviewParticipantNote = document.getElementById('final-interview-participant-note')?.value?.trim() || null;
 
     let newPositionReason = null;
     let replacementName = null;
+    let jobDescriptionFilePath = null;
 
     if (positionType === 'new') {
         newPositionReason = document.getElementById('new-position-reason').value;
@@ -2888,8 +3610,37 @@ async function createRequest(e) {
         replacementName = document.getElementById('replacement-name').value;
     }
 
+    if (selectedPosition === '__custom__' && !customPosition) {
+        window.utils.showMessage(window.uiManager.translate('Custom position is required.'), 'error');
+        return;
+    }
+
+    if (addFinalInterviewParticipant && !finalInterviewParticipantName) {
+        window.utils.showMessage(window.uiManager.translate('Final interview participant name is required.'), 'error');
+        return;
+    }
+
+    if (jobDescriptionFile) {
+        const fileValidation = window.utils.validateFile(jobDescriptionFile);
+        if (!fileValidation.isValid) {
+            window.utils.showMessage(fileValidation.message, 'error');
+            return;
+        }
+
+        const fileExt = jobDescriptionFile.name.substring(jobDescriptionFile.name.lastIndexOf('.'));
+        const fileName = `requests/job_description_${Date.now()}${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('candidate-files')
+            .upload(fileName, jobDescriptionFile);
+
+        if (uploadError) {
+            throw uploadError;
+        }
+        jobDescriptionFilePath = uploadData.path;
+    }
+
     // Validation
-    if (!department || !position || !description || !headcount || !positionType || !positionCategory) {
+    if (!department || !position || !description || !headcount || !positionType || !contractType || !positionCategory) {
         alert('Please fill in all required fields');
         return;
     }
@@ -2901,10 +3652,15 @@ async function createRequest(e) {
         headcount,
         status: 'Pending',
         position_type: positionType,
+        contract_type: contractType,
         position_category: positionCategory,
         is_confidential: isConfidential,
         new_position_reason: newPositionReason,
-        replacement_name: replacementName
+        replacement_name: replacementName,
+        job_description_file_path: jobDescriptionFilePath,
+        has_final_interview_participant: !!addFinalInterviewParticipant,
+        final_interview_participant_name: addFinalInterviewParticipant ? finalInterviewParticipantName : null,
+        final_interview_participant_note: addFinalInterviewParticipant ? finalInterviewParticipantNote : null
     };
 
     console.log('Request data to be sent:', requestData);
@@ -2949,7 +3705,7 @@ async function createRequest(e) {
 
 function showAddCandidate() {
     const userInfo = window.authManager.getUserInfo();
-    if (userInfo && userInfo.role === 'agency') {
+    if (isAgencyRole(userInfo)) {
         showAgencyAddCandidate();
         return;
     }
@@ -2962,7 +3718,7 @@ function showAddCandidate() {
  */
 async function showAgencyAddCandidate() {
     const userInfo = window.authManager.getUserInfo();
-    if (!userInfo || userInfo.role !== 'agency') {
+    if (!isAgencyRole(userInfo)) {
         window.utils.showMessage('Táto stránka je len pre agentúry.', 'error');
         return;
     }
@@ -3210,13 +3966,23 @@ async function showCandidateDetails(id) {
         window.uiManager.showLoading('Loading candidate details...');
         
         const candidate = await window.candidatesManager.getCandidateDetails(id);
+        const userInfo = window.authManager.getUserInfo();
+        const canAccessInternalNotes = canAccessInternalCandidateNotes(userInfo);
+        let internalNotes = [];
+        if (canAccessInternalNotes) {
+            try {
+                internalNotes = await window.candidatesManager.getCandidateInternalNotes(id);
+            } catch (internalNotesError) {
+                console.warn('Unable to load internal notes:', internalNotesError);
+            }
+        }
         // Cache currently viewed candidate for editing
         window.currentCandidateDetails = candidate;
         
         const app = document.getElementById('app');
         if (!app) return;
 
-        const isAgency = (window.authManager.getUserInfo() || {}).role === 'agency';
+        const isAgency = isAgencyRole(userInfo);
         
         // Format dates
         const dateObtained = candidate.date_obtained ? new Date(candidate.date_obtained).toLocaleDateString('sk-SK') : 'N/A';
@@ -3258,7 +4024,7 @@ async function showCandidateDetails(id) {
                     <strong data-translate="Notes">Notes:</strong>
                     <span>${candidate.notes || window.uiManager.translate('No notes')}</span>
                 </div>
-                ${(window.authManager.getUserInfo() || {}).role !== 'agency' ? `
+                ${!isAgency ? `
                 <div class="detail-row">
                     <strong data-translate="Created At">Created At:</strong>
                     <span>${createdDate}</span>
@@ -3315,6 +4081,30 @@ async function showCandidateDetails(id) {
         `;
         }
 
+        if (canAccessInternalNotes) {
+            detailsHtml += `
+            <div class="candidate-internal-notes card">
+                <h3 data-translate="Internal Notes">Internal Notes</h3>
+                <div id="candidate-internal-notes-list" class="candidate-internal-notes-list">
+                    ${renderInternalCandidateNotes(internalNotes)}
+                </div>
+                <form id="candidate-internal-note-form" class="candidate-internal-note-form">
+                    <label for="candidate-internal-note-input" data-translate="Add internal note">Add internal note</label>
+                    <textarea
+                        id="candidate-internal-note-input"
+                        class="form-control"
+                        rows="3"
+                        placeholder="${window.uiManager.translate('Internal note placeholder')}"
+                        required
+                    ></textarea>
+                    <div class="candidate-internal-note-actions">
+                        <button type="submit" id="candidate-internal-note-submit" class="btn btn-primary" data-translate="Save internal note">Save internal note</button>
+                    </div>
+                </form>
+            </div>
+            `;
+        }
+
         detailsHtml += `
             <div class="action-buttons" style="margin-top: 20px;">
                 ${!isAgency ? `<button onclick="showEditCandidateModal(${candidate.id})" class="btn btn-primary" data-translate="Edit Candidate">Edit Candidate</button>` : ''}
@@ -3324,6 +4114,41 @@ async function showCandidateDetails(id) {
         
         app.innerHTML = detailsHtml;
         window.uiManager.translatePage();
+
+        const internalNoteForm = document.getElementById('candidate-internal-note-form');
+        if (internalNoteForm) {
+            internalNoteForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const noteInput = document.getElementById('candidate-internal-note-input');
+                const submitButton = document.getElementById('candidate-internal-note-submit');
+                const text = noteInput?.value?.trim() || '';
+                if (!text) {
+                    return;
+                }
+
+                try {
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.textContent = window.uiManager.translate('Saving note...');
+                    }
+                    await window.candidatesManager.addCandidateInternalNote(candidate.id, text);
+                    window.utils.showMessage(window.uiManager.translate('Internal note added'), 'success');
+                    await showCandidateDetails(candidate.id);
+                } catch (addNoteError) {
+                    console.error('Error adding internal note:', addNoteError);
+                    const message = getErrorMessage(addNoteError, window.uiManager.translate('Error'));
+                    window.utils.showMessage(
+                        `${window.uiManager.translate('Error adding internal note')} ${message}`,
+                        'error'
+                    );
+                } finally {
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = window.uiManager.translate('Save internal note');
+                    }
+                }
+            });
+        }
         
         // Add fade-in animation
         app.classList.add('fade-in');
@@ -3334,7 +4159,7 @@ async function showCandidateDetails(id) {
 }
 
 function showReuploadDocument(candidateId, documentType) {
-    if ((window.authManager.getUserInfo() || {}).role === 'agency') {
+    if (isAgencyRole(window.authManager.getUserInfo())) {
         window.utils.showMessage(
             window.uiManager.translate('Agencies cannot access candidate documents'),
             'error'
@@ -3396,7 +4221,7 @@ function closeReuploadModal() {
 
 async function showEditCandidateModal(candidateId) {
     try {
-        if ((window.authManager.getUserInfo() || {}).role === 'agency') {
+        if (isAgencyRole(window.authManager.getUserInfo())) {
             window.utils.showMessage(
                 window.uiManager.translate('Agencies cannot edit candidates'),
                 'error'
@@ -3794,8 +4619,11 @@ async function applyFilters() {
             );
         }
         
-        // Render filtered candidates
-        renderCandidatesView({ candidates: filteredCandidates, pagination: null });
+        const interimPositions = await fetchInterimPositions();
+        candidateBaseListCache = filteredCandidates.filter(c => c.in_talent_pool !== true);
+        candidatePaginationCache = null;
+        interimPositionsCache = interimPositions;
+        renderCurrentCandidateMode();
         
     } catch (error) {
         console.error('Error filtering candidates:', error);
@@ -4145,6 +4973,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup navigation
     const navDashboard = document.getElementById('nav-dashboard');
     const navCandidates = document.getElementById('nav-candidates');
+    const navTalentPool = document.getElementById('nav-talent-pool');
     const navRequests = document.getElementById('nav-requests');
     const navGMApproval = document.getElementById('nav-gm-approval');
     const navManageSlots = document.getElementById('nav-manage-slots');
@@ -4163,6 +4992,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (navDashboard) navDashboard.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-dashboard'); showDashboard(); });
     if (navCandidates) navCandidates.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-candidates'); showCandidates(); });
+    if (navTalentPool) navTalentPool.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-talent-pool'); showTalentPool(); });
     if (navRequests) navRequests.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-requests'); showRequests(); });
     if (navGMApproval) navGMApproval.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-gm-approval'); showGMApproval(); });
     if (navManageSlots) navManageSlots.addEventListener('click', (e) => { e.preventDefault(); setActiveNav('nav-manage-slots'); showManageSlots(); });
@@ -4892,7 +5722,7 @@ async function showAgencyView() {
         
         // Get user info to determine agency source
         const userInfo = await window.authManager.getUserInfo();
-        if (userInfo.role !== 'agency') {
+        if (!isAgencyRole(userInfo)) {
             window.uiManager.hideLoading();
             throw new Error('Access denied. Agency role required.');
         }
@@ -5283,7 +6113,7 @@ function getAgencySource() {
     
     // Get source directly from users table (users.source column)
     // This is the only way to determine agency source - no email mapping
-    if (userInfo.role === 'agency' && userInfo.source) {
+    if (isAgencyRole(userInfo) && userInfo.source) {
         console.log('✅ getAgencySource: Returning source:', userInfo.source);
         return userInfo.source;
     }
@@ -5444,7 +6274,7 @@ async function bookSlot(slotId, requestId, round) {
 
             // Document paths are redacted for agency in getCandidateDetails; load paths only for recruiter ICS/email.
             let candidateForAttachments = candidate;
-            if (userInfo.role === 'agency' && window.supabase) {
+            if (isAgencyRole(userInfo) && window.supabase) {
                 const { data: docRow } = await window.supabase
                     .from('candidates')
                     .select('cv_file_path, assesment_file_path')

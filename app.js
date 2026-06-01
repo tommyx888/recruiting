@@ -45,6 +45,10 @@ const translations = {
         "Upload Assessment Form (optional)": "Upload Assessment Form (optional)",
         "Brief comment (optional)": "Brief comment (optional)",
         "Brief comment placeholder": "Short note about the candidate...",
+        "New center (str)": "New center (str)",
+        "New department org (odd)": "New department (odd)",
+        "New unit (utvar)": "New unit (utvar)",
+        "Org field hint": "Click and pick from the list, or start typing to filter.",
         "Interviewer": "Interviewer",
         "Status": "Status",
         "Notes": "Notes",
@@ -410,6 +414,10 @@ const translations = {
         "Upload Assessment Form (optional)": "Nahrať hodnotiaci formulár (voliteľné)",
         "Brief comment (optional)": "Stručný komentár (voliteľné)",
         "Brief comment placeholder": "Krátka poznámka ku kandidátovi...",
+        "New center (str)": "Nové stredisko (str)",
+        "New department org (odd)": "Nové oddelenie (odd)",
+        "New unit (utvar)": "Nový útvar (utvar)",
+        "Org field hint": "Kliknite a vyberte zo zoznamu, alebo začnite písať pre filtrovanie.",
         "Interviewer": "Pohovorujúci",
         "Status": "Stav",
         "Notes": "Poznámky",
@@ -3139,8 +3147,19 @@ async function showRequestDetails(id) {
             }
         }
         
-        if (request.position_type === 'new' && request.new_position_reason) {
-            detailsHtml += `<p><strong data-translate="Reason for New Position">Reason for New Position:</strong> ${request.new_position_reason}</p>`;
+        if (request.position_type === 'new') {
+            if (request.new_stredisko) {
+                detailsHtml += `<p><strong data-translate="New center (str)">Nové stredisko (str):</strong> ${request.new_stredisko}</p>`;
+            }
+            if (request.new_oddelenie) {
+                detailsHtml += `<p><strong data-translate="New department org (odd)">Nové oddelenie (odd):</strong> ${request.new_oddelenie}</p>`;
+            }
+            if (request.new_utvar) {
+                detailsHtml += `<p><strong data-translate="New unit (utvar)">Nový útvar (utvar):</strong> ${request.new_utvar}</p>`;
+            }
+            if (request.new_position_reason) {
+                detailsHtml += `<p><strong data-translate="Reason for New Position">Reason for New Position:</strong> ${request.new_position_reason}</p>`;
+            }
         } else if (request.position_type === 'replacement' && request.replacement_name) {
             detailsHtml += `<p><strong data-translate="Name of Person Being Replaced">Name of Person Being Replaced:</strong> ${request.replacement_name}</p>`;
         }
@@ -3305,6 +3324,32 @@ function showNewRequest() {
             </div>
                 
             <div id="new-position-fields" class="hidden">
+                <div class="org-structure-row">
+                    <div class="form-group searchable-select-field">
+                        <label for="new-org-str" data-translate="New center (str)">Nové stredisko (str)</label>
+                        <div class="searchable-select-wrap">
+                            <input type="text" id="new-org-str" class="searchable-select-input" maxlength="120">
+                            <div id="new-org-str-list" class="searchable-select-list" role="listbox"></div>
+                        </div>
+                        <p class="form-field-hint" data-translate="Org field hint">Kliknite a vyberte zo zoznamu, alebo začnite písať pre filtrovanie.</p>
+                    </div>
+                    <div class="form-group searchable-select-field">
+                        <label for="new-org-odd" data-translate="New department org (odd)">Nové oddelenie (odd)</label>
+                        <div class="searchable-select-wrap">
+                            <input type="text" id="new-org-odd" class="searchable-select-input" maxlength="120">
+                            <div id="new-org-odd-list" class="searchable-select-list" role="listbox"></div>
+                        </div>
+                        <p class="form-field-hint" data-translate="Org field hint">Kliknite a vyberte zo zoznamu, alebo začnite písať pre filtrovanie.</p>
+                    </div>
+                    <div class="form-group searchable-select-field">
+                        <label for="new-org-utvar" data-translate="New unit (utvar)">Nový útvar (utvar)</label>
+                        <div class="searchable-select-wrap">
+                            <input type="text" id="new-org-utvar" class="searchable-select-input" maxlength="120">
+                            <div id="new-org-utvar-list" class="searchable-select-list" role="listbox"></div>
+                        </div>
+                        <p class="form-field-hint" data-translate="Org field hint">Kliknite a vyberte zo zoznamu, alebo začnite písať pre filtrovanie.</p>
+                    </div>
+                </div>
                 <div class="form-group">
                         <label for="new-position-reason" data-translate="Reason for New Position">Dôvod novej pozície:</label>
                         <textarea id="new-position-reason" name="new_position_reason"></textarea>
@@ -3382,6 +3427,14 @@ function showNewRequest() {
             updatePositionOptions();
         }
     }
+
+    if (window.orgStructurePicker) {
+        window.orgStructurePicker.initOrgStructurePickers(getSupabase()).catch((error) => {
+            console.warn('Org structure pickers init:', error);
+        });
+    }
+
+    window.uiManager.translatePage();
 }
 
 // Global variables for user info
@@ -3561,12 +3614,23 @@ function togglePositionTypeFields() {
     if (positionType === 'new') {
         newPositionFields.classList.remove('hidden');
         replacementFields.classList.add('hidden');
+        if (window.orgStructurePicker) {
+            window.orgStructurePicker.initOrgStructurePickers(getSupabase()).catch((error) => {
+                console.warn('Org structure pickers init:', error);
+            });
+        }
     } else if (positionType === 'replacement') {
         newPositionFields.classList.add('hidden');
         replacementFields.classList.remove('hidden');
+        if (window.orgStructurePicker) {
+            window.orgStructurePicker.resetPickers();
+        }
     } else {
         newPositionFields.classList.add('hidden');
         replacementFields.classList.add('hidden');
+        if (window.orgStructurePicker) {
+            window.orgStructurePicker.resetPickers();
+        }
     }
 }
 
@@ -3610,8 +3674,18 @@ async function createRequest(e) {
     let replacementName = null;
     let jobDescriptionFilePath = null;
 
+    let newStredisko = null;
+    let newOddelenie = null;
+    let newUtvar = null;
+
     if (positionType === 'new') {
         newPositionReason = document.getElementById('new-position-reason').value;
+        if (window.orgStructurePicker) {
+            const orgValues = window.orgStructurePicker.getValues();
+            newStredisko = orgValues.str?.code || orgValues.str?.label || null;
+            newOddelenie = orgValues.odd?.code || orgValues.odd?.label || null;
+            newUtvar = orgValues.utvar?.code || orgValues.utvar?.label || null;
+        }
     } else if (positionType === 'replacement') {
         replacementName = document.getElementById('replacement-name').value;
     }
@@ -3662,6 +3736,9 @@ async function createRequest(e) {
         position_category: positionCategory,
         is_confidential: isConfidential,
         new_position_reason: newPositionReason,
+        new_stredisko: newStredisko,
+        new_oddelenie: newOddelenie,
+        new_utvar: newUtvar,
         replacement_name: replacementName,
         job_description_file_path: jobDescriptionFilePath,
         has_final_interview_participant: !!addFinalInterviewParticipant,

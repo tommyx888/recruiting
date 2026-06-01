@@ -5228,3 +5228,98 @@ select.slot-time-input {
     width: 100%;
   }
 }
+
+/* Independent org structure pickers (stredisko / oddelenie / útvar) */
+.org-structure-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.searchable-select-wrap {
+  position: relative;
+}
+
+.searchable-select-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-color);
+  font: inherit;
+}
+
+.searchable-select-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+.searchable-select-list {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.searchable-select-list.open {
+  display: block;
+}
+
+.searchable-select-option {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--text-color);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.searchable-select-option:hover,
+.searchable-select-option:focus {
+  background: var(--hover-bg);
+}
+
+.searchable-select-empty {
+  padding: 10px 12px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.form-field-hint {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 960px) {
+  .org-structure-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dark-mode .searchable-select-input,
+.dark-mode .searchable-select-list {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark-mode .searchable-select-option:hover,
+.dark-mode .searchable-select-option:focus {
+  background: #334155;
+}

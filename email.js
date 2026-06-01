@@ -346,6 +346,7 @@ Otvoriť systém: https://recruiting.iacslovakia.sk/`;
                     <p style="margin: 6px 0;"><strong>Pozícia:</strong> ${candidate.position}</p>
                     <p style="margin: 6px 0;"><strong>Oddelenie:</strong> ${candidate.department}</p>
                     <p style="margin: 6px 0;"><strong>Zdroj (agentúra):</strong> ${candidate.source || '—'}</p>
+                    ${candidate.notes ? `<p style="margin: 6px 0;"><strong>Komentár agentúry:</strong> ${candidate.notes}</p>` : ''}
                 </div>
                 <p>V aplikácii otvorte kandidátov a v stave „Čaká na schválenie recruiterom“ použite akciu Potvrdiť.</p>
                 <div style="text-align: center; margin: 24px 0;">
@@ -360,7 +361,7 @@ Meno: ${candidate.name}
 Pozícia: ${candidate.position}
 Oddelenie: ${candidate.department}
 Zdroj: ${candidate.source || '—'}
-
+${candidate.notes ? `Komentár agentúry: ${candidate.notes}\n` : ''}
 Potvrďte alebo zamietnite podanie v systéme (stav: čaká na schválenie recruiterom).
 
 https://recruiting.iacslovakia.sk/

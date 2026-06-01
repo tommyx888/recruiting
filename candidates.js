@@ -319,7 +319,7 @@ class CandidatesManager {
 
     /**
      * Agentúra: pridanie kandidáta na schválenú pozíciu (stav Pending Recruiter Review).
-     * @param {Object} data - { name, recruiting_request_id, cvFile, assessmentFile }
+     * @param {Object} data - { name, recruiting_request_id, cvFile, assessmentFile, comment }
      */
     async addCandidateAsAgency(data) {
         if (!this.supabase) {
@@ -331,8 +331,12 @@ class CandidatesManager {
         }
         const name = (data.name || '').trim();
         const reqId = data.recruiting_request_id;
-        if (!name || !reqId || !data.cvFile || !data.assessmentFile) {
-            throw new Error('Vyplňte meno, vyberte otvorenú pozíciu a nahrajte životopis aj hodnotiaci formulár.');
+        const assessmentRequired = userInfo.role !== 'agency-interim';
+        if (!name || !reqId || !data.cvFile) {
+            throw new Error('Vyplňte meno, vyberte otvorenú pozíciu a nahrajte životopis.');
+        }
+        if (assessmentRequired && !data.assessmentFile) {
+            throw new Error('Vyplňte meno, vyberte otvorenú pozíciu, nahrajte životopis aj hodnotiaci formulár.');
         }
 
         const { data: reqRow, error: reqErr } = await this.supabase
@@ -373,18 +377,21 @@ class CandidatesManager {
         if (cvError) throw cvError;
         cvPath = cvData.path;
 
-        const asValidation = window.utils.validateFile(data.assessmentFile);
-        if (!asValidation.isValid) {
-            throw new Error(`Chyba formulára hodnotenia: ${asValidation.message}`);
+        if (data.assessmentFile) {
+            const asValidation = window.utils.validateFile(data.assessmentFile);
+            if (!asValidation.isValid) {
+                throw new Error(`Chyba formulára hodnotenia: ${asValidation.message}`);
+            }
+            const asExt = data.assessmentFile.name.substring(data.assessmentFile.name.lastIndexOf('.'));
+            const asName = `assessment_${Date.now()}${asExt}`;
+            const { data: asData, error: asError } = await this.supabase.storage
+                .from('candidate-files')
+                .upload(asName, data.assessmentFile);
+            if (asError) throw asError;
+            assessmentPath = asData.path;
         }
-        const asExt = data.assessmentFile.name.substring(data.assessmentFile.name.lastIndexOf('.'));
-        const asName = `assessment_${Date.now()}${asExt}`;
-        const { data: asData, error: asError } = await this.supabase.storage
-            .from('candidate-files')
-            .upload(asName, data.assessmentFile);
-        if (asError) throw asError;
-        assessmentPath = asData.path;
 
+        const comment = (data.comment || '').trim();
         const today = new Date().toISOString().split('T')[0];
         const insertPayload = {
             name,
@@ -393,7 +400,7 @@ class CandidatesManager {
             source: userInfo.source,
             date_obtained: today,
             interviewer: null,
-            notes: null,
+            notes: comment || null,
             status: 'Pending Recruiter Review',
             recruiting_request_id: reqRow.id,
             cv_file_path: cvPath,

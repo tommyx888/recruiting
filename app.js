@@ -42,6 +42,9 @@ const translations = {
         "Date Obtained": "Date Obtained",
         "Upload CV": "Upload CV",
         "Upload Assessment Form": "Upload Assessment Form",
+        "Upload Assessment Form (optional)": "Upload Assessment Form (optional)",
+        "Brief comment (optional)": "Brief comment (optional)",
+        "Brief comment placeholder": "Short note about the candidate...",
         "Interviewer": "Interviewer",
         "Status": "Status",
         "Notes": "Notes",
@@ -404,6 +407,9 @@ const translations = {
         "Date Obtained": "Dátum získania",
         "Upload CV": "Nahrať životopis",
         "Upload Assessment Form": "Nahrať hodnotiaci formulár",
+        "Upload Assessment Form (optional)": "Nahrať hodnotiaci formulár (voliteľné)",
+        "Brief comment (optional)": "Stručný komentár (voliteľné)",
+        "Brief comment placeholder": "Krátka poznámka ku kandidátovi...",
         "Interviewer": "Pohovorujúci",
         "Status": "Stav",
         "Notes": "Poznámky",
@@ -3737,6 +3743,12 @@ async function showAgencyAddCandidate() {
         window.uiManager.hideLoading();
 
         const requests = res.requests || [];
+        const isInterimAgency = userInfo.role === 'agency-interim';
+        const assessmentLabelKey = isInterimAgency
+            ? 'Upload Assessment Form (optional)'
+            : 'Upload Assessment Form';
+        const assessmentRequiredAttr = isInterimAgency ? '' : 'required';
+        const commentPlaceholder = window.uiManager.translate('Brief comment placeholder');
         const app = document.getElementById('app');
         const noPos = window.uiManager.translate('No open positions');
         const selPos = window.uiManager.translate('Select open position');
@@ -3773,8 +3785,12 @@ async function showAgencyAddCandidate() {
                             <input type="file" id="agency-candidate-cv" accept=".pdf,.doc,.docx" required>
                         </div>
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label data-translate="Upload Assessment Form">Upload Assessment Form</label>
-                            <input type="file" id="agency-candidate-assessment" accept=".pdf,.doc,.docx" required>
+                            <label data-translate="${assessmentLabelKey}">Upload Assessment Form</label>
+                            <input type="file" id="agency-candidate-assessment" accept=".pdf,.doc,.docx" ${assessmentRequiredAttr}>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="agency-candidate-comment" data-translate="Brief comment (optional)">Brief comment (optional)</label>
+                            <textarea id="agency-candidate-comment" class="filter-select" style="width:100%; min-height:88px; resize:vertical;" maxlength="500" rows="3" placeholder="${commentPlaceholder.replace(/"/g, '&quot;')}"></textarea>
                         </div>
                         <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.25rem;">
                             <button type="submit" class="btn btn-primary" data-translate="Submit for review" ${requests.length === 0 ? 'disabled' : ''}>Submit</button>
@@ -3796,13 +3812,15 @@ async function showAgencyAddCandidate() {
             const name = document.getElementById('agency-candidate-name').value.trim();
             const cvFile = document.getElementById('agency-candidate-cv').files[0];
             const assessmentFile = document.getElementById('agency-candidate-assessment').files[0];
+            const comment = document.getElementById('agency-candidate-comment').value.trim();
             try {
                 window.uiManager.showLoading();
                 const result = await window.candidatesManager.addCandidateAsAgency({
                     name,
                     recruiting_request_id: reqId,
                     cvFile,
-                    assessmentFile
+                    assessmentFile,
+                    comment
                 });
                 window.uiManager.hideLoading();
                 if (result.success) {

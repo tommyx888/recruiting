@@ -5599,8 +5599,8 @@ async function saveSlots() {
         window.uiManager.showLoading(msgNotifying);
         
         const request = await window.requestsManager.getRequestById(requestId);
-        const { sources: sourcesWithCandidates, emails: uniqueEmails } = await getAgencyEmailsForRequest(request);
-        console.log('Slots saved: sources with candidates for', request.position, '=', sourcesWithCandidates);
+        const { sources: sourcesWithCandidates, emails: uniqueEmails } = await getAgencyEmailsForRequest(request, round);
+        console.log('Slots saved: sources with candidates in', round, 'round for', request.position, '=', sourcesWithCandidates);
 
         let notificationReport = {
             sources: sourcesWithCandidates,
@@ -5734,8 +5734,20 @@ function closeAgencyNotificationReport() {
     if (modal) modal.remove();
 }
 
-async function getAgencyEmailsForRequest(request, additionalSources = []) {
-    const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
+/** Candidate statuses eligible for slot notifications/booking per interview round */
+function getCandidateStatusesForSlotRound(round) {
+    if (round === 'first') {
+        return ['In Process - First Round'];
+    }
+    if (round === 'second') {
+        return ['In Process - Second Round'];
+    }
+    return [];
+}
+
+async function getAgencyEmailsForRequest(request, round, additionalSources = []) {
+    const allowedStatuses = getCandidateStatusesForSlotRound(round);
+    const mustNotifySources = new Set(additionalSources.filter(Boolean));
     const candidatesResult = await window.candidatesManager.getCandidates({
         page: 1,
         pageSize: 2000,
@@ -5747,13 +5759,25 @@ async function getAgencyEmailsForRequest(request, additionalSources = []) {
         c.department === request.department &&
         allowedStatuses.includes(c.status)
     );
+    const candidateSources = [...new Set(
+        candidatesWithStatus.map(c => c.source).filter(Boolean)
+    )];
+
+    let bookedSources = [];
+    try {
+        bookedSources = await window.interviewSlotsManager.getBookedAgencySources(request.id, round);
+    } catch (error) {
+        console.warn('Could not load booked agency sources:', error);
+    }
+
+    // Skip agencies that already booked a slot; still notify if this change affects their booking
     const sources = [...new Set([
-        ...candidatesWithStatus.map(c => c.source).filter(Boolean),
-        ...additionalSources.filter(Boolean)
+        ...candidateSources.filter(s => !bookedSources.includes(s)),
+        ...mustNotifySources
     ])];
 
     if (sources.length === 0) {
-        return { sources: [], emails: [] };
+        return { sources: [], emails: [], skippedBookedSources: bookedSources };
     }
 
     const { data: agencyRows, error: rpcError } = await window.supabase
@@ -5762,7 +5786,7 @@ async function getAgencyEmailsForRequest(request, additionalSources = []) {
         console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
     }
     const emails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
-    return { sources, emails };
+    return { sources, emails, skippedBookedSources: bookedSources };
 }
 
 function slotToNotifyPayload(slot) {
@@ -5777,10 +5801,10 @@ async function notifyAgenciesAboutSlotChange(request, round, changeType, slots, 
     const extraSources = slots
         .map(s => s.agency_source)
         .filter(Boolean);
-    const { emails } = await getAgencyEmailsForRequest(request, extraSources);
+    const { sources, emails } = await getAgencyEmailsForRequest(request, round, extraSources);
 
     const notificationReport = {
-        sources: [],
+        sources,
         recipients: emails,
         sent: [],
         failed: []
@@ -6565,11 +6589,9 @@ async function showBookSlotModal(slotId, requestId, round) {
             agencySource
         });
         
-        // Get candidates filtered by agency source and position
-        // Note: getCandidates already filters by source for agency role automatically
-        // Allowed statuses for booking slots
-        const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
-        
+        // Only candidates in the matching round can book that round's slots
+        const allowedStatuses = getCandidateStatusesForSlotRound(round);
+
         const candidatesResult = await window.candidatesManager.getCandidates({
             page: 1,
             pageSize: 1000,

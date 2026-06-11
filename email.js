@@ -790,6 +790,95 @@ Tento email bol odoslaný automaticky zo systému na nábor.
     }
 
     /**
+     * Notify agency that recruiter changed or removed interview slot(s).
+     * @param {string} agencyEmail
+     * @param {Object} request - { position, department }
+     * @param {string} round - 'first' | 'second'
+     * @param {'updated'|'removed'} changeType
+     * @param {Array} slots - [{ startTime, endTime, candidateName? }]
+     * @param {Array} [oldSlots] - previous times for updates
+     */
+    async notifyAgencySlotChange(agencyEmail, request, round, changeType, slots = [], oldSlots = []) {
+        const roundText = round === 'first' ? 'Prvé kolo' : 'Druhé kolo';
+        const siteUrl = 'https://recruiting.iacslovakia.sk/';
+        const isRemoved = changeType === 'removed';
+        const subject = isRemoved
+            ? `Zrušený termín na pohovor – ${request.position} (${roundText})`
+            : `Zmena termínu na pohovor – ${request.position} (${roundText})`;
+        const heading = isRemoved ? 'Zrušený termín na pohovor' : 'Zmena termínu na pohovor';
+        const intro = isRemoved
+            ? 'Recruiter zrušil termín na pohovor pre pozíciu, na ktorú máte priradených kandidátov.'
+            : 'Recruiter upravil termín na pohovor pre pozíciu, na ktorú máte priradených kandidátov.';
+
+        const formatSlot = (start, end) => {
+            const d = new Date(start);
+            const e = new Date(end);
+            const dateStr = d.toLocaleDateString('sk-SK', { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric' });
+            const timeStr = `${d.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })} – ${e.toLocaleTimeString('sk-SK', { hour: '2-digit', minute: '2-digit' })}`;
+            return `${dateStr}, ${timeStr}`;
+        };
+
+        const slotsHtml = slots.map((s, i) => {
+            const candidateLine = s.candidateName
+                ? `<br><span style="font-size:0.9rem;color:#555;">Kandidát: <strong>${s.candidateName}</strong></span>`
+                : '';
+            if (isRemoved) {
+                return `<li style="margin: 6px 0;">${formatSlot(s.startTime, s.endTime)}${candidateLine}</li>`;
+            }
+            const old = oldSlots[i];
+            const oldLine = old
+                ? `<br><span style="font-size:0.9rem;color:#b45309;">Pôvodný termín: ${formatSlot(old.startTime, old.endTime)}</span>`
+                : '';
+            return `<li style="margin: 6px 0;"><strong>Nový termín:</strong> ${formatSlot(s.startTime, s.endTime)}${oldLine}${candidateLine}</li>`;
+        }).join('');
+
+        const slotsText = slots.map((s, i) => {
+            const base = formatSlot(s.startTime, s.endTime);
+            const cand = s.candidateName ? ` (kandidát: ${s.candidateName})` : '';
+            if (isRemoved) return `  • ${base}${cand}`;
+            const old = oldSlots[i];
+            const oldPart = old ? ` (predtým: ${formatSlot(old.startTime, old.endTime)})` : '';
+            return `  • Nový: ${base}${oldPart}${cand}`;
+        }).join('\n');
+
+        const bookedNote = slots.some(s => s.candidateName)
+            ? '<p style="margin-top:12px;padding:10px;background:#fff3cd;border-radius:5px;border-left:4px solid #f59e0b;"><strong>Poznámka:</strong> Ak bol termín rezervovaný, rezervácia bola zrušená. Prosím rezervujte nový termín v systéme.</p>'
+            : '';
+
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+                <div style="background-color: ${isRemoved ? '#dc2626' : '#d97706'}; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; font-size: 24px;">${heading}</h1>
+                </div>
+                <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <p>Dobrý deň,</p>
+                    <p>${intro}</p>
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                        <p style="margin: 5px 0;"><strong>Pozícia:</strong> ${request.position || ''}</p>
+                        <p style="margin: 5px 0;"><strong>Oddelenie:</strong> ${request.department || ''}</p>
+                        <p style="margin: 5px 0;"><strong>Kolo:</strong> ${roundText}</p>
+                    </div>
+                    <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid ${isRemoved ? '#dc2626' : '#d97706'};">
+                        <p style="margin: 0 0 8px 0; font-weight: 600;">${isRemoved ? 'Zrušené termíny:' : 'Upravené termíny:'}</p>
+                        <ul style="margin: 0; padding-left: 20px;">${slotsHtml}</ul>
+                    </div>
+                    ${bookedNote}
+                    <p>Termíny si môžete skontrolovať a rezervovať v náborovom systéme v sekcii „Rezervácia termínov“.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${siteUrl}" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť náborový systém</a>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+                    <p>Tento email bol odoslaný automaticky zo systému na nábor.</p>
+                </div>
+            </div>
+        `;
+
+        const text = `${heading} – ${request.position}, ${request.department}, ${roundText}.\n\n${slotsText}\n\nOtvorte systém: ${siteUrl}`;
+        return this.sendEmail({ to: agencyEmail, subject, html, text });
+    }
+
+    /**
      * Notify recruiter(s) and manager(s) when agency books an interview slot
      * @param {Object} slotData - Slot data with candidate and request info
      * @param {string|string[]} recruiterEmail - Recruiter email(s)

@@ -67,7 +67,7 @@ class InterviewSlotsManager {
      * Validate that new slots don't overlap with each other or with any existing slot in the same round (any position).
      * @throws {Error} with message listing overlapping times if any
      */
-    async _validateNoOverlappingSlots(requestId, round, newSlots) {
+    async _validateNoOverlappingSlots(requestId, round, newSlots, excludeSlotId = null) {
         const existing = await this.getSlotsByRound(round);
         const formatSlot = (s) => {
             const start = (s.startTime || s.start_time);
@@ -98,6 +98,7 @@ class InterviewSlotsManager {
             }
 
             for (const ex of existing) {
+                if (excludeSlotId && ex.id === excludeSlotId) continue;
                 if (this._slotsOverlap(aStart, aEnd, ex.start_time, ex.end_time)) {
                     conflicts.push(`Termín sa prekrýva s existujúcim${positionLabel(ex)}: ${formatSlot(a)} vs ${formatSlot(ex)}`);
                 }
@@ -336,6 +337,59 @@ class InterviewSlotsManager {
             return { success: true, data };
         } catch (error) {
             console.error('Error canceling booking:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Update an existing slot's time range
+     * @param {number} slotId - Slot ID
+     * @param {number} requestId - Request ID
+     * @param {string} round - 'first' or 'second'
+     * @param {{ startTime: string, endTime: string }} times - ISO strings
+     * @returns {Promise<Object>}
+     */
+    async updateSlot(slotId, requestId, round, { startTime, endTime }) {
+        if (!this.supabase) {
+            throw new Error('Supabase client not initialized');
+        }
+
+        try {
+            await this._validateNoOverlappingSlots(
+                requestId,
+                round,
+                [{ startTime, endTime }],
+                slotId
+            );
+
+            const { data, error } = await this.supabase
+                .from('interview_slots')
+                .update({
+                    start_time: startTime,
+                    end_time: endTime,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', slotId)
+                .select(`
+                    *,
+                    candidates:candidate_id (
+                        id,
+                        name,
+                        source
+                    ),
+                    recruiting_requests:request_id (
+                        id,
+                        position,
+                        department
+                    )
+                `)
+                .single();
+
+            if (error) throw error;
+
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error updating slot:', error);
             throw error;
         }
     }

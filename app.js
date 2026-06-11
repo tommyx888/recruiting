@@ -238,6 +238,18 @@ const translations = {
         "Book": "Book",
         "Today": "Today",
         "No slots available": "No slots available",
+        "Edit Slot": "Edit Slot",
+        "Delete Slot": "Delete Slot",
+        "Update Slot": "Update Slot",
+        "Updating slot...": "Updating slot...",
+        "Deleting slot...": "Deleting slot...",
+        "Slot updated successfully!": "Slot updated successfully!",
+        "Slot deleted successfully!": "Slot deleted successfully!",
+        "Are you sure you want to delete this slot?": "Are you sure you want to delete this slot?",
+        "This slot is booked. Deleting will cancel the booking and agencies will be notified.": "This slot is booked. Deleting will cancel the booking and agencies will be notified.",
+        "This slot is booked. Agencies will be notified about the time change.": "This slot is booked. Agencies will be notified about the time change.",
+        "Error updating slot:": "Error updating slot:",
+        "Error deleting slot:": "Error deleting slot:",
         "No available slots for this round": "No available slots for this round. Please check back later.",
         "Add Interview Slots": "Add Interview Slots",
         "Time slots are set in 15-minute intervals, each slot lasts 30 minutes": "Time slots are set in 15-minute intervals (e.g., 10:00, 10:15, 10:30), each slot lasts 30 minutes",
@@ -630,6 +642,18 @@ const translations = {
         "Book": "Rezervovať",
         "Today": "Dnes",
         "No slots available": "Žiadne dostupné sloty",
+        "Edit Slot": "Upraviť termín",
+        "Delete Slot": "Zmazať termín",
+        "Update Slot": "Uložiť zmenu",
+        "Updating slot...": "Ukladám zmenu termínu...",
+        "Deleting slot...": "Mažem termín...",
+        "Slot updated successfully!": "Termín bol úspešne upravený!",
+        "Slot deleted successfully!": "Termín bol úspešne zmazaný!",
+        "Are you sure you want to delete this slot?": "Naozaj chcete zmazať tento termín?",
+        "This slot is booked. Deleting will cancel the booking and agencies will be notified.": "Termín je rezervovaný. Zmazaním sa zruší rezervácia a agentúry budú informované.",
+        "This slot is booked. Agencies will be notified about the time change.": "Termín je rezervovaný. Agentúry budú informované o zmene času.",
+        "Error updating slot:": "Chyba pri úprave termínu:",
+        "Error deleting slot:": "Chyba pri mazaní termínu:",
         "No available slots for this round": "Pre toto kolo nie sú k dispozícii žiadne sloty. Skúste to neskôr.",
         "Add Interview Slots": "Pridať termíny na pohovor",
         "Time slots are set in 15-minute intervals, each slot lasts 30 minutes": "Časové sloty sú nastavené po 15 minútach (napr. 10:00, 10:15, 10:30), každý slot trvá 30 minút",
@@ -5575,36 +5599,17 @@ async function saveSlots() {
         window.uiManager.showLoading(msgNotifying);
         
         const request = await window.requestsManager.getRequestById(requestId);
-        const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
-        const candidatesResult = await window.candidatesManager.getCandidates({
-            page: 1,
-            pageSize: 2000,
-            position: request.position,
-            department: request.department
-        });
-        const candidatesWithStatus = (candidatesResult.candidates || []).filter(c =>
-            c.position === request.position &&
-            c.department === request.department &&
-            allowedStatuses.includes(c.status)
-        );
-        const sourcesWithCandidates = [...new Set(candidatesWithStatus.map(c => c.source).filter(Boolean))];
+        const { sources: sourcesWithCandidates, emails: uniqueEmails } = await getAgencyEmailsForRequest(request);
         console.log('Slots saved: sources with candidates for', request.position, '=', sourcesWithCandidates);
 
         let notificationReport = {
             sources: sourcesWithCandidates,
-            recipients: [],
+            recipients: uniqueEmails,
             sent: [],
             failed: []
         };
 
-        if (sourcesWithCandidates.length > 0) {
-            const { data: agencyRows, error: rpcError } = await window.supabase
-                .rpc('get_agency_emails_for_new_slots', { sources: sourcesWithCandidates });
-            if (rpcError) {
-                console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
-            }
-            const uniqueEmails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
-            notificationReport.recipients = uniqueEmails;
+        if (uniqueEmails.length > 0) {
             console.log('Agency emails to notify:', uniqueEmails.length, uniqueEmails);
 
             for (const email of uniqueEmails) {
@@ -5729,31 +5734,99 @@ function closeAgencyNotificationReport() {
     if (modal) modal.remove();
 }
 
+async function getAgencyEmailsForRequest(request, additionalSources = []) {
+    const allowedStatuses = ['New', 'In Process - First Round', 'In Process - Second Round'];
+    const candidatesResult = await window.candidatesManager.getCandidates({
+        page: 1,
+        pageSize: 2000,
+        position: request.position,
+        department: request.department
+    });
+    const candidatesWithStatus = (candidatesResult.candidates || []).filter(c =>
+        c.position === request.position &&
+        c.department === request.department &&
+        allowedStatuses.includes(c.status)
+    );
+    const sources = [...new Set([
+        ...candidatesWithStatus.map(c => c.source).filter(Boolean),
+        ...additionalSources.filter(Boolean)
+    ])];
+
+    if (sources.length === 0) {
+        return { sources: [], emails: [] };
+    }
+
+    const { data: agencyRows, error: rpcError } = await window.supabase
+        .rpc('get_agency_emails_for_new_slots', { sources });
+    if (rpcError) {
+        console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
+    }
+    const emails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
+    return { sources, emails };
+}
+
+function slotToNotifyPayload(slot) {
+    return {
+        startTime: slot.start_time || slot.startTime,
+        endTime: slot.end_time || slot.endTime,
+        candidateName: slot.candidates?.name || slot.candidateName || null
+    };
+}
+
+async function notifyAgenciesAboutSlotChange(request, round, changeType, slots, oldSlots = []) {
+    const extraSources = slots
+        .map(s => s.agency_source)
+        .filter(Boolean);
+    const { emails } = await getAgencyEmailsForRequest(request, extraSources);
+
+    const notificationReport = {
+        sources: [],
+        recipients: emails,
+        sent: [],
+        failed: []
+    };
+
+    const payloads = slots.map(slotToNotifyPayload);
+    const oldPayloads = oldSlots.map(slotToNotifyPayload);
+
+    for (const email of emails) {
+        try {
+            await window.emailManager.notifyAgencySlotChange(
+                email,
+                request,
+                round,
+                changeType,
+                payloads,
+                changeType === 'updated' ? oldPayloads : []
+            );
+            notificationReport.sent.push(email);
+        } catch (error) {
+            notificationReport.failed.push({
+                email,
+                reason: error?.message || 'Unknown error'
+            });
+        }
+    }
+
+    return notificationReport;
+}
+
 async function showSlotsForRequest(requestId) {
     try {
         window.uiManager.showLoading('Loading slots...');
-        
+
+        const request = await window.requestsManager.getRequestById(requestId);
         const firstRoundSlots = await window.interviewSlotsManager.getSlotsForRequest(requestId, 'first');
         const secondRoundSlots = await window.interviewSlotsManager.getSlotsForRequest(requestId, 'second');
-        
+        const userInfo = window.authManager.getUserInfo();
+        const canManage = userInfo && (userInfo.role === 'recruiter' || userInfo.role === 'gm');
+
         window.uiManager.hideLoading();
-        
+
         const modal = document.createElement('div');
         modal.id = 'view-slots-modal';
-        modal.className = 'modal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        `;
-        
+        modal.className = 'modal view-slots-modal';
+
         const renderSlots = (slots, round) => {
             if (slots.length === 0) {
                 return `<p data-translate="No slots available">${window.uiManager.translate('No slots available') || 'No slots available'}</p>`;
@@ -5762,32 +5835,49 @@ async function showSlotsForRequest(requestId) {
                 const start = new Date(slot.start_time);
                 const end = new Date(slot.end_time);
                 const isBooked = slot.candidate_id !== null;
+                const actions = canManage ? `
+                    <div class="view-slot-actions">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="showEditSlotModal(${slot.id}, ${requestId}, '${round}')" data-translate="Edit Slot">Edit Slot</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteSlotWithConfirm(${slot.id}, ${requestId}, '${round}')" data-translate="Delete Slot">Delete Slot</button>
+                    </div>
+                ` : '';
                 return `
-                    <div style="padding: 10px; margin: 5px 0; background: ${isBooked ? '#ffebee' : '#e8f5e9'}; border-radius: 5px;">
-                        <strong>${start.toLocaleString('sk-SK')} - ${end.toLocaleString('sk-SK')}</strong>
-                        ${isBooked ? `<br>${window.uiManager.translate('Booked by') || 'Booked by'}: ${slot.candidates?.name || 'N/A'} (${slot.agency_source || 'N/A'})` : `<br>${window.uiManager.translate('Available') || 'Available'}`}
+                    <div class="view-slot-item ${isBooked ? 'view-slot-booked' : 'view-slot-free'}">
+                        <div class="view-slot-info">
+                            <strong>${start.toLocaleString('sk-SK')} – ${end.toLocaleString('sk-SK', { hour: '2-digit', minute: '2-digit' })}</strong>
+                            ${isBooked
+                                ? `<span class="view-slot-status">${window.uiManager.translate('Booked by') || 'Booked by'}: ${slot.candidates?.name || 'N/A'} (${slot.agency_source || 'N/A'})</span>`
+                                : `<span class="view-slot-status">${window.uiManager.translate('Available') || 'Available'}</span>`}
+                        </div>
+                        ${actions}
                     </div>
                 `;
             }).join('');
         };
-        
+
         modal.innerHTML = `
-            <div class="modal-content" style="background: white; padding: 30px; border-radius: 8px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
-                <h2 data-translate="Interview Slots">Interview Slots</h2>
-                <div style="margin-bottom: 20px;">
+            <div class="modal-content view-slots-modal-content">
+                <div class="view-slots-modal-header">
+                    <div>
+                        <h2 data-translate="Interview Slots">Interview Slots</h2>
+                        <p class="view-slots-subtitle">${request.position} – ${request.department}</p>
+                    </div>
+                    <button type="button" onclick="closeViewSlotsModal()" class="modal-close-btn" aria-label="Close">&times;</button>
+                </div>
+                <div class="view-slots-section">
                     <h3 data-translate="First Round">First Round</h3>
                     ${renderSlots(firstRoundSlots, 'first')}
                 </div>
-                <div>
+                <div class="view-slots-section">
                     <h3 data-translate="Second Round">Second Round</h3>
                     ${renderSlots(secondRoundSlots, 'second')}
                 </div>
-                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-                    <button onclick="closeViewSlotsModal()" class="btn btn-secondary" data-translate="Close">Close</button>
+                <div class="view-slots-footer">
+                    <button type="button" onclick="closeViewSlotsModal()" class="btn btn-secondary" data-translate="Close">Close</button>
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
         window.uiManager.translatePage();
     } catch (error) {
@@ -5801,6 +5891,244 @@ function closeViewSlotsModal() {
     const modal = document.getElementById('view-slots-modal');
     if (modal) {
         modal.remove();
+    }
+}
+
+function closeEditSlotModal() {
+    const modal = document.getElementById('edit-slot-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function buildSlotTimeFields(slotId, startTime, endTime) {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const dateValue = start.toISOString().split('T')[0];
+    const startTimeValue = `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`;
+    const durationMinutes = Math.round((end - start) / (1000 * 60));
+    const durationValue = [30, 60, 90].includes(durationMinutes) ? durationMinutes : 30;
+    const timeOptions = get15MinuteTimeOptions();
+
+    return `
+        <div class="slot-row edit-slot-row" id="edit-slot-row">
+            <div class="slot-input-group">
+                <label class="slot-label" for="edit-slot-date">${window.uiManager.translate('Date') || 'Date'}</label>
+                <input type="date" id="edit-slot-date" class="form-control slot-date-input" required min="${new Date().toISOString().split('T')[0]}" value="${dateValue}">
+            </div>
+            <div class="slot-input-group">
+                <label class="slot-label" for="edit-slot-start">${window.uiManager.translate('Start Time') || 'Start Time'}</label>
+                <select id="edit-slot-start" class="form-control slot-time-input" required>
+                    ${timeOptions.map(t => `<option value="${t}" ${t === startTimeValue ? 'selected' : ''}>${t}</option>`).join('')}
+                </select>
+            </div>
+            <div class="slot-input-group">
+                <label class="slot-label" for="edit-slot-duration">${window.uiManager.translate('Duration') || 'Duration'}</label>
+                <select id="edit-slot-duration" class="form-control slot-time-input" required>
+                    <option value="30" ${durationValue === 30 ? 'selected' : ''}>30 min</option>
+                    <option value="60" ${durationValue === 60 ? 'selected' : ''}>60 min</option>
+                    <option value="90" ${durationValue === 90 ? 'selected' : ''}>90 min</option>
+                </select>
+            </div>
+            <div class="slot-input-group">
+                <label class="slot-label" for="edit-slot-end">${window.uiManager.translate('End Time') || 'End Time'}</label>
+                <input type="text" id="edit-slot-end" class="form-control slot-time-input" readonly value="${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}">
+            </div>
+        </div>
+        <input type="hidden" id="edit-slot-id" value="${slotId}">
+    `;
+}
+
+function wireEditSlotTimeFields() {
+    const startSelect = document.getElementById('edit-slot-start');
+    const durationSelect = document.getElementById('edit-slot-duration');
+    const endInput = document.getElementById('edit-slot-end');
+    if (!startSelect || !durationSelect || !endInput) return;
+
+    const updateEnd = () => {
+        const roundedStart = roundTo15Minutes(startSelect.value);
+        if (roundedStart !== startSelect.value) {
+            startSelect.value = roundedStart;
+        }
+        const durationVal = parseInt(durationSelect.value, 10);
+        const end = addMinutesToTime(roundedStart, durationVal);
+        endInput.value = end.startsWith('24:') ? '' : roundTo15Minutes(end);
+    };
+
+    startSelect.addEventListener('change', updateEnd);
+    durationSelect.addEventListener('change', updateEnd);
+    updateEnd();
+}
+
+function readEditSlotTimes() {
+    const date = document.getElementById('edit-slot-date')?.value;
+    const timeStart = document.getElementById('edit-slot-start')?.value;
+    const timeEnd = document.getElementById('edit-slot-end')?.value;
+
+    if (!date || !timeStart || !timeEnd) {
+        throw new Error(window.uiManager.translate('Please fill in all required fields') || 'Please fill in all required fields');
+    }
+
+    const roundedStart = roundTo15Minutes(timeStart);
+    const roundedEnd = roundTo15Minutes(timeEnd);
+    const startTime = new Date(`${date}T${roundedStart}`);
+    const endTime = new Date(`${date}T${roundedEnd}`);
+
+    if (endTime <= startTime) {
+        throw new Error(window.uiManager.translate('End time must be after start time') || 'End time must be after start time');
+    }
+
+    const duration = (endTime - startTime) / (1000 * 60);
+    if (duration < 30) {
+        throw new Error(window.uiManager.translate('Minimum slot duration is 30 minutes') || 'Minimum slot duration is 30 minutes');
+    }
+    if (duration % 30 !== 0) {
+        throw new Error(window.uiManager.translate('Slot duration must be a multiple of 30 minutes') || 'Slot duration must be a multiple of 30 minutes');
+    }
+
+    return {
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString()
+    };
+}
+
+async function showEditSlotModal(slotId, requestId, round) {
+    try {
+        const slots = await window.interviewSlotsManager.getSlotsForRequest(requestId, round);
+        const slot = (slots || []).find(s => s.id === slotId);
+        if (!slot) {
+            window.utils.showMessage('Termín sa nenašiel.', 'error');
+            return;
+        }
+
+        const request = await window.requestsManager.getRequestById(requestId);
+        const roundText = round === 'first'
+            ? window.uiManager.translate('First Round')
+            : window.uiManager.translate('Second Round');
+        const isBooked = !!slot.candidate_id;
+
+        const modal = document.createElement('div');
+        modal.id = 'edit-slot-modal';
+        modal.className = 'modal add-slots-modal';
+        modal.innerHTML = `
+            <div class="add-slots-modal-content">
+                <div class="add-slots-modal-header">
+                    <div class="modal-header-info">
+                        <h2 class="modal-title" data-translate="Edit Slot">Edit Slot</h2>
+                        <p class="modal-subtitle">${roundText} • ${request.position} - ${request.department}</p>
+                        ${isBooked ? `<p class="modal-hint" data-translate="This slot is booked. Agencies will be notified about the time change.">This slot is booked. Agencies will be notified about the time change.</p>` : ''}
+                    </div>
+                    <button type="button" onclick="closeEditSlotModal()" class="modal-close-btn" aria-label="Close">&times;</button>
+                </div>
+                <form id="edit-slot-form" class="add-slots-form">
+                    <input type="hidden" id="edit-slot-request-id" value="${requestId}">
+                    <input type="hidden" id="edit-slot-round" value="${round}">
+                    <div class="slots-form-content">
+                        ${buildSlotTimeFields(slotId, slot.start_time, slot.end_time)}
+                    </div>
+                    <div class="slots-form-actions">
+                        <button type="button" onclick="closeEditSlotModal()" class="btn btn-secondary" data-translate="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-translate="Update Slot">Update Slot</button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        wireEditSlotTimeFields();
+        window.uiManager.translatePage();
+
+        document.getElementById('edit-slot-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveEditedSlot(slot);
+        });
+    } catch (error) {
+        console.error('Error opening edit slot modal:', error);
+        window.utils.showMessage((window.uiManager.translate('Error updating slot:') || 'Error updating slot:') + ' ' + error.message, 'error');
+    }
+}
+
+async function saveEditedSlot(originalSlot) {
+    try {
+        const slotId = parseInt(document.getElementById('edit-slot-id').value, 10);
+        const requestId = parseInt(document.getElementById('edit-slot-request-id').value, 10);
+        const round = document.getElementById('edit-slot-round').value;
+        const times = readEditSlotTimes();
+
+        const oldStart = new Date(originalSlot.start_time).getTime();
+        const oldEnd = new Date(originalSlot.end_time).getTime();
+        const newStart = new Date(times.startTime).getTime();
+        const newEnd = new Date(times.endTime).getTime();
+        if (oldStart === newStart && oldEnd === newEnd) {
+            closeEditSlotModal();
+            return;
+        }
+
+        window.uiManager.showLoading(window.uiManager.translate('Updating slot...') || 'Updating slot...');
+        const result = await window.interviewSlotsManager.updateSlot(slotId, requestId, round, times);
+        const request = await window.requestsManager.getRequestById(requestId);
+
+        window.uiManager.showLoading(window.uiManager.translate('Notifying agencies...') || 'Notifying agencies...');
+        const updatedSlot = result.data || { ...originalSlot, ...times, start_time: times.startTime, end_time: times.endTime };
+        const notificationReport = await notifyAgenciesAboutSlotChange(
+            request,
+            round,
+            'updated',
+            [updatedSlot],
+            [originalSlot]
+        );
+
+        window.uiManager.hideLoading();
+        closeEditSlotModal();
+        closeViewSlotsModal();
+        window.utils.showMessage(window.uiManager.translate('Slot updated successfully!') || 'Slot updated successfully!', 'success');
+        showAgencyNotificationReport(notificationReport);
+        await showSlotsForRequest(requestId);
+    } catch (error) {
+        console.error('Error updating slot:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage((window.uiManager.translate('Error updating slot:') || 'Error updating slot:') + ' ' + error.message, 'error');
+    }
+}
+
+async function deleteSlotWithConfirm(slotId, requestId, round) {
+    try {
+        const slots = await window.interviewSlotsManager.getSlotsForRequest(requestId, round);
+        const slot = (slots || []).find(s => s.id === slotId);
+        if (!slot) {
+            window.utils.showMessage('Termín sa nenašiel.', 'error');
+            return;
+        }
+
+        const isBooked = !!slot.candidate_id;
+        const confirmMsg = isBooked
+            ? window.uiManager.translate('This slot is booked. Deleting will cancel the booking and agencies will be notified.')
+            : window.uiManager.translate('Are you sure you want to delete this slot?');
+        if (!confirm(confirmMsg)) {
+            return;
+        }
+
+        window.uiManager.showLoading(window.uiManager.translate('Deleting slot...') || 'Deleting slot...');
+        const request = await window.requestsManager.getRequestById(requestId);
+        await window.interviewSlotsManager.deleteSlot(slotId);
+
+        window.uiManager.showLoading(window.uiManager.translate('Notifying agencies...') || 'Notifying agencies...');
+        const notificationReport = await notifyAgenciesAboutSlotChange(
+            request,
+            round,
+            'removed',
+            [slot]
+        );
+
+        window.uiManager.hideLoading();
+        closeViewSlotsModal();
+        window.utils.showMessage(window.uiManager.translate('Slot deleted successfully!') || 'Slot deleted successfully!', 'success');
+        showAgencyNotificationReport(notificationReport);
+        await showSlotsForRequest(requestId);
+    } catch (error) {
+        console.error('Error deleting slot:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage((window.uiManager.translate('Error deleting slot:') || 'Error deleting slot:') + ' ' + error.message, 'error');
     }
 }
 

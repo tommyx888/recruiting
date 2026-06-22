@@ -3995,6 +3995,7 @@ function updatePositions() {
     
     if (!department) {
         positionSelect.disabled = true;
+        toggleCandidateCustomPositionField();
         return;
     }
     
@@ -4024,13 +4025,37 @@ function updatePositions() {
         option.textContent = position;
         positionSelect.appendChild(option);
     });
+
+    const customOption = document.createElement('option');
+    customOption.value = '__custom__';
+    customOption.textContent = translations[currentLanguage]['Position not in list'] || 'Pozícia nie je v zozname';
+    positionSelect.appendChild(customOption);
+
+    toggleCandidateCustomPositionField();
+}
+
+function toggleCandidateCustomPositionField() {
+    const positionSelect = document.getElementById('candidate-position');
+    const customPositionFields = document.getElementById('candidate-custom-position-fields');
+    const customPositionInput = document.getElementById('candidate-custom-position');
+    if (!positionSelect || !customPositionFields) return;
+
+    const isCustom = positionSelect.value === '__custom__';
+    customPositionFields.classList.toggle('hidden', !isCustom);
+    if (!isCustom && customPositionInput) {
+        customPositionInput.value = '';
+    }
 }
 
 async function addCandidate() {
     try {
+        const selectedPosition = document.getElementById('candidate-position').value;
+        const customPosition = document.getElementById('candidate-custom-position')?.value?.trim() || '';
+        const position = selectedPosition === '__custom__' ? customPosition : selectedPosition;
+
         const formData = {
             name: document.getElementById('candidate-name').value.trim(),
-            position: document.getElementById('candidate-position').value,
+            position: position,
             department: document.getElementById('candidate-department').value,
             source: document.getElementById('candidate-source').value,
             date_obtained: document.getElementById('candidate-date').value,
@@ -4044,6 +4069,11 @@ async function addCandidate() {
         // Validate required fields
         if (!formData.name || !formData.position || !formData.department || !formData.source) {
             alert(translations[currentLanguage]['Please fill in all required fields']);
+            return;
+        }
+
+        if (selectedPosition === '__custom__' && !customPosition) {
+            alert(translations[currentLanguage]['Enter custom position'] || 'Prosím zadajte názov pozície');
             return;
         }
         

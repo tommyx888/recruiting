@@ -206,6 +206,19 @@ const translations = {
         "Save Slots": "Save Slots",
         "Saving slots...": "Saving slots...",
         "Notifying agencies...": "Notifying agencies...",
+        "Agency notification preview": "Agency notification preview",
+        "Will receive email": "Will receive email",
+        "Will not receive email": "Will not receive email",
+        "No agency will receive email": "No agency will receive email",
+        "Loading notification preview...": "Loading notification preview...",
+        "Required candidate status": "Required candidate status",
+        "No candidate on this position": "No candidate on this position",
+        "Wrong candidate status": "Wrong candidate status",
+        "Already booked a slot": "Already booked a slot in this round",
+        "Pending recruiter confirmation": "Candidate pending recruiter confirmation",
+        "No agency email in system": "Eligible candidate but no agency email found in system",
+        "Booking change notification": "Existing booking change",
+        "Other agencies without candidates": "Other agencies without candidates on this position",
         "Interview Slots": "Interview Slots",
         "Available Slots": "Available Slots",
         "No available slots": "No available slots",
@@ -610,6 +623,19 @@ const translations = {
         "Save Slots": "Uložiť termíny",
         "Saving slots...": "Ukladám termíny...",
         "Notifying agencies...": "Posielam informácie agentúram...",
+        "Agency notification preview": "Náhľad notifikácií agentúram",
+        "Will receive email": "Dostanú email",
+        "Will not receive email": "Nedostanú email",
+        "No agency will receive email": "Žiadna agentúra nedostane email",
+        "Loading notification preview...": "Načítavam náhľad notifikácií...",
+        "Required candidate status": "Požadovaný stav kandidáta",
+        "No candidate on this position": "Nemá kandidáta na tejto pozícii",
+        "Wrong candidate status": "Nesprávny stav kandidáta",
+        "Already booked a slot": "Už má rezervovaný termín v tomto kole",
+        "Pending recruiter confirmation": "Kandidát čaká na potvrdenie recruiterom",
+        "No agency email in system": "Vhodný kandidát, ale v systéme chýba email agentúry",
+        "Booking change notification": "Notifikácia zmeny existujúcej rezervácie",
+        "Other agencies without candidates": "Ostatné agentúry bez kandidáta na pozícii",
         "Interview Slots": "Termíny na pohovor",
         "Available Slots": "Dostupné termíny",
         "No available slots": "Žiadne dostupné termíny",
@@ -5326,6 +5352,10 @@ async function showAddSlotsModal(requestId, round) {
                 <input type="hidden" id="slots-request-id" value="${requestId}">
                 <input type="hidden" id="slots-round" value="${round}">
                 <div class="slots-form-content">
+                    <div id="agency-notification-preview" class="agency-notification-preview">
+                        <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
+                        <p class="agency-preview-loading" data-translate="Loading notification preview...">Loading notification preview...</p>
+                    </div>
                     <div id="slots-container" class="slots-container"></div>
                     <button type="button" onclick="addSlotRow()" class="btn btn-secondary btn-add-slot" data-translate="Add Another Slot">
                         <span class="btn-icon">➕</span>
@@ -5344,6 +5374,8 @@ async function showAddSlotsModal(requestId, round) {
     
     document.body.appendChild(modal);
     window.uiManager.translatePage();
+    
+    loadAgencyNotificationPreview(requestId, round);
     
     // Add first slot row
     addSlotRow();
@@ -5629,14 +5661,17 @@ async function saveSlots() {
         window.uiManager.showLoading(msgNotifying);
         
         const request = await window.requestsManager.getRequestById(requestId);
-        const { sources: sourcesWithCandidates, emails: uniqueEmails } = await getAgencyEmailsForRequest(request, round);
+        const agencyLookup = await getAgencyEmailsForRequest(request, round);
+        const { sources: sourcesWithCandidates, emails: uniqueEmails } = agencyLookup;
         console.log('Slots saved: sources with candidates in', round, 'round for', request.position, '=', sourcesWithCandidates);
 
         let notificationReport = {
             sources: sourcesWithCandidates,
             recipients: uniqueEmails,
             sent: [],
-            failed: []
+            failed: [],
+            debug: agencyLookup.debug,
+            plan: agencyLookup.plan
         };
 
         if (uniqueEmails.length > 0) {
@@ -5727,30 +5762,38 @@ function showAgencyNotificationReport(report) {
         ? pending.map(email => `<li>${email}</li>`).join('')
         : `<li style="color:#64748b;">Žiadne nevyhodnotené emaily</li>`;
 
+    const planBlock = report.plan
+        ? `<div class="agency-notification-preview agency-notification-report-plan">${renderAgencyNotificationPlanHtml(report.plan, { showSendResults: true, sent, failed })}</div>`
+        : '';
+
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 720px;">
+        <div class="modal-content agency-notification-report-content">
             <h2 style="margin-bottom: 1rem;">Report odoslania agentúram</h2>
-            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px;">
+            <div class="agency-report-summary">
                 <div class="summary-card"><h3>${recipients.length}</h3><p>Celkovo príjemcov</p></div>
                 <div class="summary-card approved"><h3>${sent.length}</h3><p>Úspešne odoslané</p></div>
                 <div class="summary-card rejected"><h3>${failed.length}</h3><p>Zlyhané</p></div>
             </div>
-            <p style="margin-bottom:8px;color:#475569;"><strong>Zdroje kandidátov:</strong> ${(report.sources || []).join(', ') || 'N/A'}</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                <div>
-                    <h3 style="font-size:1rem;margin-bottom:8px;">Odoslané</h3>
-                    <ul style="margin:0;padding-left:18px;max-height:180px;overflow:auto;">${sentList}</ul>
+            ${planBlock}
+            <details class="agency-report-technical">
+                <summary>Technický súhrn odoslania</summary>
+                <p style="margin:10px 0 8px;color:#475569;"><strong>Zdroje kandidátov:</strong> ${(report.sources || []).join(', ') || 'N/A'}</p>
+                <div class="agency-report-technical-grid">
+                    <div>
+                        <h3>Odoslané</h3>
+                        <ul>${sentList}</ul>
+                    </div>
+                    <div>
+                        <h3>Zlyhané</h3>
+                        <ul>${failedList}</ul>
+                    </div>
+                    <div>
+                        <h3>Nevyhodnotené</h3>
+                        <ul>${pendingList}</ul>
+                    </div>
                 </div>
-                <div>
-                    <h3 style="font-size:1rem;margin-bottom:8px;">Zlyhané</h3>
-                    <ul style="margin:0;padding-left:18px;max-height:180px;overflow:auto;">${failedList}</ul>
-                </div>
-            </div>
-            <div style="margin-top:14px;">
-                <h3 style="font-size:1rem;margin-bottom:8px;">Nevyhodnotené</h3>
-                <ul style="margin:0;padding-left:18px;max-height:120px;overflow:auto;">${pendingList}</ul>
-            </div>
-            <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+            </details>
+            <div class="agency-report-actions">
                 <button class="btn btn-primary" onclick="closeAgencyNotificationReport()">Zavrieť</button>
             </div>
         </div>
@@ -5767,7 +5810,8 @@ function closeAgencyNotificationReport() {
 /** Candidate statuses eligible for slot notifications/booking per interview round */
 function getCandidateStatusesForSlotRound(round) {
     if (round === 'first') {
-        return ['In Process - First Round'];
+        // Include New: confirmed agency candidates not yet moved to first round
+        return ['New', 'In Process - First Round'];
     }
     if (round === 'second') {
         return ['In Process - Second Round'];
@@ -5775,23 +5819,139 @@ function getCandidateStatusesForSlotRound(round) {
     return [];
 }
 
-async function getAgencyEmailsForRequest(request, round, additionalSources = []) {
+function candidateMatchesRequest(candidate, request) {
+    if (!candidate || !request) return false;
+    if (candidate.recruiting_request_id != null && request.id != null &&
+        Number(candidate.recruiting_request_id) === Number(request.id)) {
+        return true;
+    }
+    return candidate.position === request.position && candidate.department === request.department;
+}
+
+function formatCandidateStatusLabel(status) {
+    if (!status) return '—';
+    return window.uiManager ? window.uiManager.translate(status) : status;
+}
+
+function formatAgencyNotificationCandidates(candidates = []) {
+    if (!candidates.length) return '';
+    return candidates.map(c => `${c.name} (${formatCandidateStatusLabel(c.status)})`).join(', ');
+}
+
+function renderAgencyNotificationPlanHtml(plan, options = {}) {
+    const { showSendResults = false, sent = [], failed = [] } = options;
+    const t = (key) => window.uiManager ? window.uiManager.translate(key) : key;
+    const roundLabel = plan.round === 'second' ? t('Second Round') : t('First Round');
+    const requiredStatuses = (plan.requiredStatuses || []).map(formatCandidateStatusLabel).join(', ');
+
+    const renderAgencyRow = (entry, variant) => {
+        const emails = (entry.emails || []).join(', ') || '—';
+        const candidates = formatAgencyNotificationCandidates(entry.candidates);
+        const sendInfo = showSendResults && entry.emails?.length
+            ? entry.emails.map(email => {
+                const fail = failed.find(f => f.email === email);
+                if (fail) return `<div class="agency-preview-send agency-preview-send-failed">${email}: ${fail.reason}</div>`;
+                if (sent.includes(email)) return `<div class="agency-preview-send agency-preview-send-ok">${email}: odoslané</div>`;
+                return `<div class="agency-preview-send">${email}: neodoslané</div>`;
+            }).join('')
+            : '';
+        return `
+            <li class="agency-preview-item agency-preview-item-${variant}">
+                <div class="agency-preview-source"><strong>${entry.source}</strong></div>
+                <div class="agency-preview-email">${emails}</div>
+                ${candidates ? `<div class="agency-preview-candidates">${candidates}</div>` : ''}
+                <div class="agency-preview-reason">${entry.reason}</div>
+                ${sendInfo}
+            </li>
+        `;
+    };
+
+    const willNotify = plan.willNotify || [];
+    const willNotNotify = plan.willNotNotify || [];
+    const withoutCandidates = plan.withoutCandidates || [];
+
+    const willNotifyList = willNotify.length
+        ? willNotify.map(entry => renderAgencyRow(entry, 'yes')).join('')
+        : `<li class="agency-preview-empty">${t('No agency will receive email')}</li>`;
+
+    const willNotNotifyList = willNotNotify.length
+        ? willNotNotify.map(entry => renderAgencyRow(entry, 'no')).join('')
+        : `<li class="agency-preview-empty">—</li>`;
+
+    const withoutCandidatesBlock = withoutCandidates.length ? `
+        <details class="agency-preview-other">
+            <summary>${t('Other agencies without candidates')} (${withoutCandidates.length})</summary>
+            <ul class="agency-preview-list">
+                ${withoutCandidates.map(entry => renderAgencyRow(entry, 'other')).join('')}
+            </ul>
+        </details>
+    ` : '';
+
+    return `
+        <div class="agency-preview-meta">
+            <span><strong>${roundLabel}</strong></span>
+            <span>${t('Required candidate status')}: <strong>${requiredStatuses || '—'}</strong></span>
+        </div>
+        <div class="agency-preview-grid">
+            <div class="agency-preview-column agency-preview-column-yes">
+                <h4>${t('Will receive email')} (${willNotify.length})</h4>
+                <ul class="agency-preview-list">${willNotifyList}</ul>
+            </div>
+            <div class="agency-preview-column agency-preview-column-no">
+                <h4>${t('Will not receive email')} (${willNotNotify.length})</h4>
+                <ul class="agency-preview-list">${willNotNotifyList}</ul>
+            </div>
+        </div>
+        ${withoutCandidatesBlock}
+    `;
+}
+
+async function loadAgencyNotificationPreview(requestId, round) {
+    const container = document.getElementById('agency-notification-preview');
+    if (!container) return;
+
+    const loadingText = window.uiManager.translate('Loading notification preview...') || 'Loading notification preview...';
+    container.innerHTML = `
+        <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
+        <p class="agency-preview-loading">${loadingText}</p>
+    `;
+
+    try {
+        const request = await window.requestsManager.getRequestById(requestId);
+        const plan = await buildAgencySlotNotificationPlan(request, round);
+        container.innerHTML = `
+            <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
+            ${renderAgencyNotificationPlanHtml(plan)}
+        `;
+        window.uiManager.translatePage();
+    } catch (error) {
+        console.warn('Agency notification preview failed:', error);
+        container.innerHTML = `
+            <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
+            <p class="agency-preview-error">Nepodarilo sa načítať náhľad: ${error.message || error}</p>
+        `;
+    }
+}
+
+async function buildAgencySlotNotificationPlan(request, round, additionalSources = []) {
     const allowedStatuses = getCandidateStatusesForSlotRound(round);
     const mustNotifySources = new Set(additionalSources.filter(Boolean));
+
     const candidatesResult = await window.candidatesManager.getCandidates({
         page: 1,
         pageSize: 2000,
-        position: request.position,
         department: request.department
     });
-    const candidatesWithStatus = (candidatesResult.candidates || []).filter(c =>
-        c.position === request.position &&
-        c.department === request.department &&
-        allowedStatuses.includes(c.status)
+    const matchingCandidates = (candidatesResult.candidates || []).filter(c =>
+        candidateMatchesRequest(c, request)
     );
-    const candidateSources = [...new Set(
-        candidatesWithStatus.map(c => c.source).filter(Boolean)
-    )];
+
+    const candidatesBySource = {};
+    matchingCandidates.forEach(candidate => {
+        if (!candidate.source) return;
+        if (!candidatesBySource[candidate.source]) candidatesBySource[candidate.source] = [];
+        candidatesBySource[candidate.source].push(candidate);
+    });
 
     let bookedSources = [];
     try {
@@ -5800,23 +5960,156 @@ async function getAgencyEmailsForRequest(request, round, additionalSources = [])
         console.warn('Could not load booked agency sources:', error);
     }
 
-    // Skip agencies that already booked a slot; still notify if this change affects their booking
-    const sources = [...new Set([
-        ...candidateSources.filter(s => !bookedSources.includes(s)),
+    const emailsBySource = {};
+    try {
+        const { data: agencyUsers, error: usersError } = await window.supabase
+            .from('users')
+            .select('email, source, role')
+            .in('role', ['agency', 'agency-interim'])
+            .not('source', 'is', null);
+        if (usersError) throw usersError;
+        (agencyUsers || []).forEach(user => {
+            const source = (user.source || '').trim();
+            if (!source) return;
+            if (!emailsBySource[source]) emailsBySource[source] = [];
+            if (user.email) emailsBySource[source].push(user.email);
+        });
+        Object.keys(emailsBySource).forEach(source => {
+            emailsBySource[source] = [...new Set(emailsBySource[source])];
+        });
+    } catch (error) {
+        console.warn('Could not load agency users:', error);
+    }
+
+    const allSources = new Set([
+        ...Object.keys(candidatesBySource),
+        ...Object.keys(emailsBySource),
         ...mustNotifySources
-    ])];
+    ]);
 
-    if (sources.length === 0) {
-        return { sources: [], emails: [], skippedBookedSources: bookedSources };
+    const willNotify = [];
+    const willNotNotify = [];
+    const withoutCandidates = [];
+
+    const t = (key) => window.uiManager ? window.uiManager.translate(key) : key;
+
+    for (const source of [...allSources].sort()) {
+        const candidates = candidatesBySource[source] || [];
+        const emails = emailsBySource[source] || [];
+        const candidateInfo = candidates.map(c => ({ name: c.name, status: c.status }));
+        const eligibleCandidates = candidates.filter(c => allowedStatuses.includes(c.status));
+
+        if (mustNotifySources.has(source)) {
+            const entry = {
+                source,
+                emails,
+                candidates: candidateInfo,
+                reason: t('Booking change notification')
+            };
+            if (emails.length > 0) willNotify.push(entry);
+            else willNotNotify.push({ ...entry, reason: `${t('Booking change notification')} — ${t('No agency email in system')}` });
+            continue;
+        }
+
+        if (candidates.length === 0) {
+            if (emails.length > 0) {
+                withoutCandidates.push({
+                    source,
+                    emails,
+                    candidates: [],
+                    reason: t('No candidate on this position')
+                });
+            }
+            continue;
+        }
+
+        const pendingCandidates = candidates.filter(c => c.status === 'Pending Recruiter Review');
+        if (pendingCandidates.length > 0 && eligibleCandidates.length === 0) {
+            willNotNotify.push({
+                source,
+                emails,
+                candidates: candidateInfo,
+                reason: `${t('Pending recruiter confirmation')}: ${pendingCandidates.map(c => c.name).join(', ')}`
+            });
+            continue;
+        }
+
+        if (eligibleCandidates.length === 0) {
+            const statuses = [...new Set(candidates.map(c => c.status))].map(formatCandidateStatusLabel).join(', ');
+            willNotNotify.push({
+                source,
+                emails,
+                candidates: candidateInfo,
+                reason: `${t('Wrong candidate status')} — aktuálny: ${statuses}, požadovaný: ${allowedStatuses.map(formatCandidateStatusLabel).join(' alebo ')}`
+            });
+            continue;
+        }
+
+        if (bookedSources.includes(source)) {
+            willNotNotify.push({
+                source,
+                emails,
+                candidates: candidateInfo,
+                reason: t('Already booked a slot')
+            });
+            continue;
+        }
+
+        if (emails.length === 0) {
+            willNotNotify.push({
+                source,
+                emails: [],
+                candidates: eligibleCandidates.map(c => ({ name: c.name, status: c.status })),
+                reason: t('No agency email in system')
+            });
+            continue;
+        }
+
+        willNotify.push({
+            source,
+            emails,
+            candidates: eligibleCandidates.map(c => ({ name: c.name, status: c.status })),
+            reason: `Kandidát v správnom stave: ${eligibleCandidates.map(c => c.name).join(', ')}`
+        });
     }
 
-    const { data: agencyRows, error: rpcError } = await window.supabase
-        .rpc('get_agency_emails_for_new_slots', { sources });
-    if (rpcError) {
-        console.warn('get_agency_emails_for_new_slots RPC error:', rpcError);
-    }
-    const emails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
-    return { sources, emails, skippedBookedSources: bookedSources };
+    const sources = willNotify.map(entry => entry.source);
+    const emails = [...new Set(willNotify.flatMap(entry => entry.emails))];
+    const candidatesByStatus = matchingCandidates.reduce((acc, candidate) => {
+        const key = candidate.status || 'Unknown';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+    }, {});
+
+    return {
+        round,
+        requiredStatuses: allowedStatuses,
+        willNotify,
+        willNotNotify,
+        withoutCandidates,
+        sources,
+        emails,
+        skippedBookedSources: bookedSources,
+        debug: {
+            round,
+            requiredStatuses: allowedStatuses,
+            candidatesByStatus,
+            matchedCandidates: matchingCandidates.length,
+            eligibleCandidates: matchingCandidates.filter(c => allowedStatuses.includes(c.status)).length,
+            skippedBookedSources: bookedSources
+        }
+    };
+}
+
+async function getAgencyEmailsForRequest(request, round, additionalSources = []) {
+    const plan = await buildAgencySlotNotificationPlan(request, round, additionalSources);
+    return {
+        sources: plan.sources,
+        emails: plan.emails,
+        skippedBookedSources: plan.skippedBookedSources,
+        debug: plan.debug,
+        plan
+    };
 }
 
 function slotToNotifyPayload(slot) {
@@ -5831,13 +6124,16 @@ async function notifyAgenciesAboutSlotChange(request, round, changeType, slots, 
     const extraSources = slots
         .map(s => s.agency_source)
         .filter(Boolean);
-    const { sources, emails } = await getAgencyEmailsForRequest(request, round, extraSources);
+    const agencyLookup = await getAgencyEmailsForRequest(request, round, extraSources);
+    const { sources, emails } = agencyLookup;
 
     const notificationReport = {
         sources,
         recipients: emails,
         sent: [],
-        failed: []
+        failed: [],
+        debug: agencyLookup.debug,
+        plan: agencyLookup.plan
     };
 
     const payloads = slots.map(slotToNotifyPayload);
@@ -6642,10 +6938,9 @@ async function showBookSlotModal(slotId, requestId, round) {
             }))
         });
         
-        // Filter candidates: must match position, department, source, and have allowed status
+        // Filter candidates: must match position/request, source, and have allowed status
         const agencyCandidates = candidatesResult.candidates.filter(c => 
-            c.position === request.position && 
-            c.department === request.department &&
+            candidateMatchesRequest(c, request) &&
             c.source === agencySource &&
             allowedStatuses.includes(c.status)
         );

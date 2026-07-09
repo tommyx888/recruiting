@@ -219,6 +219,7 @@ const translations = {
         "No agency email in system": "Eligible candidate but no agency email found in system",
         "Booking change notification": "Existing booking change",
         "Other agencies without candidates": "Other agencies without candidates on this position",
+        "Show agency notification preview": "Show who will receive email",
         "Interview Slots": "Interview Slots",
         "Available Slots": "Available Slots",
         "No available slots": "No available slots",
@@ -636,6 +637,7 @@ const translations = {
         "No agency email in system": "Vhodný kandidát, ale v systéme chýba email agentúry",
         "Booking change notification": "Notifikácia zmeny existujúcej rezervácie",
         "Other agencies without candidates": "Ostatné agentúry bez kandidáta na pozícii",
+        "Show agency notification preview": "Zobraziť, komu pôjde email",
         "Interview Slots": "Termíny na pohovor",
         "Available Slots": "Dostupné termíny",
         "No available slots": "Žiadne dostupné termíny",
@@ -5352,10 +5354,15 @@ async function showAddSlotsModal(requestId, round) {
                 <input type="hidden" id="slots-request-id" value="${requestId}">
                 <input type="hidden" id="slots-round" value="${round}">
                 <div class="slots-form-content">
-                    <div id="agency-notification-preview" class="agency-notification-preview">
-                        <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
-                        <p class="agency-preview-loading" data-translate="Loading notification preview...">Loading notification preview...</p>
-                    </div>
+                    <details id="agency-notification-preview" class="agency-notification-preview agency-preview-toggle">
+                        <summary class="agency-preview-toggle-btn">
+                            <span data-translate="Agency notification preview">Agency notification preview</span>
+                            <span class="agency-preview-toggle-hint" data-translate="Show agency notification preview">Show who will receive email</span>
+                        </summary>
+                        <div id="agency-notification-preview-content" class="agency-preview-content">
+                            <p class="agency-preview-loading" data-translate="Loading notification preview...">Loading notification preview...</p>
+                        </div>
+                    </details>
                     <div id="slots-container" class="slots-container"></div>
                     <button type="button" onclick="addSlotRow()" class="btn btn-secondary btn-add-slot" data-translate="Add Another Slot">
                         <span class="btn-icon">➕</span>
@@ -5674,6 +5681,10 @@ async function saveSlots() {
             plan: agencyLookup.plan
         };
 
+        if (uniqueEmails.length === 0) {
+            console.warn('No agency emails to notify for', request.position, agencyLookup.plan);
+        }
+
         if (uniqueEmails.length > 0) {
             console.log('Agency emails to notify:', uniqueEmails.length, uniqueEmails);
 
@@ -5906,30 +5917,47 @@ function renderAgencyNotificationPlanHtml(plan, options = {}) {
     `;
 }
 
+/** Resolve agency notification emails by source via SECURITY DEFINER RPC (reliable vs users RLS). */
+async function loadAgencyEmailsBySource(sources = []) {
+    const emailsBySource = {};
+    const uniqueSources = [...new Set((sources || []).map(s => (s || '').trim()).filter(Boolean))];
+    if (!uniqueSources.length || !window.supabase) return emailsBySource;
+
+    try {
+        const { data, error } = await window.supabase.rpc('get_agency_emails_for_new_slots', { sources: uniqueSources });
+        if (error) throw error;
+        (data || []).forEach(row => {
+            const source = ((row && row.source) || '').trim();
+            const email = ((row && row.email) || (typeof row === 'string' ? row : '')).trim();
+            if (!source || !email) return;
+            if (!emailsBySource[source]) emailsBySource[source] = [];
+            emailsBySource[source].push(email);
+        });
+        Object.keys(emailsBySource).forEach(source => {
+            emailsBySource[source] = [...new Set(emailsBySource[source])];
+        });
+    } catch (error) {
+        console.warn('Could not load agency emails via RPC:', error);
+    }
+
+    return emailsBySource;
+}
+
 async function loadAgencyNotificationPreview(requestId, round) {
-    const container = document.getElementById('agency-notification-preview');
+    const container = document.getElementById('agency-notification-preview-content');
     if (!container) return;
 
     const loadingText = window.uiManager.translate('Loading notification preview...') || 'Loading notification preview...';
-    container.innerHTML = `
-        <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
-        <p class="agency-preview-loading">${loadingText}</p>
-    `;
+    container.innerHTML = `<p class="agency-preview-loading">${loadingText}</p>`;
 
     try {
         const request = await window.requestsManager.getRequestById(requestId);
         const plan = await buildAgencySlotNotificationPlan(request, round);
-        container.innerHTML = `
-            <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
-            ${renderAgencyNotificationPlanHtml(plan)}
-        `;
+        container.innerHTML = renderAgencyNotificationPlanHtml(plan);
         window.uiManager.translatePage();
     } catch (error) {
         console.warn('Agency notification preview failed:', error);
-        container.innerHTML = `
-            <h3 class="agency-preview-title" data-translate="Agency notification preview">Agency notification preview</h3>
-            <p class="agency-preview-error">Nepodarilo sa načítať náhľad: ${error.message || error}</p>
-        `;
+        container.innerHTML = `<p class="agency-preview-error">Nepodarilo sa načítať náhľad: ${error.message || error}</p>`;
     }
 }
 
@@ -5948,9 +5976,10 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
 
     const candidatesBySource = {};
     matchingCandidates.forEach(candidate => {
-        if (!candidate.source) return;
-        if (!candidatesBySource[candidate.source]) candidatesBySource[candidate.source] = [];
-        candidatesBySource[candidate.source].push(candidate);
+        const source = (candidate.source || '').trim();
+        if (!source) return;
+        if (!candidatesBySource[source]) candidatesBySource[source] = [];
+        candidatesBySource[source].push(candidate);
     });
 
     let bookedSources = [];
@@ -5960,32 +5989,12 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
         console.warn('Could not load booked agency sources:', error);
     }
 
-    const emailsBySource = {};
-    try {
-        const { data: agencyUsers, error: usersError } = await window.supabase
-            .from('users')
-            .select('email, source, role')
-            .in('role', ['agency', 'agency-interim'])
-            .not('source', 'is', null);
-        if (usersError) throw usersError;
-        (agencyUsers || []).forEach(user => {
-            const source = (user.source || '').trim();
-            if (!source) return;
-            if (!emailsBySource[source]) emailsBySource[source] = [];
-            if (user.email) emailsBySource[source].push(user.email);
-        });
-        Object.keys(emailsBySource).forEach(source => {
-            emailsBySource[source] = [...new Set(emailsBySource[source])];
-        });
-    } catch (error) {
-        console.warn('Could not load agency users:', error);
-    }
-
     const allSources = new Set([
         ...Object.keys(candidatesBySource),
-        ...Object.keys(emailsBySource),
-        ...mustNotifySources
+        ...[...mustNotifySources].map(s => (s || '').trim()).filter(Boolean)
     ]);
+    const emailsBySource = await loadAgencyEmailsBySource([...allSources]);
+    Object.keys(emailsBySource).forEach(source => allSources.add(source));
 
     const willNotify = [];
     const willNotNotify = [];

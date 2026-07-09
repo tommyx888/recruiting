@@ -688,13 +688,15 @@ class CandidatesManager {
 
         try {
             let existingHireDate = null;
-            if (candidateData.status === 'Hired') {
-                const { data: hireRow } = await this.supabase
+            let previousStatus = null;
+            if (candidateData.status === 'Hired' || candidateData.status) {
+                const { data: existingRow } = await this.supabase
                     .from('candidates')
-                    .select('hire_date')
+                    .select('hire_date, status')
                     .eq('id', candidateId)
                     .single();
-                existingHireDate = hireRow?.hire_date;
+                existingHireDate = existingRow?.hire_date;
+                previousStatus = existingRow?.status ?? null;
             }
 
             // Prepare update data
@@ -803,6 +805,14 @@ class CandidatesManager {
 
             // Clear cache
             this.clearCache();
+
+            if (candidateData.status && candidateData.status !== previousStatus) {
+                await this.notifyRecruiterStatusChange(
+                    candidateId,
+                    candidateData.status,
+                    candidateData.notes || null
+                );
+            }
 
             return { success: true, data: data[0] };
         } catch (error) {
@@ -1260,7 +1270,7 @@ class CandidatesManager {
                 return;
             }
 
-            const sources = [candidate.source];
+            const sources = [(candidate.source || '').trim()].filter(Boolean);
 
             // Resolve agency emails for this source
             const { data: agencyRows, error: rpcError } = await this.supabase
@@ -1271,10 +1281,17 @@ class CandidatesManager {
                 return;
             }
 
-            const emails = [...new Set((agencyRows || []).map(r => (r && r.email) || r).filter(Boolean))];
+            const emails = [...new Set((agencyRows || []).map(r => {
+                if (r && typeof r === 'object') return (r.email || '').trim();
+                return typeof r === 'string' ? r.trim() : '';
+            }).filter(Boolean))];
 
             if (!emails.length) {
-                console.log('No agency emails found for source:', candidate.source);
+                console.warn('No agency emails found for source (RPC returned empty):', candidate.source, {
+                    candidateId,
+                    status,
+                    rpcRows: agencyRows
+                });
                 return;
             }
 

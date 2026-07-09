@@ -3,6 +3,8 @@
 -- 1) RPC only allowed recruiter/gm callers -> managers got empty email list
 -- 2) Source matching was case/whitespace sensitive
 
+DROP FUNCTION IF EXISTS public.get_agency_emails_for_new_slots(text[]);
+
 CREATE OR REPLACE FUNCTION public.get_agency_emails_for_new_slots(sources text[])
 RETURNS TABLE(email text, source text)
 LANGUAGE plpgsql

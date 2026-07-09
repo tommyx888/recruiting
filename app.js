@@ -5917,19 +5917,33 @@ function renderAgencyNotificationPlanHtml(plan, options = {}) {
     `;
 }
 
-/** Resolve agency notification emails by source via SECURITY DEFINER RPC (reliable vs users RLS). */
-async function loadAgencyEmailsBySource(sources = []) {
+/** Extract email strings from RPC rows (supports legacy email-only and email+source shapes). */
+function parseAgencyEmailRows(rows) {
+    return [...new Set((rows || []).map(row => {
+        if (row && typeof row === 'object') return (row.email || '').trim();
+        return typeof row === 'string' ? row.trim() : '';
+    }).filter(Boolean))];
+}
+
+/** Load agency users directly when RPC is unavailable or returns empty. */
+async function loadAgencyEmailsFromUsersTable(sources = []) {
     const emailsBySource = {};
     const uniqueSources = [...new Set((sources || []).map(s => (s || '').trim()).filter(Boolean))];
     if (!uniqueSources.length || !window.supabase) return emailsBySource;
 
     try {
-        const { data, error } = await window.supabase.rpc('get_agency_emails_for_new_slots', { sources: uniqueSources });
+        const { data: agencyUsers, error } = await window.supabase
+            .from('users')
+            .select('email, source, role')
+            .in('role', ['agency', 'agency-interim'])
+            .not('source', 'is', null);
         if (error) throw error;
-        (data || []).forEach(row => {
-            const source = ((row && row.source) || '').trim();
-            const email = ((row && row.email) || (typeof row === 'string' ? row : '')).trim();
-            if (!source || !email) return;
+
+        const sourceSet = new Set(uniqueSources);
+        (agencyUsers || []).forEach(user => {
+            const source = (user.source || '').trim();
+            const email = (user.email || '').trim();
+            if (!source || !email || !sourceSet.has(source)) return;
             if (!emailsBySource[source]) emailsBySource[source] = [];
             emailsBySource[source].push(email);
         });
@@ -5937,7 +5951,55 @@ async function loadAgencyEmailsBySource(sources = []) {
             emailsBySource[source] = [...new Set(emailsBySource[source])];
         });
     } catch (error) {
-        console.warn('Could not load agency emails via RPC:', error);
+        console.warn('Could not load agency emails from users table:', error);
+    }
+
+    return emailsBySource;
+}
+
+/** Resolve agency notification emails by source via RPC, with per-source calls + users-table fallback. */
+async function loadAgencyEmailsBySource(sources = []) {
+    const emailsBySource = {};
+    const uniqueSources = [...new Set((sources || []).map(s => (s || '').trim()).filter(Boolean))];
+    if (!uniqueSources.length || !window.supabase) return emailsBySource;
+
+    let rpcFailed = false;
+
+    // Call RPC per source so legacy functions that return only `email` still work.
+    for (const source of uniqueSources) {
+        try {
+            const { data, error } = await window.supabase.rpc('get_agency_emails_for_new_slots', { sources: [source] });
+            if (error) {
+                rpcFailed = true;
+                console.warn('get_agency_emails_for_new_slots RPC error for source:', source, error);
+                continue;
+            }
+
+            const mappedBySource = {};
+            (data || []).forEach(row => {
+                const email = row && typeof row === 'object' ? (row.email || '').trim() : (typeof row === 'string' ? row.trim() : '');
+                const rowSource = row && typeof row === 'object' ? (row.source || '').trim() : '';
+                const targetSource = rowSource || source;
+                if (!email || !targetSource) return;
+                if (!mappedBySource[targetSource]) mappedBySource[targetSource] = [];
+                mappedBySource[targetSource].push(email);
+            });
+
+            Object.entries(mappedBySource).forEach(([mappedSource, emails]) => {
+                emailsBySource[mappedSource] = [...new Set([...(emailsBySource[mappedSource] || []), ...emails])];
+            });
+        } catch (error) {
+            rpcFailed = true;
+            console.warn('Could not load agency emails via RPC for source:', source, error);
+        }
+    }
+
+    const missingSources = uniqueSources.filter(source => !(emailsBySource[source] || []).length);
+    if (missingSources.length) {
+        const fallback = await loadAgencyEmailsFromUsersTable(missingSources);
+        missingSources.forEach(source => {
+            if (fallback[source]?.length) emailsBySource[source] = fallback[source];
+        });
     }
 
     return emailsBySource;

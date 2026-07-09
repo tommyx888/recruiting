@@ -239,6 +239,22 @@ class InterviewSlotsManager {
     }
 
     /**
+     * Candidate IDs that already have a booked slot for this request and round.
+     * @param {number} requestId
+     * @param {string} round - 'first' | 'second'
+     * @returns {Promise<Set<number>>}
+     */
+    async getBookedCandidateIds(requestId, round) {
+        const slots = await this.getSlotsForRequest(requestId, round);
+        return new Set(
+            (slots || [])
+                .filter(s => s.candidate_id != null)
+                .map(s => Number(s.candidate_id))
+                .filter(id => !Number.isNaN(id))
+        );
+    }
+
+    /**
      * Get all slots for a request (including booked)
      * @param {number} requestId - Request ID
      * @param {string} round - 'first' or 'second' (optional)

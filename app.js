@@ -215,6 +215,7 @@ const translations = {
         "No candidate on this position": "No candidate on this position",
         "Wrong candidate status": "Wrong candidate status",
         "Already booked a slot": "Already booked a slot in this round",
+        "All eligible candidates already booked": "All eligible candidates already have a slot in this round",
         "Pending recruiter confirmation": "Candidate pending recruiter confirmation",
         "No agency email in system": "Eligible candidate but no agency email found in system",
         "Booking change notification": "Existing booking change",
@@ -633,6 +634,7 @@ const translations = {
         "No candidate on this position": "Nemá kandidáta na tejto pozícii",
         "Wrong candidate status": "Nesprávny stav kandidáta",
         "Already booked a slot": "Už má rezervovaný termín v tomto kole",
+        "All eligible candidates already booked": "Všetci vhodní kandidáti už majú rezervovaný termín v tomto kole",
         "Pending recruiter confirmation": "Kandidát čaká na potvrdenie recruiterom",
         "No agency email in system": "Vhodný kandidát, ale v systéme chýba email agentúry",
         "Booking change notification": "Notifikácia zmeny existujúcej rezervácie",
@@ -6073,11 +6075,11 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
         candidatesBySource[source].push(candidate);
     });
 
-    let bookedSources = [];
+    let bookedCandidateIds = new Set();
     try {
-        bookedSources = await window.interviewSlotsManager.getBookedAgencySources(request.id, round);
+        bookedCandidateIds = await window.interviewSlotsManager.getBookedCandidateIds(request.id, round);
     } catch (error) {
-        console.warn('Could not load booked agency sources:', error);
+        console.warn('Could not load booked candidate ids:', error);
     }
 
     const allSources = new Set([
@@ -6098,6 +6100,7 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
         const emails = emailsBySource[source] || [];
         const candidateInfo = candidates.map(c => ({ name: c.name, status: c.status }));
         const eligibleCandidates = candidates.filter(c => allowedStatuses.includes(c.status));
+        const unbookedEligibleCandidates = eligibleCandidates.filter(c => !bookedCandidateIds.has(Number(c.id)));
 
         if (mustNotifySources.has(source)) {
             const entry = {
@@ -6145,12 +6148,12 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
             continue;
         }
 
-        if (bookedSources.includes(source)) {
+        if (eligibleCandidates.length > 0 && unbookedEligibleCandidates.length === 0) {
             willNotNotify.push({
                 source,
                 emails,
-                candidates: candidateInfo,
-                reason: t('Already booked a slot')
+                candidates: eligibleCandidates.map(c => ({ name: c.name, status: c.status })),
+                reason: t('All eligible candidates already booked')
             });
             continue;
         }
@@ -6159,7 +6162,7 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
             willNotNotify.push({
                 source,
                 emails: [],
-                candidates: eligibleCandidates.map(c => ({ name: c.name, status: c.status })),
+                candidates: unbookedEligibleCandidates.map(c => ({ name: c.name, status: c.status })),
                 reason: t('No agency email in system')
             });
             continue;
@@ -6168,8 +6171,8 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
         willNotify.push({
             source,
             emails,
-            candidates: eligibleCandidates.map(c => ({ name: c.name, status: c.status })),
-            reason: `Kandidát v správnom stave: ${eligibleCandidates.map(c => c.name).join(', ')}`
+            candidates: unbookedEligibleCandidates.map(c => ({ name: c.name, status: c.status })),
+            reason: `Kandidát čaká na termín: ${unbookedEligibleCandidates.map(c => c.name).join(', ')}`
         });
     }
 
@@ -6189,14 +6192,17 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
         withoutCandidates,
         sources,
         emails,
-        skippedBookedSources: bookedSources,
+        skippedBookedCandidateIds: [...bookedCandidateIds],
         debug: {
             round,
             requiredStatuses: allowedStatuses,
             candidatesByStatus,
             matchedCandidates: matchingCandidates.length,
             eligibleCandidates: matchingCandidates.filter(c => allowedStatuses.includes(c.status)).length,
-            skippedBookedSources: bookedSources
+            unbookedEligibleCandidates: matchingCandidates.filter(c =>
+                allowedStatuses.includes(c.status) && !bookedCandidateIds.has(Number(c.id))
+            ).length,
+            bookedCandidateIds: [...bookedCandidateIds]
         }
     };
 }
@@ -6206,7 +6212,7 @@ async function getAgencyEmailsForRequest(request, round, additionalSources = [])
     return {
         sources: plan.sources,
         emails: plan.emails,
-        skippedBookedSources: plan.skippedBookedSources,
+        skippedBookedCandidateIds: plan.skippedBookedCandidateIds,
         debug: plan.debug,
         plan
     };

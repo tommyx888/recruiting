@@ -5832,11 +5832,37 @@ function getCandidateStatusesForSlotRound(round) {
 
 function candidateMatchesRequest(candidate, request) {
     if (!candidate || !request) return false;
-    if (candidate.recruiting_request_id != null && request.id != null &&
-        Number(candidate.recruiting_request_id) === Number(request.id)) {
-        return true;
+    if (request.id != null && candidate.recruiting_request_id != null) {
+        return Number(candidate.recruiting_request_id) === Number(request.id);
     }
     return candidate.position === request.position && candidate.department === request.department;
+}
+
+async function loadCandidatesForAgencyNotification(request) {
+    if (!request || !window.supabase) return [];
+
+    if (request.id != null) {
+        try {
+            const { data, error } = await window.supabase
+                .from('candidates')
+                .select('*')
+                .eq('recruiting_request_id', request.id);
+            if (!error && Array.isArray(data) && data.length > 0) {
+                return data;
+            }
+        } catch (error) {
+            console.warn('Could not load candidates by recruiting_request_id:', error);
+        }
+    }
+
+    const candidatesResult = await window.candidatesManager.getCandidates({
+        page: 1,
+        pageSize: 2000,
+        department: request.department,
+        position: request.position,
+        useCache: false
+    });
+    return (candidatesResult.candidates || []).filter(c => candidateMatchesRequest(c, request));
 }
 
 function formatCandidateStatusLabel(status) {
@@ -5957,40 +5983,42 @@ async function loadAgencyEmailsFromUsersTable(sources = []) {
     return emailsBySource;
 }
 
-/** Resolve agency notification emails by source via RPC, with per-source calls + users-table fallback. */
+/** Resolve agency notification emails by source via RPC, with users-table fallback. */
 async function loadAgencyEmailsBySource(sources = []) {
     const emailsBySource = {};
     const uniqueSources = [...new Set((sources || []).map(s => (s || '').trim()).filter(Boolean))];
     if (!uniqueSources.length || !window.supabase) return emailsBySource;
 
-    let rpcFailed = false;
+    const mergeRows = (rows, fallbackSource = '') => {
+        (rows || []).forEach(row => {
+            const email = row && typeof row === 'object' ? (row.email || '').trim() : (typeof row === 'string' ? row.trim() : '');
+            const rowSource = row && typeof row === 'object' ? (row.source || '').trim() : '';
+            const targetSource = rowSource || fallbackSource;
+            if (!email || !targetSource) return;
+            if (!emailsBySource[targetSource]) emailsBySource[targetSource] = [];
+            emailsBySource[targetSource].push(email);
+        });
+    };
 
-    // Call RPC per source so legacy functions that return only `email` still work.
-    for (const source of uniqueSources) {
+    try {
+        const { data, error } = await window.supabase.rpc('get_agency_emails_for_new_slots', { sources: uniqueSources });
+        if (!error) mergeRows(data);
+        else console.warn('Bulk get_agency_emails_for_new_slots RPC error:', error);
+    } catch (error) {
+        console.warn('Bulk get_agency_emails_for_new_slots RPC failed:', error);
+    }
+
+    const missingAfterBulk = uniqueSources.filter(source => !(emailsBySource[source] || []).length);
+    for (const source of missingAfterBulk) {
         try {
             const { data, error } = await window.supabase.rpc('get_agency_emails_for_new_slots', { sources: [source] });
             if (error) {
-                rpcFailed = true;
                 console.warn('get_agency_emails_for_new_slots RPC error for source:', source, error);
                 continue;
             }
-
-            const mappedBySource = {};
-            (data || []).forEach(row => {
-                const email = row && typeof row === 'object' ? (row.email || '').trim() : (typeof row === 'string' ? row.trim() : '');
-                const rowSource = row && typeof row === 'object' ? (row.source || '').trim() : '';
-                const targetSource = rowSource || source;
-                if (!email || !targetSource) return;
-                if (!mappedBySource[targetSource]) mappedBySource[targetSource] = [];
-                mappedBySource[targetSource].push(email);
-            });
-
-            Object.entries(mappedBySource).forEach(([mappedSource, emails]) => {
-                emailsBySource[mappedSource] = [...new Set([...(emailsBySource[mappedSource] || []), ...emails])];
-            });
+            mergeRows(data, source);
         } catch (error) {
-            rpcFailed = true;
-            console.warn('Could not load agency emails via RPC for source:', source, error);
+            console.warn('get_agency_emails_for_new_slots RPC failed for source:', source, error);
         }
     }
 
@@ -6000,6 +6028,14 @@ async function loadAgencyEmailsBySource(sources = []) {
         missingSources.forEach(source => {
             if (fallback[source]?.length) emailsBySource[source] = fallback[source];
         });
+    }
+
+    Object.keys(emailsBySource).forEach(source => {
+        emailsBySource[source] = [...new Set(emailsBySource[source])];
+    });
+
+    if (!Object.keys(emailsBySource).length) {
+        console.warn('No agency emails resolved for sources:', uniqueSources);
     }
 
     return emailsBySource;
@@ -6027,14 +6063,7 @@ async function buildAgencySlotNotificationPlan(request, round, additionalSources
     const allowedStatuses = getCandidateStatusesForSlotRound(round);
     const mustNotifySources = new Set(additionalSources.filter(Boolean));
 
-    const candidatesResult = await window.candidatesManager.getCandidates({
-        page: 1,
-        pageSize: 2000,
-        department: request.department
-    });
-    const matchingCandidates = (candidatesResult.candidates || []).filter(c =>
-        candidateMatchesRequest(c, request)
-    );
+    const matchingCandidates = await loadCandidatesForAgencyNotification(request);
 
     const candidatesBySource = {};
     matchingCandidates.forEach(candidate => {

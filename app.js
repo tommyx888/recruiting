@@ -377,6 +377,55 @@ const translations = {
         "No notes": "No notes",
         "Internal Notes": "Internal Notes",
         "No internal notes": "No internal notes yet",
+        "Interview Pack": "Interview Pack",
+        "Open Interview Pack": "Open Interview Pack",
+        "Buyer I Interview Pack": "Buyer I – Master Interview Pack",
+        "Save Interview Pack": "Save Interview Pack",
+        "Interview pack saved": "Interview pack saved",
+        "Error saving interview pack": "Error saving interview pack",
+        "Assessor 1": "Assessor 1",
+        "Assessor 2": "Assessor 2",
+        "Interview date": "Interview date",
+        "Candidate source type": "Candidate source",
+        "Internal": "Internal",
+        "External": "External",
+        "Location": "Location",
+        "Role type": "Role type",
+        "Salaried": "Salaried",
+        "Hourly": "Hourly",
+        "Candidate responses / notes": "Candidate responses / notes",
+        "Positive indicators": "Positive indicators",
+        "Rating": "Rating",
+        "Section score": "Section score",
+        "Total score": "Total score",
+        "Percentage": "Percentage",
+        "Skills validation": "Skills validation",
+        "Carry over to skills matrix": "Carry over to skills matrix",
+        "Questions asked by candidate": "Questions asked by the candidate",
+        "Recommend for offer": "Recommend for offer",
+        "Yes": "Yes",
+        "No": "No",
+        "Possible": "Possible",
+        "HR Comments": "HR Comments / Feedback",
+        "HR Representative": "Name of HR Representative",
+        "Signed": "Signed",
+        "Autosaved": "Autosaved",
+        "Custom question text": "Write follow-up question here",
+        "Interview details": "Interview details",
+        "Setup": "Setup",
+        "Section": "Section",
+        "Matrix": "Matrix",
+        "Outcome": "Outcome",
+        "Evidenced": "Evidenced",
+        "Evidenced in": "Evidenced in",
+        "Interview notes placeholder": "Interview notes...",
+        "Fails": "Fails",
+        "Partial": "Partial",
+        "Meets": "Meets",
+        "Exceeds some": "Exceeds some",
+        "Exceeds all": "Exceeds all",
+        "Loading Interview Pack": "Loading Interview Pack...",
+        "Date": "Date",
         "Add internal note": "Add internal note",
         "Internal note placeholder": "Write a private note for recruiter / manager...",
         "Save internal note": "Save internal note",
@@ -796,6 +845,55 @@ const translations = {
         "No notes": "Žiadne poznámky",
         "Internal Notes": "Interné poznámky",
         "No internal notes": "Zatiaľ žiadne interné poznámky",
+        "Interview Pack": "Interview Pack",
+        "Open Interview Pack": "Otvoriť Interview Pack",
+        "Buyer I Interview Pack": "Buyer I – Master Interview Pack",
+        "Save Interview Pack": "Uložiť Interview Pack",
+        "Interview pack saved": "Interview Pack bol uložený",
+        "Error saving interview pack": "Chyba pri ukladaní Interview Packu",
+        "Assessor 1": "Hodnotiteľ 1",
+        "Assessor 2": "Hodnotiteľ 2",
+        "Interview date": "Dátum pohovoru",
+        "Candidate source type": "Zdroj kandidáta",
+        "Internal": "Interný",
+        "External": "Externý",
+        "Location": "Lokalita",
+        "Role type": "Typ role",
+        "Salaried": "Mesačná mzda",
+        "Hourly": "Hodinová mzda",
+        "Candidate responses / notes": "Odpovede kandidáta / poznámky",
+        "Positive indicators": "Pozitívne indikátory",
+        "Rating": "Hodnotenie",
+        "Section score": "Skóre sekcie",
+        "Total score": "Celkové skóre",
+        "Percentage": "Percentá",
+        "Skills validation": "Validácia zručností",
+        "Carry over to skills matrix": "Preniesť do skills matrix",
+        "Questions asked by candidate": "Otázky kandidáta počas pohovoru",
+        "Recommend for offer": "Odporučiť na ponuku",
+        "Yes": "Áno",
+        "No": "Nie",
+        "Possible": "Možno",
+        "HR Comments": "Komentáre / feedback HR",
+        "HR Representative": "Meno zástupcu HR",
+        "Signed": "Podpísané",
+        "Autosaved": "Automaticky uložené",
+        "Custom question text": "Napíšte follow-up otázku",
+        "Interview details": "Detaily pohovoru",
+        "Setup": "Príprava",
+        "Section": "Sekcia",
+        "Matrix": "Matica",
+        "Outcome": "Výsledok",
+        "Evidenced": "Evidované",
+        "Evidenced in": "Evidované v",
+        "Interview notes placeholder": "Poznámky z pohovoru...",
+        "Fails": "Nespĺňa",
+        "Partial": "Čiastočne",
+        "Meets": "Spĺňa",
+        "Exceeds some": "Čiastočne prevyšuje",
+        "Exceeds all": "Plne prevyšuje",
+        "Loading Interview Pack": "Načítavam Interview Pack...",
+        "Date": "Dátum",
         "Add internal note": "Pridať internú poznámku",
         "Internal note placeholder": "Sem napíšte internú poznámku pre recruitera / manažéra...",
         "Save internal note": "Uložiť internú poznámku",
@@ -1040,6 +1138,9 @@ async function initializeModules() {
         window.requestsManager.init(supabase);
         if (window.interviewSlotsManager) {
             window.interviewSlotsManager.init(supabase);
+        }
+        if (window.interviewPackManager) {
+            window.interviewPackManager.init(supabase);
         }
         window.uiManager.init(translations);
         console.log('All modules initialized');
@@ -1287,7 +1388,13 @@ async function showDashboard() {
     }
 }
 
+function closeInterviewPackLayout() {
+    document.body.classList.remove('interview-pack-open');
+    window._interviewPackState = null;
+}
+
 async function showCandidates() {
+    closeInterviewPackLayout();
     try {
         window.uiManager.showLoading('Loading candidates...');
         const savedMode = sessionStorage.getItem('candidateViewMode');
@@ -4140,7 +4247,503 @@ function closeModal(modalId) {
     }
 }
 
+async function showInterviewPack(candidateId, packKey = 'buyer_i_master', round = 'first') {
+    const userInfo = window.authManager.getUserInfo();
+    if (!canAccessInternalCandidateNotes(userInfo)) {
+        window.utils.showMessage(window.uiManager.translate('Error'), 'error');
+        return;
+    }
+    if (!window.interviewPackManager) {
+        window.utils.showMessage('Interview Pack module not loaded', 'error');
+        return;
+    }
+
+    try {
+        window.uiManager.showLoading('Loading Interview Pack...');
+        const candidate = await window.candidatesManager.getCandidateDetails(candidateId);
+        const pack = window.interviewPackManager.localizePack
+            ? window.interviewPackManager.localizePack(packKey)
+            : window.interviewPackManager.getPack(packKey);
+        let existing = null;
+        try {
+            existing = await window.interviewPackManager.getPackForCandidate(candidateId, packKey, round);
+        } catch (loadError) {
+            console.warn('Interview pack load error (table may be missing):', loadError);
+            window.uiManager.hideLoading();
+            window.utils.showMessage(
+                (window.uiManager.translate('Error saving interview pack') || 'Error') +
+                ': ' + (loadError.message || loadError) +
+                ' — skontrolujte, či je nasadená migrácia candidate_interview_packs.',
+                'error'
+            );
+            return;
+        }
+
+        const data = existing?.data
+            ? JSON.parse(JSON.stringify(existing.data))
+            : window.interviewPackManager.emptyData(candidate);
+
+        if (!data.header) data.header = {};
+        if (!data.header.candidateName) data.header.candidateName = candidate.name || '';
+        if (!data.answers) data.answers = {};
+        if (!data.skills) data.skills = {};
+
+        window._interviewPackState = {
+            candidateId,
+            packKey,
+            round,
+            candidate,
+            pack,
+            data,
+            recommendation: existing?.recommendation || '',
+            dirty: false
+        };
+
+        window.uiManager.hideLoading();
+        renderInterviewPackView();
+    } catch (error) {
+        console.error('Error opening interview pack:', error);
+        window.uiManager.hideLoading();
+        window.utils.showMessage((error.message || error), 'error');
+    }
+}
+
+function collectInterviewPackFormData() {
+    const state = window._interviewPackState;
+    if (!state) return null;
+
+    const root = document.getElementById('interview-pack-form');
+    if (!root) return state.data;
+
+    const data = state.data;
+    data.header = {
+        candidateName: root.querySelector('[name="header-candidateName"]')?.value || '',
+        interviewDate: root.querySelector('[name="header-interviewDate"]')?.value || '',
+        assessor1: root.querySelector('[name="header-assessor1"]')?.value || '',
+        assessor2: root.querySelector('[name="header-assessor2"]')?.value || '',
+        candidateSourceType: root.querySelector('[name="header-candidateSourceType"]')?.value || '',
+        location: root.querySelector('[name="header-location"]')?.value || '',
+        roleType: root.querySelector('[name="header-roleType"]')?.value || ''
+    };
+
+    data.answers = data.answers || {};
+    (state.pack.sections || []).forEach(section => {
+        (section.questions || []).forEach(q => {
+            const notes = root.querySelector(`[name="notes-${q.id}"]`)?.value || '';
+            const ratingRaw = root.querySelector(`[name="rating-${q.id}"]:checked`)?.value
+                || root.querySelector(`[name="rating-${q.id}"]`)?.value
+                || '';
+            const customPrompt = root.querySelector(`[name="customPrompt-${q.id}"]`)?.value || '';
+            data.answers[q.id] = {
+                notes,
+                rating: ratingRaw ? Number(ratingRaw) : null,
+                customPrompt: q.customPrompt ? customPrompt : undefined
+            };
+        });
+    });
+
+    data.skills = data.skills || {};
+    (state.pack.skills || []).forEach(skill => {
+        data.skills[skill.id] = {
+            evidenced: !!root.querySelector(`[name="skill-evidenced-${skill.id}"]`)?.checked,
+            carryOver: !!root.querySelector(`[name="skill-carry-${skill.id}"]`)?.checked,
+            detail: root.querySelector(`[name="skill-detail-${skill.id}"]`)?.value || ''
+        };
+    });
+
+    data.candidateQuestions = root.querySelector('[name="candidateQuestions"]')?.value || '';
+    data.hrComments = root.querySelector('[name="hrComments"]')?.value || '';
+    data.hrName = root.querySelector('[name="hrName"]')?.value || '';
+    data.hrSigned = !!root.querySelector('[name="hrSigned"]')?.checked;
+    data.hrDate = root.querySelector('[name="hrDate"]')?.value || '';
+
+    state.recommendation = root.querySelector('[name="recommendation"]:checked')?.value
+        || root.querySelector('[name="recommendation"]')?.value
+        || '';
+    state.data = data;
+    return data;
+}
+
+function updateInterviewPackScoreDisplay() {
+    const state = window._interviewPackState;
+    if (!state) return;
+    collectInterviewPackFormData();
+    const scores = window.interviewPackManager.calculateScores(state.pack, state.data);
+
+    const totalEl = document.getElementById('ip-total-score');
+    const pctEl = document.getElementById('ip-percentage');
+    if (totalEl) totalEl.textContent = `${scores.total} / ${scores.max}`;
+    if (pctEl) pctEl.textContent = `${scores.percentage} %`;
+
+    Object.entries(scores.sectionScores || {}).forEach(([sectionId, s]) => {
+        const el = document.getElementById(`ip-section-score-${sectionId}`);
+        if (el) el.textContent = `${s.score} / ${s.max}`;
+        const navEl = document.getElementById(`ip-nav-score-${sectionId}`);
+        if (navEl) navEl.textContent = `${s.score}/${s.max}`;
+    });
+}
+
+async function saveInterviewPack(opts = {}) {
+    const { silent = false } = opts;
+    const state = window._interviewPackState;
+    if (!state) return;
+
+    collectInterviewPackFormData();
+    updateInterviewPackScoreDisplay();
+
+    try {
+        const saved = await window.interviewPackManager.savePack(
+            state.candidateId,
+            state.packKey,
+            state.round,
+            {
+                data: state.data,
+                recommendation: state.recommendation || null
+            }
+        );
+        state.dirty = false;
+        const status = document.getElementById('ip-save-status');
+        if (status) {
+            const when = new Date().toLocaleTimeString('sk-SK');
+            status.textContent = `${window.uiManager.translate('Autosaved')} ${when}`;
+        }
+        if (!silent) {
+            window.utils.showMessage(window.uiManager.translate('Interview pack saved'), 'success');
+        }
+        return saved;
+    } catch (error) {
+        console.error('Error saving interview pack:', error);
+        if (!silent) {
+            window.utils.showMessage(
+                `${window.uiManager.translate('Error saving interview pack')}: ${error.message || error}`,
+                'error'
+            );
+        }
+        throw error;
+    }
+}
+
+function scheduleInterviewPackAutosave() {
+    const state = window._interviewPackState;
+    if (!state) return;
+    state.dirty = true;
+    updateInterviewPackScoreDisplay();
+    window.interviewPackManager.scheduleAutosave(() => saveInterviewPack({ silent: true }));
+}
+
+function renderInterviewPackQuestion(q, answer = {}) {
+    const t = (k) => window.uiManager.translate(k);
+    const rating = answer.rating != null ? Number(answer.rating) : null;
+    const indicators = (q.indicators || []).map(i => `<li>${escapeHtml(i)}</li>`).join('');
+    const followUps = (q.followUps || []).map(f => `<li>${escapeHtml(f)}</li>`).join('');
+    const ratingLabels = {
+        1: t('Fails'),
+        2: t('Partial'),
+        3: t('Meets'),
+        4: t('Exceeds some'),
+        5: t('Exceeds all')
+    };
+
+    const ratingButtons = [1, 2, 3, 4, 5].map(n => `
+        <label class="ip-rating-option ${rating === n ? 'is-selected' : ''}" title="${escapeHtml(ratingLabels[n])}">
+            <input type="radio" name="rating-${q.id}" value="${n}" ${rating === n ? 'checked' : ''}>
+            <span class="ip-rating-num">${n}</span>
+            <span class="ip-rating-label">${escapeHtml(ratingLabels[n])}</span>
+        </label>
+    `).join('');
+
+    return `
+        <article class="ip-question" data-question-id="${q.id}">
+            <div class="ip-question-badge">${escapeHtml(q.id)}</div>
+            <header class="ip-question-header">
+                <h4>${escapeHtml(q.title)}</h4>
+                <p class="ip-prompt">${escapeHtml(q.prompt)}</p>
+                ${q.promptInternal ? `<p class="ip-prompt-alt"><em>${escapeHtml(q.promptInternal)}</em></p>` : ''}
+                ${followUps ? `<ul class="ip-followups">${followUps}</ul>` : ''}
+            </header>
+            ${q.customPrompt ? `
+                <label class="ip-field">
+                    <span data-translate="Custom question text">${t('Custom question text')}</span>
+                    <textarea name="customPrompt-${q.id}" rows="2" class="form-control ip-textarea">${escapeHtml(answer.customPrompt || '')}</textarea>
+                </label>
+            ` : ''}
+            <div class="ip-question-grid">
+                <label class="ip-field ip-notes-field">
+                    <span data-translate="Candidate responses / notes">${t('Candidate responses / notes')}</span>
+                    <textarea name="notes-${q.id}" rows="8" class="form-control ip-textarea" placeholder="${escapeHtml(t('Interview notes placeholder'))}">${escapeHtml(answer.notes || '')}</textarea>
+                </label>
+                <div class="ip-indicators">
+                    <strong data-translate="Positive indicators">${t('Positive indicators')}</strong>
+                    <ul>${indicators}</ul>
+                </div>
+            </div>
+            <div class="ip-rating-row">
+                <div class="ip-rating-title">
+                    <span data-translate="Rating">${t('Rating')}</span>
+                    <span class="ip-rating-hint">1–5</span>
+                </div>
+                <div class="ip-rating-scale" role="radiogroup" aria-label="${escapeHtml(q.title)}">
+                    ${ratingButtons}
+                </div>
+            </div>
+        </article>
+    `;
+}
+
+function renderInterviewPackView() {
+    const state = window._interviewPackState;
+    if (!state) return;
+
+    // Re-localize pack content for current language
+    if (window.interviewPackManager?.localizePack) {
+        state.pack = window.interviewPackManager.localizePack(state.packKey || 'buyer_i_master');
+    }
+
+    const t = (k) => window.uiManager.translate(k);
+    const { pack, data, candidate, recommendation } = state;
+    const scores = window.interviewPackManager.calculateScores(
+        window.interviewPackManager.getPack(state.packKey || 'buyer_i_master'),
+        data
+    );
+    const header = data.header || {};
+
+    const navHtml = (pack.sections || []).map(section => {
+        const sectionScore = scores.sectionScores[section.id] || { score: 0, max: section.maxScore };
+        return `
+            <a class="ip-nav-chip" href="#ip-section-${section.id}">
+                <span class="ip-nav-chip-title">${escapeHtml(section.title)}</span>
+                <span class="ip-nav-chip-score" id="ip-nav-score-${section.id}">${sectionScore.score}/${sectionScore.max}</span>
+            </a>
+        `;
+    }).join('');
+
+    const sectionsHtml = (pack.sections || []).map(section => {
+        const sectionScore = scores.sectionScores[section.id] || { score: 0, max: section.maxScore };
+        const intro = (section.intro || []).map(line => `<p class="ip-intro-line">${escapeHtml(line)}</p>`).join('');
+        const questions = (section.questions || [])
+            .map(q => renderInterviewPackQuestion(q, data.answers?.[q.id] || {}))
+            .join('');
+
+        return `
+            <section class="ip-section" id="ip-section-${section.id}">
+                <div class="ip-section-head">
+                    <div>
+                        <p class="ip-section-kicker" data-translate="Section">${t('Section')}</p>
+                        <h3>${escapeHtml(section.title)}</h3>
+                    </div>
+                    <div class="ip-section-score-pill">
+                        <span data-translate="Section score">${t('Section score')}</span>
+                        <strong id="ip-section-score-${section.id}">${sectionScore.score} / ${sectionScore.max}</strong>
+                    </div>
+                </div>
+                ${intro ? `<div class="ip-section-intro">${intro}</div>` : ''}
+                ${section.note ? `<p class="ip-section-note">${escapeHtml(section.note)}</p>` : ''}
+                <div class="ip-questions">${questions}</div>
+            </section>
+        `;
+    }).join('');
+
+    const skillsHtml = (pack.skills || []).map(skill => {
+        const s = data.skills?.[skill.id] || {};
+        return `
+            <article class="ip-skill-card">
+                <div class="ip-skill-main">
+                    <h4>${escapeHtml(skill.skill)}</h4>
+                    <p class="ip-skill-meta"><strong data-translate="Evidenced in">${t('Evidenced in')}:</strong> ${escapeHtml(skill.evidencedIn)}</p>
+                    <p class="ip-skill-hint">${escapeHtml(skill.detail)}</p>
+                </div>
+                <div class="ip-skill-controls">
+                    <label class="ip-check">
+                        <input type="checkbox" name="skill-evidenced-${skill.id}" ${s.evidenced ? 'checked' : ''}>
+                        <span data-translate="Evidenced">${t('Evidenced')}</span>
+                    </label>
+                    <label class="ip-check">
+                        <input type="checkbox" name="skill-carry-${skill.id}" ${s.carryOver ? 'checked' : ''}>
+                        <span data-translate="Carry over to skills matrix">${t('Carry over to skills matrix')}</span>
+                    </label>
+                    <textarea name="skill-detail-${skill.id}" rows="3" class="form-control ip-textarea" placeholder="${escapeHtml(t('Interview notes placeholder'))}">${escapeHtml(s.detail || '')}</textarea>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    const app = document.getElementById('app');
+    document.body.classList.add('interview-pack-open');
+    app.innerHTML = `
+        <div class="interview-pack-page">
+            <div class="ip-hero">
+                <div class="ip-hero-main">
+                    <p class="ip-hero-kicker" data-translate="Interview Pack">${t('Interview Pack')}</p>
+                    <h2 data-translate="Buyer I Interview Pack">${t('Buyer I Interview Pack')}</h2>
+                    <p class="ip-subtitle">
+                        <strong>${escapeHtml(candidate.name || '')}</strong>
+                        <span>${escapeHtml(candidate.position || '')}</span>
+                        <span>${escapeHtml(candidate.department || '')}</span>
+                    </p>
+                </div>
+                <div class="ip-hero-scores">
+                    <div class="ip-score-card">
+                        <span data-translate="Total score">${t('Total score')}</span>
+                        <strong id="ip-total-score">${scores.total} / ${scores.max}</strong>
+                    </div>
+                    <div class="ip-score-card ip-score-card-accent">
+                        <span data-translate="Percentage">${t('Percentage')}</span>
+                        <strong id="ip-percentage">${scores.percentage} %</strong>
+                    </div>
+                </div>
+                <div class="ip-hero-actions">
+                    <span id="ip-save-status" class="ip-save-status"></span>
+                    <button type="button" class="btn btn-secondary" onclick="showCandidateDetails(${candidate.id})" data-translate="Back">Back</button>
+                    <button type="button" class="btn btn-primary" id="ip-save-btn" data-translate="Save Interview Pack">${t('Save Interview Pack')}</button>
+                </div>
+            </div>
+
+            <nav class="ip-section-nav" aria-label="Interview pack sections">
+                ${navHtml}
+                <a class="ip-nav-chip" href="#ip-section-skills">${t('Skills validation')}</a>
+                <a class="ip-nav-chip" href="#ip-section-outcome">${t('Recommend for offer')}</a>
+            </nav>
+
+            <form id="interview-pack-form" class="interview-pack-form" autocomplete="off">
+                <section class="ip-section ip-header-section">
+                    <div class="ip-section-head">
+                        <div>
+                            <p class="ip-section-kicker" data-translate="Setup">${t('Setup')}</p>
+                            <h3 data-translate="Interview details">${t('Interview details')}</h3>
+                        </div>
+                    </div>
+                    <div class="ip-header-grid">
+                        <label class="ip-field"><span data-translate="Name">${t('Name')}</span>
+                            <input class="form-control" name="header-candidateName" value="${escapeHtml(header.candidateName || '')}">
+                        </label>
+                        <label class="ip-field"><span data-translate="Interview date">${t('Interview date')}</span>
+                            <input type="date" class="form-control" name="header-interviewDate" value="${escapeHtml(header.interviewDate || '')}">
+                        </label>
+                        <label class="ip-field"><span data-translate="Assessor 1">${t('Assessor 1')}</span>
+                            <input class="form-control" name="header-assessor1" value="${escapeHtml(header.assessor1 || '')}">
+                        </label>
+                        <label class="ip-field"><span data-translate="Assessor 2">${t('Assessor 2')}</span>
+                            <input class="form-control" name="header-assessor2" value="${escapeHtml(header.assessor2 || '')}">
+                        </label>
+                        <label class="ip-field"><span data-translate="Candidate source type">${t('Candidate source type')}</span>
+                            <select class="form-control" name="header-candidateSourceType">
+                                <option value="">—</option>
+                                <option value="internal" ${header.candidateSourceType === 'internal' ? 'selected' : ''}>${t('Internal')}</option>
+                                <option value="external" ${header.candidateSourceType === 'external' ? 'selected' : ''}>${t('External')}</option>
+                            </select>
+                        </label>
+                        <label class="ip-field"><span data-translate="Location">${t('Location')}</span>
+                            <input class="form-control" name="header-location" value="${escapeHtml(header.location || '')}">
+                        </label>
+                        <label class="ip-field"><span data-translate="Role type">${t('Role type')}</span>
+                            <select class="form-control" name="header-roleType">
+                                <option value="">—</option>
+                                <option value="salaried" ${header.roleType === 'salaried' ? 'selected' : ''}>${t('Salaried')}</option>
+                                <option value="hourly" ${header.roleType === 'hourly' ? 'selected' : ''}>${t('Hourly')}</option>
+                            </select>
+                        </label>
+                    </div>
+                </section>
+
+                ${sectionsHtml}
+
+                <section class="ip-section" id="ip-section-skills">
+                    <div class="ip-section-head">
+                        <div>
+                            <p class="ip-section-kicker" data-translate="Matrix">${t('Matrix')}</p>
+                            <h3 data-translate="Skills validation">${t('Skills validation')}</h3>
+                        </div>
+                    </div>
+                    <div class="ip-skills-grid">${skillsHtml}</div>
+                </section>
+
+                <section class="ip-section" id="ip-section-outcome">
+                    <div class="ip-section-head">
+                        <div>
+                            <p class="ip-section-kicker" data-translate="Outcome">${t('Outcome')}</p>
+                            <h3 data-translate="Recommend for offer">${t('Recommend for offer')}</h3>
+                        </div>
+                    </div>
+
+                    <div class="ip-outcome-grid">
+                        <div class="ip-outcome-main">
+                            <div class="ip-recommend-group" role="radiogroup" aria-label="${t('Recommend for offer')}">
+                                <label class="ip-recommend-option ${recommendation === 'yes' ? 'is-selected' : ''}">
+                                    <input type="radio" name="recommendation" value="yes" ${recommendation === 'yes' ? 'checked' : ''}>
+                                    <span data-translate="Yes">${t('Yes')}</span>
+                                </label>
+                                <label class="ip-recommend-option ${recommendation === 'possible' ? 'is-selected' : ''}">
+                                    <input type="radio" name="recommendation" value="possible" ${recommendation === 'possible' ? 'checked' : ''}>
+                                    <span data-translate="Possible">${t('Possible')}</span>
+                                </label>
+                                <label class="ip-recommend-option ${recommendation === 'no' ? 'is-selected' : ''}">
+                                    <input type="radio" name="recommendation" value="no" ${recommendation === 'no' ? 'checked' : ''}>
+                                    <span data-translate="No">${t('No')}</span>
+                                </label>
+                            </div>
+
+                            <label class="ip-field" style="margin-top:1.25rem;">
+                                <span data-translate="Questions asked by candidate">${t('Questions asked by candidate')}</span>
+                                <textarea name="candidateQuestions" rows="5" class="form-control ip-textarea">${escapeHtml(data.candidateQuestions || '')}</textarea>
+                            </label>
+                        </div>
+
+                        <div class="ip-outcome-side">
+                            <h4 data-translate="HR Comments">${t('HR Comments')}</h4>
+                            <textarea name="hrComments" rows="5" class="form-control ip-textarea">${escapeHtml(data.hrComments || '')}</textarea>
+                            <div class="ip-header-grid" style="margin-top:1rem;">
+                                <label class="ip-field"><span data-translate="HR Representative">${t('HR Representative')}</span>
+                                    <input class="form-control" name="hrName" value="${escapeHtml(data.hrName || '')}">
+                                </label>
+                                <label class="ip-field"><span data-translate="Date">${t('Date')}</span>
+                                    <input type="date" class="form-control" name="hrDate" value="${escapeHtml(data.hrDate || '')}">
+                                </label>
+                                <label class="ip-check ip-field" style="align-self:end;">
+                                    <input type="checkbox" name="hrSigned" ${data.hrSigned ? 'checked' : ''}>
+                                    <span data-translate="Signed">${t('Signed')}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </div>
+    `;
+
+    window.uiManager.translatePage();
+
+    const form = document.getElementById('interview-pack-form');
+    form?.addEventListener('input', scheduleInterviewPackAutosave);
+    form?.addEventListener('change', (e) => {
+        if (e.target?.matches?.('input[type="radio"][name^="rating-"]')) {
+            form.querySelectorAll(`input[name="${e.target.name}"]`).forEach(input => {
+                input.closest('.ip-rating-option')?.classList.toggle('is-selected', input.checked);
+            });
+        }
+        if (e.target?.matches?.('input[type="radio"][name="recommendation"]')) {
+            form.querySelectorAll('input[name="recommendation"]').forEach(input => {
+                input.closest('.ip-recommend-option')?.classList.toggle('is-selected', input.checked);
+            });
+        }
+        scheduleInterviewPackAutosave();
+    });
+
+    document.getElementById('ip-save-btn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('ip-save-btn');
+        try {
+            if (btn) btn.disabled = true;
+            await saveInterviewPack({ silent: false });
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    });
+}
+
+window.showInterviewPack = showInterviewPack;
+window.saveInterviewPack = saveInterviewPack;
+
 async function showCandidateDetails(id) {
+    closeInterviewPackLayout();
     try {
         window.uiManager.showLoading('Loading candidate details...');
         
@@ -4286,6 +4889,7 @@ async function showCandidateDetails(id) {
 
         detailsHtml += `
             <div class="action-buttons" style="margin-top: 20px;">
+                ${canAccessInternalNotes ? `<button onclick="showInterviewPack(${candidate.id})" class="btn btn-primary" data-translate="Open Interview Pack">Open Interview Pack</button>` : ''}
                 ${!isAgency ? `<button onclick="showEditCandidateModal(${candidate.id})" class="btn btn-primary" data-translate="Edit Candidate">Edit Candidate</button>` : ''}
                 <button onclick="showCandidates()" class="btn btn-secondary" data-translate="Back">Back</button>
             </div>

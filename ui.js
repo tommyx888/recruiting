@@ -76,6 +76,18 @@ class UIManager {
         if (activeBtn) activeBtn.classList.add('active');
 
         this.translatePage();
+
+        // Re-render open Interview Pack in the new language (preserve answers)
+        if (window._interviewPackState && typeof renderInterviewPackView === 'function') {
+            try {
+                if (typeof collectInterviewPackFormData === 'function') {
+                    collectInterviewPackFormData();
+                }
+                renderInterviewPackView();
+            } catch (e) {
+                console.warn('Could not re-render interview pack after language switch:', e);
+            }
+        }
     }
 
     /**

@@ -5684,3 +5684,614 @@ select.slot-time-input {
 .dark-mode .searchable-select-option:focus {
   background: #334155;
 }
+
+/* ===== Interview Pack (Buyer I Master) ===== */
+.interview-pack-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 4rem;
+}
+
+/* Break out of global body max-width: 1440px */
+body:not(.login-body):has(.interview-pack-page),
+body.interview-pack-open:not(.login-body) {
+  max-width: none !important;
+  width: 100% !important;
+  padding: 12px 16px 24px;
+}
+
+#app:has(.interview-pack-page),
+main:has(.interview-pack-page),
+body.interview-pack-open #app,
+body.interview-pack-open main {
+  max-width: none !important;
+  width: 100% !important;
+  padding: 0.75rem 0.25rem 1.5rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+main:has(.interview-pack-page) > .interview-pack-page > .ip-hero h2,
+body.interview-pack-open main h2 {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ip-hero {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) auto auto;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.1rem 1.35rem;
+  margin-bottom: 1rem;
+  background:
+    linear-gradient(135deg, rgba(148, 156, 88, 0.14), rgba(33, 57, 79, 0.06)),
+    var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 10px 28px rgba(33, 57, 79, 0.08);
+}
+
+.ip-hero-kicker,
+.ip-section-kicker {
+  margin: 0 0 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-dark);
+}
+
+.ip-hero h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  color: var(--navy);
+  line-height: 1.2;
+}
+
+.ip-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  margin: 0.45rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.ip-subtitle span::before {
+  content: '·';
+  margin-right: 0.75rem;
+  color: var(--text-muted);
+}
+
+.ip-subtitle span:first-of-type::before {
+  content: none;
+  margin: 0;
+}
+
+.ip-hero-scores {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.ip-score-card {
+  min-width: 120px;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ip-score-card span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.ip-score-card strong {
+  font-size: 1.25rem;
+  color: var(--navy);
+}
+
+.ip-score-card-accent {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.ip-score-card-accent span,
+.ip-score-card-accent strong {
+  color: #fff;
+}
+
+.ip-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.ip-save-status {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  min-width: 7rem;
+}
+
+.ip-section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+  position: static;
+  padding: 0;
+  background: none;
+}
+
+.ip-nav-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--card-background);
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.ip-nav-chip:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-subtle);
+  transform: translateY(-1px);
+}
+
+.ip-nav-chip-score {
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.interview-pack-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.ip-section {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem 1.6rem;
+  box-shadow: 0 2px 10px rgba(33, 57, 79, 0.04);
+}
+
+.ip-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ip-section-head h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--navy);
+}
+
+.ip-section-score-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-md);
+  background: var(--primary-subtle);
+  min-width: 110px;
+}
+
+.ip-section-score-pill span {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.ip-section-score-pill strong {
+  font-size: 1.05rem;
+  color: var(--primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.ip-section-intro {
+  margin-bottom: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--primary-color);
+  background: var(--background-secondary);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.ip-intro-line {
+  margin: 0 0 0.35rem;
+  line-height: 1.45;
+}
+
+.ip-intro-line:last-child {
+  margin-bottom: 0;
+}
+
+.ip-section-note {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+}
+
+.ip-header-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.95rem 1rem;
+}
+
+.ip-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.ip-field .form-control,
+.ip-textarea {
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  border-radius: var(--radius-md);
+  min-height: 2.6rem;
+}
+
+.ip-textarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.ip-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ip-question {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1.2rem 1.2rem 1.35rem;
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.8), transparent 40%),
+    var(--surface);
+}
+
+.ip-question-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.ip-question-header {
+  padding-right: 3.5rem;
+}
+
+.ip-question-header h4 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+
+.ip-prompt {
+  margin: 0 0 0.4rem;
+  line-height: 1.5;
+  font-size: 0.98rem;
+}
+
+.ip-prompt-alt,
+.ip-followups {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0.35rem 0 0;
+}
+
+.ip-followups {
+  padding-left: 1.1rem;
+}
+
+.ip-question-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
+  gap: 1.25rem;
+  margin-top: 0.95rem;
+}
+
+.ip-notes-field textarea {
+  min-height: 11rem;
+}
+
+.ip-indicators {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  font-size: 0.9rem;
+  height: fit-content;
+}
+
+.ip-indicators strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--navy);
+}
+
+.ip-indicators ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ip-rating-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.ip-rating-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.ip-rating-hint {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.ip-rating-scale {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(72px, 1fr));
+  gap: 0.45rem;
+  flex: 1;
+  max-width: 520px;
+}
+
+.ip-rating-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-height: 3.4rem;
+  padding: 0.4rem 0.35rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: var(--card-background);
+  user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.ip-rating-option:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.ip-rating-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ip-rating-num {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ip-rating-label {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.ip-rating-option.is-selected,
+.ip-rating-option:has(input:checked) {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.ip-rating-option.is-selected .ip-rating-label,
+.ip-rating-option:has(input:checked) .ip-rating-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ip-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.ip-skill-card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--background-secondary);
+}
+
+.ip-skill-main h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: var(--navy);
+}
+
+.ip-skill-meta,
+.ip-skill-hint {
+  margin: 0 0 0.35rem;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.ip-skill-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ip-check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.88rem;
+}
+
+.ip-outcome-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.ip-recommend-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.ip-recommend-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  background: var(--surface);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ip-recommend-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ip-recommend-option.is-selected,
+.ip-recommend-option:has(input:checked) {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.ip-outcome-side h4 {
+  margin: 0 0 0.55rem;
+  color: var(--navy);
+}
+
+@media (max-width: 1200px) {
+  .ip-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .ip-header-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ip-skills-grid,
+  .ip-outcome-grid,
+  .ip-skill-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .interview-pack-page {
+    max-width: 100%;
+    padding: 0 0 3rem;
+  }
+
+  .ip-question-grid,
+  .ip-header-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ip-rating-scale {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    max-width: none;
+  }
+
+  .ip-rating-label {
+    display: none;
+  }
+}
+
+.dark-mode .ip-hero h2,
+.dark-mode .ip-section-head h3,
+.dark-mode .ip-question-header h4,
+.dark-mode .ip-skill-main h4,
+.dark-mode .ip-outcome-side h4,
+.dark-mode .ip-score-card strong,
+.dark-mode .ip-indicators strong {
+  color: #f1f5f9;
+}
+
+.dark-mode .ip-section-score-pill strong,
+.dark-mode .ip-nav-chip-score,
+.dark-mode .ip-hero-kicker,
+.dark-mode .ip-section-kicker {
+  color: #c5d07a;
+}
+
+.dark-mode .ip-question,
+.dark-mode .ip-skill-card,
+.dark-mode .ip-section-intro,
+.dark-mode .ip-indicators {
+  background: #1e293b;
+}
+
+.dark-mode .ip-rating-option.is-selected,
+.dark-mode .ip-rating-option:has(input:checked),
+.dark-mode .ip-recommend-option.is-selected,
+.dark-mode .ip-recommend-option:has(input:checked),
+.dark-mode .ip-score-card-accent {
+  background: #949C58;
+  border-color: #949C58;
+  color: #fff;
+}

@@ -97,7 +97,10 @@ class EmailManager {
                     <p><strong>Pozícia:</strong> ${requestData.position}</p>
                     <p><strong>Oddelenie:</strong> ${requestData.department}</p>
                     <p><strong>Typ:</strong> ${requestData.position_type}</p>
-                    <p><strong>Kategória:</strong> ${requestData.category}</p>
+                    <p><strong>Typ zmluvy:</strong> ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}</p>
+                    ${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `<p><strong>Časové obdobie:</strong> ${requestData.interim_duration_months} mesiacov</p>` : ''}
+                    ${requestData.contract_type === 'interim' && requestData.interim_max_daily_budget != null ? `<p><strong>Max. denný budget:</strong> ${requestData.interim_max_daily_budget} € / manday</p>` : ''}
+                    <p><strong>Kategória:</strong> ${requestData.category || requestData.position_category || ''}</p>
                     <p><strong>Počet miest:</strong> ${requestData.headcount}</p>
                     <p><strong>Popis:</strong> ${requestData.description}</p>
                 </div>
@@ -128,7 +131,8 @@ Detaily pozície:
 - Pozícia: ${requestData.position}
 - Oddelenie: ${requestData.department}
 - Typ: ${requestData.position_type}
-- Kategória: ${requestData.category}
+- Typ zmluvy: ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}
+${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `- Časové obdobie: ${requestData.interim_duration_months} mesiacov\n` : ''}${requestData.contract_type === 'interim' && requestData.interim_max_daily_budget != null ? `- Max. denný budget: ${requestData.interim_max_daily_budget} € / manday\n` : ''}- Kategória: ${requestData.category || requestData.position_category || ''}
 - Počet miest: ${requestData.headcount}
 - Popis: ${requestData.description}
 
@@ -165,7 +169,10 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                     <p><strong>Pozícia:</strong> ${requestData.position}</p>
                     <p><strong>Oddelenie:</strong> ${requestData.department}</p>
                     <p><strong>Typ:</strong> ${requestData.position_type}</p>
-                    <p><strong>Kategória:</strong> ${requestData.category}</p>
+                    <p><strong>Typ zmluvy:</strong> ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}</p>
+                    ${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `<p><strong>Časové obdobie:</strong> ${requestData.interim_duration_months} mesiacov</p>` : ''}
+                    ${requestData.contract_type === 'interim' && requestData.interim_max_daily_budget != null ? `<p><strong>Max. denný budget:</strong> ${requestData.interim_max_daily_budget} € / manday</p>` : ''}
+                    <p><strong>Kategória:</strong> ${requestData.category || requestData.position_category || ''}</p>
                     <p><strong>Počet miest:</strong> ${requestData.headcount}</p>
                 </div>
                 
@@ -195,7 +202,8 @@ Detaily pozície:
 - Pozícia: ${requestData.position}
 - Oddelenie: ${requestData.department}
 - Typ: ${requestData.position_type}
-- Kategória: ${requestData.category}
+- Typ zmluvy: ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}
+${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `- Časové obdobie: ${requestData.interim_duration_months} mesiacov\n` : ''}${requestData.contract_type === 'interim' && requestData.interim_max_daily_budget != null ? `- Max. denný budget: ${requestData.interim_max_daily_budget} € / manday\n` : ''}- Kategória: ${requestData.category || requestData.position_category || ''}
 - Počet miest: ${requestData.headcount}
 
 Teraz môžete začať s náborom kandidátov pre túto pozíciu.

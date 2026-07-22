@@ -172,7 +172,9 @@ class RequestsManager {
                 position_category: requestData.position_category,
                 is_confidential: requestData.is_confidential || false,
                 new_position_reason: requestData.new_position_reason || null,
-                replacement_name: requestData.replacement_name || null
+                replacement_name: requestData.replacement_name || null,
+                interim_duration_months: requestData.interim_duration_months || null,
+                interim_max_daily_budget: requestData.interim_max_daily_budget || null
             };
 
             const { data, error } = await this.supabase

@@ -69,6 +69,11 @@ const translations = {
         "Interim": "Interim",
         "Contract Type": "Contract Type",
         "Permanent": "Permanent",
+        "Interim duration (months)": "Duration (months)",
+        "Interim max daily budget": "Max daily budget (€ / manday)",
+        "Interim duration hint": "Enter the planned engagement length in months.",
+        "Interim budget hint": "e.g. 450",
+        "Interim fields required": "Please fill in duration and max daily budget for Interim.",
         "Reason for New Position": "Reason for New Position",
         "Name of Person Being Replaced": "Name of Person Being Replaced",
         "Replaced person": "Replaced person",
@@ -514,6 +519,11 @@ const translations = {
         "Interim": "Interim",
         "Contract Type": "Typ zmluvy",
         "Permanent": "Trvalý",
+        "Interim duration (months)": "Časové obdobie (mesiace)",
+        "Interim max daily budget": "Maximálny denný budget (€ / manday)",
+        "Interim duration hint": "Zadajte plánovanú dĺžku spolupráce v mesiacoch.",
+        "Interim budget hint": "napr. 450",
+        "Interim fields required": "Pri type Interim vyplňte časové obdobie a maximálny denný budget.",
         "Reason for New Position": "Dôvod novej pozície",
         "Name of Person Being Replaced": "Meno nahradzovanej osoby",
         "Replaced person": "Nahradzovaná osoba",
@@ -3287,6 +3297,8 @@ async function showRequestDetails(id) {
                 }</p>
                 <p><strong data-translate="Position Type">Position Type:</strong> ${request.position_type || 'N/A'}</p>
                 <p><strong data-translate="Contract Type">Contract Type:</strong> ${request.contract_type ? window.uiManager.translate(request.contract_type === 'interim' ? 'Interim' : 'Permanent') : 'N/A'}</p>
+                ${request.contract_type === 'interim' && request.interim_duration_months ? `<p><strong data-translate="Interim duration (months)">Časové obdobie (mesiace):</strong> ${request.interim_duration_months}</p>` : ''}
+                ${request.contract_type === 'interim' && request.interim_max_daily_budget != null ? `<p><strong data-translate="Interim max daily budget">Maximálny denný budget (€ / manday):</strong> ${request.interim_max_daily_budget} €</p>` : ''}
                 <p><strong data-translate="Position Category">Position Category:</strong> ${request.position_category || 'N/A'}</p>
                 <p><strong data-translate="Status">Status:</strong> ${createStatusBadge(request.status)}</p>
                 <p><strong data-translate="Confidential">Confidential:</strong> ${request.is_confidential ? window.uiManager.translate('Yes') : window.uiManager.translate('No')}</p>
@@ -3309,15 +3321,6 @@ async function showRequestDetails(id) {
         }
         
         if (request.position_type === 'new') {
-            if (request.new_stredisko) {
-                detailsHtml += `<p><strong data-translate="New center (str)">Nové stredisko (str):</strong> ${request.new_stredisko}</p>`;
-            }
-            if (request.new_oddelenie) {
-                detailsHtml += `<p><strong data-translate="New department org (odd)">Nové oddelenie (odd):</strong> ${request.new_oddelenie}</p>`;
-            }
-            if (request.new_utvar) {
-                detailsHtml += `<p><strong data-translate="New unit (utvar)">Nový útvar (utvar):</strong> ${request.new_utvar}</p>`;
-            }
             if (request.new_position_reason) {
                 detailsHtml += `<p><strong data-translate="Reason for New Position">Reason for New Position:</strong> ${request.new_position_reason}</p>`;
             }
@@ -3474,43 +3477,30 @@ function showNewRequest() {
                     <label data-translate="Contract Type">Typ zmluvy:</label>
                     <div class="radio-group">
                         <label class="radio-label">
-                        <input type="radio" id="contract-permanent" name="contract-type" value="permanent" required>
+                        <input type="radio" id="contract-permanent" name="contract-type" value="permanent" required onchange="toggleContractTypeFields()">
                             <span data-translate="Permanent">Trvalý</span>
                     </label>
                         <label class="radio-label">
-                        <input type="radio" id="contract-interim" name="contract-type" value="interim" required>
+                        <input type="radio" id="contract-interim" name="contract-type" value="interim" required onchange="toggleContractTypeFields()">
                             <span data-translate="Interim">Interim</span>
                     </label>
                 </div>
             </div>
+
+            <div id="interim-contract-fields" class="hidden">
+                <div class="form-group">
+                    <label for="interim-duration-months" data-translate="Interim duration (months)">Časové obdobie (mesiace)</label>
+                    <input type="number" id="interim-duration-months" name="interim_duration_months" min="1" step="1" placeholder="6">
+                    <p class="form-field-hint" data-translate="Interim duration hint">Zadajte plánovanú dĺžku spolupráce v mesiacoch.</p>
+                </div>
+                <div class="form-group">
+                    <label for="interim-max-daily-budget" data-translate="Interim max daily budget">Maximálny denný budget (€ / manday)</label>
+                    <input type="number" id="interim-max-daily-budget" name="interim_max_daily_budget" min="1" step="1" placeholder="450">
+                    <p class="form-field-hint" data-translate="Interim budget hint">napr. 450</p>
+                </div>
+            </div>
                 
             <div id="new-position-fields" class="hidden">
-                <div class="org-structure-row">
-                    <div class="form-group searchable-select-field">
-                        <label for="new-org-str" data-translate="New center (str)">Nové stredisko (str)</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="new-org-str" class="searchable-select-input" maxlength="120">
-                            <div id="new-org-str-list" class="searchable-select-list" role="listbox"></div>
-                        </div>
-                        <p class="form-field-hint" data-translate="Org field hint">Kliknite a vyberte zo zoznamu, alebo začnite písať pre filtrovanie.</p>
-                    </div>
-                    <div class="form-group searchable-select-field">
-                        <label for="new-org-odd" data-translate="New department org (odd)">Nové oddelenie (odd)</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="new-org-odd" class="searchable-select-input" maxlength="120">
-                            <div id="new-org-odd-list" class="searchable-select-list" role="listbox"></div>
-                        </div>
-                        <p class="form-field-hint" data-translate="Org field hint">Kliknite a vyberte zo zoznamu, alebo začnite písať pre filtrovanie.</p>
-                    </div>
-                    <div class="form-group searchable-select-field">
-                        <label for="new-org-utvar" data-translate="New unit (utvar)">Nový útvar (utvar)</label>
-                        <div class="searchable-select-wrap">
-                            <input type="text" id="new-org-utvar" class="searchable-select-input" maxlength="120">
-                            <div id="new-org-utvar-list" class="searchable-select-list" role="listbox"></div>
-                        </div>
-                        <p class="form-field-hint" data-translate="Org field hint">Kliknite a vyberte zo zoznamu, alebo začnite písať pre filtrovanie.</p>
-                    </div>
-                </div>
                 <div class="form-group">
                         <label for="new-position-reason" data-translate="Reason for New Position">Dôvod novej pozície:</label>
                         <textarea id="new-position-reason" name="new_position_reason"></textarea>
@@ -3587,12 +3577,6 @@ function showNewRequest() {
             departmentSelect.value = currentUserDepartment;
             updatePositionOptions();
         }
-    }
-
-    if (window.orgStructurePicker) {
-        window.orgStructurePicker.initOrgStructurePickers(getSupabase()).catch((error) => {
-            console.warn('Org structure pickers init:', error);
-        });
     }
 
     window.uiManager.translatePage();
@@ -3775,23 +3759,31 @@ function togglePositionTypeFields() {
     if (positionType === 'new') {
         newPositionFields.classList.remove('hidden');
         replacementFields.classList.add('hidden');
-        if (window.orgStructurePicker) {
-            window.orgStructurePicker.initOrgStructurePickers(getSupabase()).catch((error) => {
-                console.warn('Org structure pickers init:', error);
-            });
-        }
     } else if (positionType === 'replacement') {
         newPositionFields.classList.add('hidden');
         replacementFields.classList.remove('hidden');
-        if (window.orgStructurePicker) {
-            window.orgStructurePicker.resetPickers();
-        }
     } else {
         newPositionFields.classList.add('hidden');
         replacementFields.classList.add('hidden');
-        if (window.orgStructurePicker) {
-            window.orgStructurePicker.resetPickers();
-        }
+    }
+}
+
+function toggleContractTypeFields() {
+    const interimFields = document.getElementById('interim-contract-fields');
+    const contractType = document.querySelector('input[name="contract-type"]:checked')?.value;
+    const durationInput = document.getElementById('interim-duration-months');
+    const budgetInput = document.getElementById('interim-max-daily-budget');
+    if (!interimFields) return;
+
+    const isInterim = contractType === 'interim';
+    interimFields.classList.toggle('hidden', !isInterim);
+    if (durationInput) {
+        durationInput.required = isInterim;
+        if (!isInterim) durationInput.value = '';
+    }
+    if (budgetInput) {
+        budgetInput.required = isInterim;
+        if (!isInterim) budgetInput.value = '';
     }
 }
 
@@ -3834,21 +3826,24 @@ async function createRequest(e) {
     let newPositionReason = null;
     let replacementName = null;
     let jobDescriptionFilePath = null;
-
-    let newStredisko = null;
-    let newOddelenie = null;
-    let newUtvar = null;
+    let interimDurationMonths = null;
+    let interimMaxDailyBudget = null;
 
     if (positionType === 'new') {
         newPositionReason = document.getElementById('new-position-reason').value;
-        if (window.orgStructurePicker) {
-            const orgValues = window.orgStructurePicker.getValues();
-            newStredisko = orgValues.str?.code || orgValues.str?.label || null;
-            newOddelenie = orgValues.odd?.code || orgValues.odd?.label || null;
-            newUtvar = orgValues.utvar?.code || orgValues.utvar?.label || null;
-        }
     } else if (positionType === 'replacement') {
         replacementName = document.getElementById('replacement-name').value;
+    }
+
+    if (contractType === 'interim') {
+        const monthsRaw = document.getElementById('interim-duration-months')?.value;
+        const budgetRaw = document.getElementById('interim-max-daily-budget')?.value;
+        interimDurationMonths = monthsRaw ? parseInt(monthsRaw, 10) : null;
+        interimMaxDailyBudget = budgetRaw ? parseFloat(budgetRaw) : null;
+        if (!interimDurationMonths || interimDurationMonths < 1 || !interimMaxDailyBudget || interimMaxDailyBudget < 1) {
+            window.utils.showMessage(window.uiManager.translate('Interim fields required'), 'error');
+            return;
+        }
     }
 
     if (selectedPosition === '__custom__' && !customPosition) {
@@ -3897,10 +3892,9 @@ async function createRequest(e) {
         position_category: positionCategory,
         is_confidential: isConfidential,
         new_position_reason: newPositionReason,
-        new_stredisko: newStredisko,
-        new_oddelenie: newOddelenie,
-        new_utvar: newUtvar,
         replacement_name: replacementName,
+        interim_duration_months: interimDurationMonths,
+        interim_max_daily_budget: interimMaxDailyBudget,
         job_description_file_path: jobDescriptionFilePath,
         has_final_interview_participant: !!addFinalInterviewParticipant,
         final_interview_participant_name: addFinalInterviewParticipant ? finalInterviewParticipantName : null,

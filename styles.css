@@ -5917,13 +5917,15 @@ body.interview-pack-open main h2 {
   margin-bottom: 0.85rem;
   padding: 0.85rem 1rem;
   border-left: 3px solid var(--primary-color);
-  background: var(--background-secondary);
+  background: #f8fafc;
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  color: #1e293b;
 }
 
 .ip-intro-line {
   margin: 0 0 0.35rem;
   line-height: 1.45;
+  color: #1e293b;
 }
 
 .ip-intro-line:last-child {
@@ -5975,9 +5977,8 @@ body.interview-pack-open main h2 {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.15rem 1.2rem 1.2rem 1.35rem;
-  background:
-    linear-gradient(180deg, rgba(248, 250, 252, 0.8), transparent 40%),
-    var(--surface);
+  background: #ffffff;
+  color: #1e293b;
 }
 
 .ip-question-badge {
@@ -6007,11 +6008,12 @@ body.interview-pack-open main h2 {
   margin: 0 0 0.4rem;
   line-height: 1.5;
   font-size: 0.98rem;
+  color: #1e293b;
 }
 
 .ip-prompt-alt,
 .ip-followups {
-  color: var(--text-secondary);
+  color: #334155;
   font-size: 0.9rem;
   margin: 0.35rem 0 0;
 }
@@ -6032,12 +6034,13 @@ body.interview-pack-open main h2 {
 }
 
 .ip-indicators {
-  background: var(--background-secondary);
+  background: #f1f5f9;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 0.9rem 1rem;
   font-size: 0.9rem;
   height: fit-content;
+  color: #1e293b;
 }
 
 .ip-indicators strong {
@@ -6052,6 +6055,7 @@ body.interview-pack-open main h2 {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  color: #334155;
 }
 
 .ip-rating-row {
@@ -6284,6 +6288,23 @@ body.interview-pack-open main h2 {
 .dark-mode .ip-section-intro,
 .dark-mode .ip-indicators {
   background: #1e293b;
+  color: #f1f5f9;
+}
+
+.dark-mode .ip-prompt,
+.dark-mode .ip-intro-line,
+.dark-mode .ip-question-header h4 {
+  color: #f8fafc;
+}
+
+.dark-mode .ip-prompt-alt,
+.dark-mode .ip-followups,
+.dark-mode .ip-skill-hint,
+.dark-mode .ip-skill-meta,
+.dark-mode .ip-section-note,
+.dark-mode .ip-rating-hint,
+.dark-mode .ip-rating-label {
+  color: #e2e8f0;
 }
 
 .dark-mode .ip-rating-option.is-selected,

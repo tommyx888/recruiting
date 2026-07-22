@@ -3473,6 +3473,20 @@ function showNewRequest() {
                 </div>
             </div>
 
+            <div id="new-position-fields" class="hidden">
+                <div class="form-group">
+                        <label for="new-position-reason" data-translate="Reason for New Position">Dôvod novej pozície:</label>
+                        <textarea id="new-position-reason" name="new_position_reason"></textarea>
+                </div>
+            </div>
+
+            <div id="replacement-fields" class="hidden">
+                <div class="form-group">
+                        <label for="replacement-name" data-translate="Name of Person Being Replaced">Meno nahradzovanej osoby:</label>
+                        <input type="text" id="replacement-name" name="replacement_name">
+                </div>
+            </div>
+
             <div class="form-group">
                     <label data-translate="Contract Type">Typ zmluvy:</label>
                     <div class="radio-group">
@@ -3497,20 +3511,6 @@ function showNewRequest() {
                     <label for="interim-max-daily-budget" data-translate="Interim max daily budget">Maximálny denný budget (€ / manday)</label>
                     <input type="number" id="interim-max-daily-budget" name="interim_max_daily_budget" min="1" step="1" placeholder="450">
                     <p class="form-field-hint" data-translate="Interim budget hint">napr. 450</p>
-                </div>
-            </div>
-                
-            <div id="new-position-fields" class="hidden">
-                <div class="form-group">
-                        <label for="new-position-reason" data-translate="Reason for New Position">Dôvod novej pozície:</label>
-                        <textarea id="new-position-reason" name="new_position_reason"></textarea>
-                </div>
-            </div>
-                
-            <div id="replacement-fields" class="hidden">
-                <div class="form-group">
-                        <label for="replacement-name" data-translate="Name of Person Being Replaced">Meno nahradzovanej osoby:</label>
-                        <input type="text" id="replacement-name" name="replacement_name">
                 </div>
             </div>
                 

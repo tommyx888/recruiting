@@ -10,7 +10,7 @@ const corsHeaders = {
 
 // Secrets configured via: supabase secrets set RESEND_API_KEY=... FROM_EMAIL=...
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || ""
-const DEFAULT_FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "nabor@iacslovakia.sk"
+const DEFAULT_FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "nabor@artifex-systems.sk"
 
 interface Attachment {
   filename: string

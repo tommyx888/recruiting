@@ -94,7 +94,7 @@ serve(async (req) => {
     }
 
     let emailsSent = 0
-    const baseUrl = Deno.env.get("SITE_URL") || "https://recruiting.iacslovakia.sk"
+    const baseUrl = Deno.env.get("SITE_URL") || "https://recruiting.artifex-systems.sk"
 
     // Filter out requests that are older than 1 week from 3-day list
     // (we'll process them separately with urgent reminder)

@@ -16,7 +16,7 @@ function utf8ToBase64(str) {
 class EmailManager {
     constructor() {
         this.service = 'Resend API';
-        this.fromEmail = 'nabor@iacslovakia.sk';
+        this.fromEmail = 'nabor@artifex-systems.sk';
     }
 
     /**
@@ -108,13 +108,13 @@ class EmailManager {
                 <p>Prosím, prihláste sa do systému a schváľte alebo zamietnite túto žiadosť.</p>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #2e0de6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #2e0de6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                 </div>
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #666; font-size: 14px;">
                         Tento email bol odoslaný automaticky zo systému na riadenie náboru.<br>
-                        <a href="https://recruiting.iacslovakia.sk/" style="color: #2e0de6;">https://recruiting.iacslovakia.sk/</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="color: #2e0de6;">https://recruiting.artifex-systems.sk/</a>
                     </p>
                 </div>
             </div>
@@ -138,7 +138,7 @@ ${requestData.contract_type === 'interim' && requestData.interim_duration_months
 
 Prosím, prihláste sa do systému a schváľte alebo zamietnite túto žiadosť.
 
-Otvoriť systém: https://recruiting.iacslovakia.sk/
+Otvoriť systém: https://recruiting.artifex-systems.sk/
 
 Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         `;
@@ -179,13 +179,13 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                 <p>Teraz môžete začať s náborom kandidátov pre túto pozíciu.</p>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                 </div>
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #666; font-size: 14px;">
                         Tento email bol odoslaný automaticky zo systému na riadenie náboru.<br>
-                        <a href="https://recruiting.iacslovakia.sk/" style="color: #10b981;">https://recruiting.iacslovakia.sk/</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="color: #10b981;">https://recruiting.artifex-systems.sk/</a>
                     </p>
                 </div>
             </div>
@@ -208,7 +208,7 @@ ${requestData.contract_type === 'interim' && requestData.interim_duration_months
 
 Teraz môžete začať s náborom kandidátov pre túto pozíciu.
 
-Otvoriť systém: https://recruiting.iacslovakia.sk/
+Otvoriť systém: https://recruiting.artifex-systems.sk/
 
 Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         `;
@@ -247,13 +247,13 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                 <p>Prosím, prihláste sa do systému a pokračujte s procesom náboru.</p>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                 </div>
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                     <p style="color: #666; font-size: 14px;">
                         Tento email bol odoslaný automaticky zo systému na riadenie náboru.<br>
-                        <a href="https://recruiting.iacslovakia.sk/" style="color: #3b82f6;">https://recruiting.iacslovakia.sk/</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="color: #3b82f6;">https://recruiting.artifex-systems.sk/</a>
                     </p>
                 </div>
             </div>
@@ -276,7 +276,7 @@ ${candidateData.notes ? `- Poznámky: ${candidateData.notes}` : ''}
 
 Prosím, prihláste sa do systému a pokračujte s procesom náboru.
 
-Otvoriť systém: https://recruiting.iacslovakia.sk/
+Otvoriť systém: https://recruiting.artifex-systems.sk/
 
 Tento email bol odoslaný automaticky zo systému na riadenie náboru.
         `;
@@ -315,7 +315,7 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                     <p style="margin: 0; white-space: pre-wrap; color: #0f172a;">${noteText}</p>
                 </div>
                 <div style="text-align: center; margin: 24px 0 8px;">
-                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #1d4ed8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 700;">Otvoriť systém</a>
+                    <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #1d4ed8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 700;">Otvoriť systém</a>
                 </div>
             </div>
         `;
@@ -329,7 +329,7 @@ Autor poznámky: ${author}
 Poznámka:
 ${noteText}
 
-Otvoriť systém: https://recruiting.iacslovakia.sk/`;
+Otvoriť systém: https://recruiting.artifex-systems.sk/`;
 
         return await this.sendEmail({
             to: toEmail,
@@ -358,7 +358,7 @@ Otvoriť systém: https://recruiting.iacslovakia.sk/`;
                 </div>
                 <p>V aplikácii otvorte kandidátov a v stave „Čaká na schválenie recruiterom“ použite akciu Potvrdiť.</p>
                 <div style="text-align: center; margin: 24px 0;">
-                    <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #1976d2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                    <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #1976d2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                 </div>
             </div>
         `;
@@ -372,7 +372,7 @@ Zdroj: ${candidate.source || '—'}
 ${candidate.notes ? `Komentár agentúry: ${candidate.notes}\n` : ''}
 Potvrďte alebo zamietnite podanie v systéme (stav: čaká na schválenie recruiterom).
 
-https://recruiting.iacslovakia.sk/
+https://recruiting.artifex-systems.sk/
         `;
         return await this.sendEmail({
             to: recruiterEmail,
@@ -434,13 +434,13 @@ https://recruiting.iacslovakia.sk/
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                     </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
                     <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
-                    <a href="https://recruiting.iacslovakia.sk/" style="color: #2196f3;">https://recruiting.iacslovakia.sk/</a></p>
+                    <a href="https://recruiting.artifex-systems.sk/" style="color: #2196f3;">https://recruiting.artifex-systems.sk/</a></p>
                 </div>
             </div>
         `;
@@ -458,7 +458,7 @@ ${notes ? `Poznámky: ${notes}` : ''}
 
 Prehliadnite si aktualizované informácie o kandidátovi v systéme.
 
-Otvoriť systém: https://recruiting.iacslovakia.sk/
+Otvoriť systém: https://recruiting.artifex-systems.sk/
 
 ---
 Tento email bol odoslaný automaticky zo systému na nábor.
@@ -528,13 +528,13 @@ Tento email bol odoslaný automaticky zo systému na nábor.
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť náborový systém</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť náborový systém</a>
                     </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
                     <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
-                    <a href="https://recruiting.iacslovakia.sk/" style="color: #949C58;">https://recruiting.iacslovakia.sk/</a></p>
+                    <a href="https://recruiting.artifex-systems.sk/" style="color: #949C58;">https://recruiting.artifex-systems.sk/</a></p>
                 </div>
             </div>
         `;
@@ -552,7 +552,7 @@ ${notes ? `Poznámka od recruitera: ${notes}\n` : ''}
 
 Stav kandidáta, ktorého ste poslali, bol aktualizovaný v systéme. Detailný priebeh si môžete pozrieť po prihlásení.
 
-Otvoriť náborový systém: https://recruiting.iacslovakia.sk/
+Otvoriť náborový systém: https://recruiting.artifex-systems.sk/
 
 ---
 Tento email bol odoslaný automaticky zo systému na nábor.
@@ -682,13 +682,13 @@ Tento email bol odoslaný automaticky zo systému na nábor.
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                     </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
                     <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
-                    <a href="https://recruiting.iacslovakia.sk/" style="color: #2196f3;">https://recruiting.iacslovakia.sk/</a></p>
+                    <a href="https://recruiting.artifex-systems.sk/" style="color: #2196f3;">https://recruiting.artifex-systems.sk/</a></p>
                 </div>
             </div>
         `;
@@ -707,7 +707,7 @@ ${datesText}
 
 Prosím, vyberte vhodný termín a kontaktujte kandidáta.
 
-Otvoriť systém: https://recruiting.iacslovakia.sk/
+Otvoriť systém: https://recruiting.artifex-systems.sk/
 
 ---
 Tento email bol odoslaný automaticky zo systému na nábor.
@@ -744,7 +744,7 @@ Tento email bol odoslaný automaticky zo systému na nábor.
     async notifyAgencyNewSlots(agencyEmail, request, round, slots = []) {
         const roundText = round === 'first' ? 'Prvé kolo' : 'Druhé kolo';
         const subject = `Nové termíny na pohovory – ${request.position} (${roundText})`;
-        const siteUrl = 'https://recruiting.iacslovakia.sk/';
+        const siteUrl = 'https://recruiting.artifex-systems.sk/';
 
         const formatSlot = (start, end) => {
             const d = new Date(start);
@@ -808,7 +808,7 @@ Tento email bol odoslaný automaticky zo systému na nábor.
      */
     async notifyAgencySlotChange(agencyEmail, request, round, changeType, slots = [], oldSlots = []) {
         const roundText = round === 'first' ? 'Prvé kolo' : 'Druhé kolo';
-        const siteUrl = 'https://recruiting.iacslovakia.sk/';
+        const siteUrl = 'https://recruiting.artifex-systems.sk/';
         const isRemoved = changeType === 'removed';
         const subject = isRemoved
             ? `Zrušený termín na pohovor – ${request.position} (${roundText})`
@@ -945,13 +945,13 @@ Tento email bol odoslaný automaticky zo systému na nábor.
                     </div>
                     
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #949C58; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                     </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
                     <p>Tento email bol odoslaný automaticky zo systému na nábor.<br>
-                    <a href="https://recruiting.iacslovakia.sk/" style="color: #949C58;">https://recruiting.iacslovakia.sk/</a></p>
+                    <a href="https://recruiting.artifex-systems.sk/" style="color: #949C58;">https://recruiting.artifex-systems.sk/</a></p>
                 </div>
             </div>
         `;
@@ -973,7 +973,7 @@ V prílohe nájdete CV a Assessment kandidáta, ako aj Outlook pozvánku (.ics s
 
 Tip: Dvojklikom na .ics súbor vytvoríte udalosť v Outlook kalendári s automaticky vyplnenými údajmi o pohovore.
 
-Otvoriť systém: https://recruiting.iacslovakia.sk/
+Otvoriť systém: https://recruiting.artifex-systems.sk/
 
 ---
 Tento email bol odoslaný automaticky zo systému na nábor.
@@ -1128,7 +1128,7 @@ Tento email bol odoslaný automaticky zo systému na nábor.
                         </p>
                     </div>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://recruiting.iacslovakia.sk/" style="display: inline-block; background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
+                        <a href="https://recruiting.artifex-systems.sk/" style="display: inline-block; background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Otvoriť systém</a>
                     </div>
                 </div>
             </div>
@@ -1147,7 +1147,7 @@ Pôvodný termín: ${dateStr}, ${timeStr}
 Dôvod zrušenia: ${safeReason || 'Neuvedený'}
 
 Termín bol uvoľnený a kandidáta je možné naplánovať na iný voľný slot.
-Otvoriť systém: https://recruiting.iacslovakia.sk/
+Otvoriť systém: https://recruiting.artifex-systems.sk/
         `;
 
         const recruiterList = Array.isArray(recruiterEmail) ? recruiterEmail : (recruiterEmail ? [recruiterEmail] : []);

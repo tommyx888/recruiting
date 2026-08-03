@@ -71,18 +71,34 @@ class AuthManager {
     }
 
     /**
-     * Send password reset email (login page)
+     * Send password reset email via Resend Edge Function (login page).
+     * Uses token_hash links so Outlook Safe Links do not burn the OTP.
      */
     async requestPasswordReset(email) {
-        if (!this.supabase) {
-            throw new Error('Supabase client not initialized');
+        const config = typeof window !== 'undefined' ? window.config : null;
+        if (!config?.supabase?.url || !config?.supabase?.anonKey) {
+            throw new Error('Supabase configuration not found');
         }
-        const redirectTo = this.getPasswordResetRedirectUrl();
-        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-            redirectTo
+
+        const response = await fetch(`${config.supabase.url}/functions/v1/send-password-reset`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.supabase.anonKey}`,
+                'apikey': config.supabase.anonKey
+            },
+            body: JSON.stringify({ email })
         });
-        if (error) {
-            throw error;
+
+        let payload = null;
+        try {
+            payload = await response.json();
+        } catch {
+            payload = null;
+        }
+
+        if (!response.ok || payload?.success === false) {
+            throw new Error(payload?.message || `HTTP ${response.status}`);
         }
     }
 

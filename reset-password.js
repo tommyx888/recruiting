@@ -61,22 +61,64 @@
         });
     }
 
+    function getAuthParams() {
+        const search = new URLSearchParams(window.location.search || '');
+        const hash = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+        return {
+            token_hash: search.get('token_hash') || hash.get('token_hash'),
+            type: search.get('type') || hash.get('type'),
+            error: search.get('error') || hash.get('error'),
+            error_code: search.get('error_code') || hash.get('error_code'),
+            error_description: search.get('error_description') || hash.get('error_description')
+        };
+    }
+
     function isPasswordRecoveryFromLocation() {
         try {
-            const hash = (window.location.hash || '').replace(/^#/, '');
-            if (hash) {
-                const fromHash = new URLSearchParams(hash).get('type');
-                if (fromHash === 'recovery') return true;
-            }
-            const search = (window.location.search || '').replace(/^\?/, '');
-            if (search) {
-                const fromSearch = new URLSearchParams(search).get('type');
-                if (fromSearch === 'recovery') return true;
-            }
+            const params = getAuthParams();
+            if (params.type === 'recovery' || params.token_hash) return true;
         } catch (e) {
             /* ignore */
         }
         return false;
+    }
+
+    function clearAuthParamsFromUrl() {
+        try {
+            history.replaceState(null, '', window.location.pathname);
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
+    async function exchangeTokenHashIfPresent(client) {
+        const params = getAuthParams();
+
+        if (params.error || params.error_code) {
+            clearAuthParamsFromUrl();
+            return { ok: false, expired: params.error_code === 'otp_expired' };
+        }
+
+        if (!params.token_hash || !params.type) {
+            return { ok: true, exchanged: false };
+        }
+
+        const { data, error } = await client.auth.verifyOtp({
+            token_hash: params.token_hash,
+            type: params.type
+        });
+        clearAuthParamsFromUrl();
+
+        if (error) {
+            console.error('OTP verification error:', error);
+            return { ok: false, expired: true };
+        }
+
+        if (params.type === 'recovery') {
+            window.authManager.passwordRecoveryActive = true;
+        }
+
+        return { ok: true, exchanged: true, session: data?.session || null };
     }
 
     function validateRecoveryPasswords(newPw, confirmPw) {
@@ -139,6 +181,14 @@
         window.supabase = client;
         window.authManager.init(client, recoveryHint);
 
+        const exchangeResult = await exchangeTokenHashIfPresent(client);
+        if (!exchangeResult.ok) {
+            document.getElementById('reset-password-card').hidden = true;
+            document.getElementById('reset-invalid').hidden = false;
+            translatePage();
+            return;
+        }
+
         await client.auth.getSession();
         if (recoveryHint && !window.authManager.passwordRecoveryActive) {
             await new Promise((r) => setTimeout(r, 250));
@@ -151,7 +201,7 @@
             }
         });
 
-        const inRecovery = recoveryHint || window.authManager.passwordRecoveryActive;
+        const inRecovery = recoveryHint || window.authManager.passwordRecoveryActive || exchangeResult.exchanged;
         const { data: { session } } = await client.auth.getSession();
 
         const card = document.getElementById('reset-password-card');

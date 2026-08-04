@@ -96,6 +96,7 @@ class EmailManager {
                     <h3 style="margin-top: 0; color: #333;">Detaily pozície:</h3>
                     <p><strong>Pozícia:</strong> ${requestData.position}</p>
                     <p><strong>Oddelenie:</strong> ${requestData.department}</p>
+                    <p><strong>Projekt:</strong> ${requestData.project || ''}</p>
                     <p><strong>Typ:</strong> ${requestData.position_type}</p>
                     <p><strong>Typ zmluvy:</strong> ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}</p>
                     ${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `<p><strong>Časové obdobie:</strong> ${requestData.interim_duration_months} mesiacov</p>` : ''}
@@ -130,6 +131,7 @@ Bola vytvorená nová žiadosť o nábor, ktorá vyžaduje vaše schválenie:
 Detaily pozície:
 - Pozícia: ${requestData.position}
 - Oddelenie: ${requestData.department}
+- Projekt: ${requestData.project || ''}
 - Typ: ${requestData.position_type}
 - Typ zmluvy: ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}
 ${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `- Časové obdobie: ${requestData.interim_duration_months} mesiacov\n` : ''}${requestData.contract_type === 'interim' && requestData.interim_max_daily_budget != null ? `- Max. denný budget: ${requestData.interim_max_daily_budget} € / manday\n` : ''}- Kategória: ${requestData.category || requestData.position_category || ''}
@@ -168,6 +170,7 @@ Tento email bol odoslaný automaticky zo systému na riadenie náboru.
                     <h3 style="margin-top: 0; color: #333;">Detaily pozície:</h3>
                     <p><strong>Pozícia:</strong> ${requestData.position}</p>
                     <p><strong>Oddelenie:</strong> ${requestData.department}</p>
+                    <p><strong>Projekt:</strong> ${requestData.project || ''}</p>
                     <p><strong>Typ:</strong> ${requestData.position_type}</p>
                     <p><strong>Typ zmluvy:</strong> ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}</p>
                     ${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `<p><strong>Časové obdobie:</strong> ${requestData.interim_duration_months} mesiacov</p>` : ''}
@@ -201,6 +204,7 @@ Vaša žiadosť o nábor bola schválená GM:
 Detaily pozície:
 - Pozícia: ${requestData.position}
 - Oddelenie: ${requestData.department}
+- Projekt: ${requestData.project || ''}
 - Typ: ${requestData.position_type}
 - Typ zmluvy: ${requestData.contract_type === 'interim' ? 'Interim' : (requestData.contract_type === 'permanent' ? 'Trvalý' : (requestData.contract_type || ''))}
 ${requestData.contract_type === 'interim' && requestData.interim_duration_months ? `- Časové obdobie: ${requestData.interim_duration_months} mesiacov\n` : ''}${requestData.contract_type === 'interim' && requestData.interim_max_daily_budget != null ? `- Max. denný budget: ${requestData.interim_max_daily_budget} € / manday\n` : ''}- Kategória: ${requestData.category || requestData.position_category || ''}

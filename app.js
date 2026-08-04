@@ -22,6 +22,8 @@ const translations = {
         "Name": "Name",
         "Position": "Position",
         "Department": "Department",
+        "Project": "Project",
+        "Select Project": "Select Project",
         "Source": "Source",
         "Notes": "Notes",
         "CV File": "CV File",
@@ -484,6 +486,8 @@ const translations = {
         "Add New Candidate": "Pridať nového kandidáta",
         "Full Name": "Celé meno",
         "Department": "Oddelenie",
+        "Project": "Projekt",
+        "Select Project": "Vyberte projekt",
         "Position": "Pozícia",
         "Position not in list": "Pozícia nie je v zozname",
         "Enter custom position": "Zadajte názov pozície",
@@ -588,6 +592,8 @@ const translations = {
         "Name": "Meno",
         "Position": "Pozícia",
         "Department": "Oddelenie",
+        "Project": "Projekt",
+        "Select Project": "Vyberte projekt",
         "Source": "Zdroj",
         "Notes": "Poznámky",
         "CV File": "CV súbor",
@@ -2916,7 +2922,7 @@ function createRequestsTable(requests) {
 
     // Create header row
     const headerRow = document.createElement('tr');
-    ['Position', 'Department', 'Description', 'Headcount', 'Type', 'Replaced person', 'Category', 'Status', 'Visible to agencies', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
+    ['Position', 'Department', 'Project', 'Description', 'Headcount', 'Type', 'Replaced person', 'Category', 'Status', 'Visible to agencies', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = window.uiManager.translate(headerText);
         if (headerText === 'Days Old') {
@@ -2983,6 +2989,7 @@ function createRequestsTable(requests) {
         const cellData = [
             request.position || '',
             request.department || '',
+            request.project || '—',
             request.description ? request.description.substring(0, 50) + '...' : '',
             request.headcount || '',
             request.position_type || '',
@@ -2998,13 +3005,13 @@ function createRequestsTable(requests) {
         // Add cells
         cellData.forEach((cellContent, index) => {
             const td = document.createElement('td');
-            if (index === 2) {
+            if (index === 3) {
                 td.classList.add('requests-table__cell--desc');
                 if (request.description) {
                     td.title = request.description;
                 }
             }
-            if (index === 11) {
+            if (index === 12) {
                 td.classList.add('requests-table__cell--actions');
             }
             if (typeof cellContent === 'string' && cellContent.includes('<')) {
@@ -3013,8 +3020,8 @@ function createRequestsTable(requests) {
                 td.textContent = cellContent;
             }
             
-            // Stĺpec dní (index 9): upozornenie len pre čakajúce / otvorené schválené
-            if (index === 9 && daysMetric.highlight && typeof daysOld === 'number' && daysOld > 3) {
+            // Stĺpec dní (index 10): upozornenie len pre čakajúce / otvorené schválené
+            if (index === 10 && daysMetric.highlight && typeof daysOld === 'number' && daysOld > 3) {
                 td.style.color = daysOld >= 7 ? '#dc2626' : '#f59e0b';
                 td.style.fontWeight = 'bold';
             }
@@ -3288,6 +3295,7 @@ async function showRequestDetails(id) {
             <div class="request-details">
                 <p><strong data-translate="Position">Position:</strong> ${request.position || 'N/A'}</p>
                 <p><strong data-translate="Department">Department:</strong> ${request.department || 'N/A'}</p>
+                <p><strong data-translate="Project">Project:</strong> ${request.project || 'N/A'}</p>
                 <p><strong data-translate="Headcount">Headcount:</strong> ${request.headcount || 'N/A'}</p>
                 <p><strong data-translate="Job Description">Job Description:</strong> ${request.description || 'N/A'}</p>
                 <p><strong data-translate="Job Description Document">Job Description Document:</strong> ${
@@ -3428,6 +3436,19 @@ function showNewRequest() {
                         <option value="" data-translate="Select Department">Vyberte oddelenie</option>
                     ${departmentOptions}
                 </select>
+            </div>
+
+            <div class="form-group">
+                    <label for="project" data-translate="Project">Projekt:</label>
+                    <select id="project" name="project" required>
+                        <option value="" data-translate="Select Project">Vyberte projekt</option>
+                        <option value="MAN">MAN</option>
+                        <option value="L463 Pillars">L463 Pillars</option>
+                        <option value="L463 Doors">L463 Doors</option>
+                        <option value="L463 Loadspace">L463 Loadspace</option>
+                        <option value="Daimler Door">Daimler Door</option>
+                        <option value="663 Uplift">663 Uplift</option>
+                    </select>
             </div>
                 
             <div class="form-group">
@@ -3809,6 +3830,7 @@ async function createRequest(e) {
     }
 
     const department = document.getElementById('department').value;
+    const project = document.getElementById('project')?.value || '';
     const selectedPosition = document.getElementById('position').value;
     const customPosition = document.getElementById('custom-position')?.value?.trim() || '';
     const position = selectedPosition === '__custom__' ? customPosition : selectedPosition;
@@ -3876,7 +3898,7 @@ async function createRequest(e) {
     }
 
     // Validation
-    if (!department || !position || !description || !headcount || !positionType || !contractType || !positionCategory) {
+    if (!department || !project || !position || !description || !headcount || !positionType || !contractType || !positionCategory) {
         alert('Please fill in all required fields');
         return;
     }
@@ -3884,6 +3906,7 @@ async function createRequest(e) {
     const requestData = {
         position,
         department,
+        project,
         description,
         headcount,
         status: 'Pending',
@@ -5687,6 +5710,7 @@ async function exportToExcel() {
         const excelData = allRequests.map(request => ({
             'Position': request.position || '',
             'Department': request.department || '',
+            'Project': request.project || '',
             'Description': request.description || '',
             'Headcount': request.headcount || '',
             'Type': request.position_type || '',
@@ -5709,6 +5733,7 @@ async function exportToExcel() {
         const colWidths = [
             { wch: 25 }, // Position
             { wch: 20 }, // Department
+            { wch: 20 }, // Project
             { wch: 50 }, // Description
             { wch: 10 }, // Headcount
             { wch: 15 }, // Type

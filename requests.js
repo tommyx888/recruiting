@@ -153,7 +153,7 @@ class RequestsManager {
 
         try {
             // Validate required fields
-            const requiredFields = ['position', 'department', 'description', 'headcount', 'position_type', 'contract_type', 'position_category'];
+            const requiredFields = ['position', 'department', 'project', 'description', 'headcount', 'position_type', 'contract_type', 'position_category'];
             const validation = window.utils.validateRequiredFields(requestData, requiredFields);
             
             if (!validation.isValid) {
@@ -164,6 +164,7 @@ class RequestsManager {
             const dataToInsert = {
                 position: requestData.position,
                 department: requestData.department,
+                project: requestData.project,
                 description: requestData.description,
                 headcount: parseInt(requestData.headcount, 10),
                 status: 'Pending',

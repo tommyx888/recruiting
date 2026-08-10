@@ -6446,8 +6446,8 @@ function closeAgencyNotificationReport() {
 /** Candidate statuses eligible for slot notifications/booking per interview round */
 function getCandidateStatusesForSlotRound(round) {
     if (round === 'first') {
-        // Include New: confirmed agency candidates not yet moved to first round
-        return ['New', 'In Process - First Round'];
+        // Only candidates already moved to first round (not "New")
+        return ['In Process - First Round'];
     }
     if (round === 'second') {
         return ['In Process - Second Round'];

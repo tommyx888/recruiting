@@ -171,6 +171,7 @@ class RequestsManager {
                 position_type: requestData.position_type,
                 contract_type: requestData.contract_type,
                 position_category: requestData.position_category,
+                is_substitute: requestData.is_substitute || false,
                 is_confidential: requestData.is_confidential || false,
                 new_position_reason: requestData.new_position_reason || null,
                 replacement_name: requestData.replacement_name || null,

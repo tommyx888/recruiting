@@ -24,6 +24,8 @@ const translations = {
         "Department": "Department",
         "Project": "Project",
         "Select Project": "Select Project",
+        "Without specification": "Without specification",
+        "All projects": "All",
         "Source": "Source",
         "Notes": "Notes",
         "CV File": "CV File",
@@ -82,6 +84,8 @@ const translations = {
         "Position Category": "Position Category",
         "SAL": "SAL",
         "IND": "IND",
+        "Substitute position": "Substitute position",
+        "Substitute": "Substitute",
         "Confidential Request": "Confidential Request",
         "Submit Request": "Submit Request",
         "Please fill in all required fields": "Please fill in all required fields",
@@ -488,6 +492,8 @@ const translations = {
         "Department": "Oddelenie",
         "Project": "Projekt",
         "Select Project": "Vyberte projekt",
+        "Without specification": "Bez špecifikácie",
+        "All projects": "Všetky",
         "Position": "Pozícia",
         "Position not in list": "Pozícia nie je v zozname",
         "Enter custom position": "Zadajte názov pozície",
@@ -534,6 +540,8 @@ const translations = {
         "Position Category": "Kategória pozície",
         "SAL": "SAL",
         "IND": "IND",
+        "Substitute position": "Pozícia na zástup",
+        "Substitute": "Zástup",
         "Confidential Request": "Dôverná žiadosť",
         "Submit Request": "Odoslať žiadosť",
         "Please fill in all required fields": "Prosím, vyplňte všetky povinné polia",
@@ -594,6 +602,8 @@ const translations = {
         "Department": "Oddelenie",
         "Project": "Projekt",
         "Select Project": "Vyberte projekt",
+        "Without specification": "Bez špecifikácie",
+        "All projects": "Všetky",
         "Source": "Zdroj",
         "Notes": "Poznámky",
         "CV File": "CV súbor",
@@ -2922,7 +2932,7 @@ function createRequestsTable(requests) {
 
     // Create header row
     const headerRow = document.createElement('tr');
-    ['Position', 'Department', 'Project', 'Description', 'Headcount', 'Type', 'Replaced person', 'Category', 'Status', 'Visible to agencies', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
+    ['Position', 'Department', 'Project', 'Description', 'Headcount', 'Type', 'Substitute', 'Replaced person', 'Category', 'Status', 'Visible to agencies', 'Days Old', 'ID', 'Actions'].forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = window.uiManager.translate(headerText);
         if (headerText === 'Days Old') {
@@ -2993,6 +3003,7 @@ function createRequestsTable(requests) {
             request.description ? request.description.substring(0, 50) + '...' : '',
             request.headcount || '',
             request.position_type || '',
+            request.is_substitute ? window.uiManager.translate('Yes') : '—',
             replacedPersonDisplay,
             request.position_category || '',
             createStatusBadge(request.status),
@@ -3011,7 +3022,7 @@ function createRequestsTable(requests) {
                     td.title = request.description;
                 }
             }
-            if (index === 12) {
+            if (index === 13) {
                 td.classList.add('requests-table__cell--actions');
             }
             if (typeof cellContent === 'string' && cellContent.includes('<')) {
@@ -3021,7 +3032,7 @@ function createRequestsTable(requests) {
             }
             
             // Stĺpec dní (index 10): upozornenie len pre čakajúce / otvorené schválené
-            if (index === 10 && daysMetric.highlight && typeof daysOld === 'number' && daysOld > 3) {
+            if (index === 11 && daysMetric.highlight && typeof daysOld === 'number' && daysOld > 3) {
                 td.style.color = daysOld >= 7 ? '#dc2626' : '#f59e0b';
                 td.style.fontWeight = 'bold';
             }
@@ -3309,6 +3320,7 @@ async function showRequestDetails(id) {
                 ${request.contract_type === 'interim' && request.interim_max_daily_budget != null ? `<p><strong data-translate="Interim max daily budget">Maximálny denný budget (€ / manday):</strong> ${request.interim_max_daily_budget} €</p>` : ''}
                 <p><strong data-translate="Position Category">Position Category:</strong> ${request.position_category || 'N/A'}</p>
                 <p><strong data-translate="Status">Status:</strong> ${createStatusBadge(request.status)}</p>
+                <p><strong data-translate="Substitute position">Substitute position:</strong> ${request.is_substitute ? window.uiManager.translate('Yes') : window.uiManager.translate('No')}</p>
                 <p><strong data-translate="Confidential">Confidential:</strong> ${request.is_confidential ? window.uiManager.translate('Yes') : window.uiManager.translate('No')}</p>
         `;
 
@@ -3442,6 +3454,8 @@ function showNewRequest() {
                     <label for="project" data-translate="Project">Projekt:</label>
                     <select id="project" name="project" required>
                         <option value="" data-translate="Select Project">Vyberte projekt</option>
+                        <option value="Bez špecifikácie" data-translate="Without specification">Bez špecifikácie</option>
+                        <option value="Všetky" data-translate="All projects">Všetky</option>
                         <option value="MAN">MAN</option>
                         <option value="L463 Pillars">L463 Pillars</option>
                         <option value="L463 Doors">L463 Doors</option>
@@ -3549,6 +3563,13 @@ function showNewRequest() {
                 </div>
             </div>
                 
+            <div class="form-group">
+                <label>
+                        <input type="checkbox" id="substitute-position" name="is_substitute">
+                        <span data-translate="Substitute position">Pozícia na zástup</span>
+                </label>
+            </div>
+
             <div class="form-group">
                 <label>
                         <input type="checkbox" id="confidential-request" name="is_confidential">
@@ -3839,6 +3860,7 @@ async function createRequest(e) {
     const positionType = document.querySelector('input[name="position-type"]:checked')?.value;
     const contractType = document.querySelector('input[name="contract-type"]:checked')?.value;
     const positionCategory = document.querySelector('input[name="position-category"]:checked')?.value;
+    const isSubstitute = document.getElementById('substitute-position')?.checked || false;
     const isConfidential = document.getElementById('confidential-request').checked;
     const jobDescriptionFile = document.getElementById('job-description-file')?.files?.[0];
     const addFinalInterviewParticipant = document.getElementById('add-final-interview-participant')?.checked;
@@ -3913,6 +3935,7 @@ async function createRequest(e) {
         position_type: positionType,
         contract_type: contractType,
         position_category: positionCategory,
+        is_substitute: isSubstitute,
         is_confidential: isConfidential,
         new_position_reason: newPositionReason,
         replacement_name: replacementName,
@@ -5714,6 +5737,7 @@ async function exportToExcel() {
             'Description': request.description || '',
             'Headcount': request.headcount || '',
             'Type': request.position_type || '',
+            'Substitute': request.is_substitute ? 'Áno' : 'Nie',
             'Category': request.position_category || '',
             'Status': request.status || '',
             'Created At': request.created_at ? new Date(request.created_at).toLocaleDateString('sk-SK', {
@@ -5737,6 +5761,7 @@ async function exportToExcel() {
             { wch: 50 }, // Description
             { wch: 10 }, // Headcount
             { wch: 15 }, // Type
+            { wch: 12 }, // Substitute
             { wch: 15 }, // Category
             { wch: 12 }, // Status
             { wch: 20 }  // Created At
